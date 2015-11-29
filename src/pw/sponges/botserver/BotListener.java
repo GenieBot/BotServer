@@ -97,8 +97,8 @@ public class BotListener implements Listener {
         if (bot.getClients().containsKey(id)) {
             Msg.warning("There is already a client connected with the ID " + id + "!");
             // TODO send already connected message?
-            event.getClient().getWrapper().disconnect();
-            return;
+            //event.getClient().getWrapper().disconnect();
+            bot.getClients().remove(id);
         }
 
         Msg.log("Client identified as " + id + "!");

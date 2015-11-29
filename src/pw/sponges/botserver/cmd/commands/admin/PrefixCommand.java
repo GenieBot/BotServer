@@ -21,6 +21,13 @@ public class PrefixCommand extends Command {
             return;
         }
 
+        switch (request.getClient().getId().toLowerCase()) {
+            case "telegram": {
+                request.reply("Changing command prefix is not supported in telegram!");
+                return;
+            }
+        }
+
         String prefix = args[0];
         database.getData(request.getRoom()).getSettings().set(Setting.PREFIX, prefix);
         database.save(request.getRoom());

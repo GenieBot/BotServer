@@ -46,7 +46,8 @@ public class PermissionsManagerImpl implements PermissionsManager {
 
         Group admin = new Group("admin", "default");
         admin.addPermission("command.link");
-        //admin.addPermission("command.groups");
+        admin.addPermission("command.prefix");
+        admin.addPermission("command.settings");
 
         Group op = new Group("op", "admin");
         op.addPermission("command.op.clients");
