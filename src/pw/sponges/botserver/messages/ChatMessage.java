@@ -20,7 +20,7 @@ public class ChatMessage extends Message {
     }
 
     @Override
-    public JSONObject getJSON() {
+    public JSONObject toJson() {
         return JSONBuilder.create(client)
                 .setType(this.getType())
                 .withValue("user", user)

@@ -1,82 +1,22 @@
 package pw.sponges.botserver;
 
-import pw.sponges.botserver.internal.ServerThread;
+import pw.sponges.botserver.internal.ServerWrapper;
 import pw.sponges.botserver.messages.Message;
 
-import java.util.HashMap;
-import java.util.Map;
+public interface Client {
 
-public class Client {
+    String getId();
 
-    private final String id;
-    private final ServerThread thread;
+    void sendMessage(Message message);
 
-    //            room  bridge
-    private Map<String, Bridge> bridges;
+    ServerWrapper getWrapper();
 
-    //            room  prefix
-    //private Map<String, String> prefixes;
+    boolean isBridged(String room);
 
-    public Client(String id, ServerThread thread) {
-        this.id = id;
-        this.thread = thread;
+    Bridge getBridge(String room);
 
-        this.bridges = new HashMap<>();
-        //this.prefixes = new HashMap<>();
-    }
+    void addBridge(Bridge bridge);
 
-    public String getId() {
-        return id;
-    }
+    void removeBridge(Bridge bridge);
 
-    public ServerThread getThread() {
-        return thread;
-    }
-
-    public void sendMessage(String message) {
-        thread.print(message);
-    }
-
-    public void sendMessage(Message message) {
-        thread.print(message.getJSON().toString());
-    }
-
-    public Map<String, Bridge> getBridges() {
-        return bridges;
-    }
-
-    public boolean isBridged(String room) {
-        return bridges.containsKey(room);
-    }
-
-    public Bridge getBridge(String room) {
-        return bridges.get(room);
-    }
-
-    public void addBridge(Bridge bridge) {
-        bridges.put(bridge.getClientRoom(), bridge);
-    }
-
-    public void removeBridge(Bridge bridge) {
-        bridges.remove(bridge.getClientRoom());
-    }
-
-    /*public Map<String, String> getPrefixes() {
-        return prefixes;
-    }
-
-    public void setPrefix(String room, String prefix) {
-        prefixes.put(room, prefix);
-        sendMessage(new PrefixChangeMessage(this, room, prefix));
-    }
-
-    public String getPrefix(String room) {
-        if (!prefixes.containsKey(room)) {
-            String prefix = "#";
-            prefixes.put(room, prefix);
-            return prefix;
-        }
-
-        return prefixes.get(room);
-    }*/
 }

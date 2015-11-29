@@ -12,8 +12,6 @@ import pw.sponges.botserver.permissions.PermissionGroups;
 import pw.sponges.botserver.permissions.PermissionsManager;
 import pw.sponges.botserver.util.Msg;
 
-import java.io.IOException;
-
 public class BotListener implements Listener {
 
     private Bot bot;
@@ -45,6 +43,12 @@ public class BotListener implements Listener {
     @Override
     public void onClientInput(ClientInputEvent event) {
         serverMessages++;
+
+        if (!event.getInput().contains("{")) {
+            Msg.warning("Got non json message! " + event.getInput());
+            return;
+        }
+
         JSONObject object = new JSONObject(event.getInput());
         Msg.debug(object.toString());
 
@@ -53,8 +57,7 @@ public class BotListener implements Listener {
         switch (type) {
             case "CONNECT": {
                 String clientId = object.getString("client-id");
-                Client client = new Client(clientId, event.getThread());
-                client.getThread().setClient(client);
+                Client client = new ClientImpl(clientId, event.getWrapper());
                 eventManager.handle(new ConnectEvent(client));
                 break;
             }
@@ -94,11 +97,7 @@ public class BotListener implements Listener {
         if (bot.getClients().containsKey(id)) {
             Msg.warning("There is already a client connected with the ID " + id + "!");
             // TODO send already connected message?
-            try {
-                event.getClient().getThread().stopThread();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            event.getClient().getWrapper().disconnect();
             return;
         }
 
@@ -125,7 +124,7 @@ public class BotListener implements Listener {
         if (!groups.isSetup(user)) {
             groups.setup(user);
         }
-        Group group = groups.getGroup(user);
+        Group group = groups.getUserGroup(user);
 
         if (CommandHandler.isCommandRequest(room, message)) {
             eventManager.handle(new CommandRequestEvent(new CommandRequest(client, user, room, message, group)));

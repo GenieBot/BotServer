@@ -1,5 +1,7 @@
 package pw.sponges.botserver.storage.impl;
 
+import pw.sponges.botserver.permissions.PermissionsManager;
+import pw.sponges.botserver.permissions.impl.PermissionsManagerImpl;
 import pw.sponges.botserver.storage.Database;
 import pw.sponges.botserver.storage.RoomData;
 
@@ -8,12 +10,15 @@ import java.util.Map;
 
 public class DatabaseImpl implements Database {
 
+    private PermissionsManager permissions;
+
     private Map<String, RoomData> data;
     private JSONStorage storage;
 
     public DatabaseImpl() {
+        this.permissions = new PermissionsManagerImpl(this);
         this.data = new HashMap<>();
-        this.storage = new JSONStorage(this);
+        this.storage = new JSONStorage(this, permissions);
     }
 
     @Override
@@ -31,6 +36,11 @@ public class DatabaseImpl implements Database {
     @Override
     public boolean isLoaded(String room) {
         return data.containsKey(room);
+    }
+
+    @Override
+    public PermissionsManager getPermissions() {
+        return permissions;
     }
 
     @Override

@@ -1,16 +1,19 @@
 package pw.sponges.botserver.cmd.framework;
 
 import pw.sponges.botserver.Bot;
-import pw.sponges.botserver.cmd.commands.op.ClientsCommand;
-import pw.sponges.botserver.cmd.commands.op.JoinRoomCommand;
-import pw.sponges.botserver.cmd.commands.op.StopCommand;
+import pw.sponges.botserver.cmd.commands.admin.GroupsCommand;
+import pw.sponges.botserver.cmd.commands.admin.PrefixCommand;
+import pw.sponges.botserver.cmd.commands.admin.SettingsCommand;
 import pw.sponges.botserver.cmd.commands.fun.UrbanCommand;
 import pw.sponges.botserver.cmd.commands.info.*;
 import pw.sponges.botserver.cmd.commands.mc.MCNetworks;
 import pw.sponges.botserver.cmd.commands.mc.ServerCommand;
-import pw.sponges.botserver.cmd.commands.admin.PrefixCommand;
-import pw.sponges.botserver.cmd.commands.admin.SettingsCommand;
+import pw.sponges.botserver.cmd.commands.op.ClientsCommand;
+import pw.sponges.botserver.cmd.commands.op.JoinRoomCommand;
+import pw.sponges.botserver.cmd.commands.op.StopCommand;
 import pw.sponges.botserver.cmd.commands.util.LinkCommand;
+import pw.sponges.botserver.permissions.Group;
+import pw.sponges.botserver.permissions.PermissionsManager;
 import pw.sponges.botserver.storage.Database;
 import pw.sponges.botserver.storage.Setting;
 import pw.sponges.botserver.util.Msg;
@@ -25,9 +28,11 @@ public class CommandHandler {
     private Bot bot;
     private List<Command> commands;
     private static Database database;
+    private PermissionsManager permissions;
 
-    public CommandHandler(Bot bot) {
+    public CommandHandler(Bot bot, PermissionsManager permissions) {
         this.bot = bot;
+        this.permissions = permissions;
         this.commands = new ArrayList<>();
         database = bot.getDatabase();
 
@@ -46,7 +51,8 @@ public class CommandHandler {
                 new UserInfoCommand(),
                 new MCNetworks(),
                 new JoinRoomCommand(),
-                new StatsCommand()
+                new StatsCommand(),
+                new GroupsCommand(database, this.permissions)
         );
     }
 
@@ -75,9 +81,12 @@ public class CommandHandler {
             for (String name : command.getNames()) {
                 if (name.equalsIgnoreCase(cmd)) {
                     String node = command.getPermission();
+                    Group group = permissions.getGroups(room).getUserGroup(request.getUser());
 
-                    if (!request.getGroup().getPermissionNodes().contains(node) && !request.getUser().equals("87164639695110144")) {
-                        request.reply("You do not have permission to do that! Node: " + node);
+                    if (!group.hasPermission(node)) {
+                        request.reply("You do not have permission to do that! (" + node + ")"
+                                + "\nYour group: " + group.getId()
+                                + "\nYour id: " + request.getUser());
                         return;
                     }
 

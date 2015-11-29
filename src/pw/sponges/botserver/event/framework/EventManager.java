@@ -11,9 +11,9 @@ public class EventManager {
     private PermissionsManager permissions;
     private Listener listener = null;
 
-    public EventManager(Database database, PermissionsManager permissions) {
+    public EventManager(Database database) {
         this.database = database;
-        this.permissions = permissions;
+        this.permissions = this.database.getPermissions();
     }
 
     public void setListener(Listener listener) {
@@ -51,11 +51,11 @@ public class EventManager {
             Msg.debug("Loaded settings for " + room + "!\n" + database.getData(room).toJson());
         }
 
-        if (!permissions.isLoaded(room)) {
+        /*if (!permissions.isLoaded(room)) {
             permissions.loadPermissions(room);
 
             Msg.debug("Loaded permissions for " + room + "!");
-        }
+        }*/
     }
 
 }

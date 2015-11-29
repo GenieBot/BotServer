@@ -4,6 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import pw.sponges.botserver.permissions.Group;
+import pw.sponges.botserver.permissions.PermissionGroups;
+import pw.sponges.botserver.permissions.PermissionsManager;
+import pw.sponges.botserver.permissions.impl.PermissionGroupsImpl;
 import pw.sponges.botserver.storage.*;
 import pw.sponges.botserver.util.FileUtils;
 
@@ -22,19 +25,22 @@ public class JSONStorage implements Storage {
     private final String FILE_EXT = ".json";
 
     private final Database database;
+    private final PermissionsManager permissions;
 
-    public JSONStorage(Database database) {
+    public JSONStorage(Database database, PermissionsManager permissions) {
         this.database = database;
+        this.permissions = permissions;
     }
 
     @Override
     public RoomData load(String room) {
         File file = new File(FILE_PATH + "/" + room + FILE_EXT);
 
-        if (file.exists()) return getSettingsFromFile(file);
-        else {
+        if (file.exists()) {
+            return getSettingsFromFile(file, room);
+        } else {
             setupFile(file, room);
-            return getSettingsFromFile(file);
+            return getSettingsFromFile(file, room);
         }
     }
 
@@ -72,12 +78,12 @@ public class JSONStorage implements Storage {
 
     private void writeDefaults(BufferedWriter out, String roomId) throws IOException {
         RoomSettings settings = new RoomSettingsImpl();
-        RoomGroups groups = new RoomGroupsImpl();
-        RoomData room = new RoomDataImpl(settings, groups);
+        RoomData room = new RoomDataImpl(roomId, settings, permissions);
 
-        List<Group> defaultGroups = room.getGroups().getDefaultGroups(roomId);
-        room.getGroups().setValues(defaultGroups);
-        room.getGroups().setValues(new HashMap<>());
+        PermissionGroups groups = new PermissionGroupsImpl();
+        List<Group> defaultGroups = permissions.getDefaultGroups(roomId);
+        groups.setGroups(defaultGroups);
+        permissions.setGroups(roomId, groups);
 
         Map<Setting, Object> defaultSettings = room.getSettings().getDefaults();
         room.getSettings().setValues(defaultSettings);
@@ -89,7 +95,7 @@ public class JSONStorage implements Storage {
         return new JSONObject(FileUtils.readFile(file));
     }
 
-    private RoomData getSettingsFromFile(File file) {
+    private RoomData getSettingsFromFile(File file, String roomId) {
         JSONObject json = getJsonFile(file);
         JSONObject storedSettings = json.getJSONObject("settings");
         Map<Setting, Object> data = new HashMap<>();
@@ -111,17 +117,16 @@ public class JSONStorage implements Storage {
         }
 
         List<Group> groupsList = new ArrayList<>();
-        Map<String, Group> users = new HashMap<>();
 
         RoomSettings settings = new RoomSettingsImpl();
-        RoomGroups groups = new RoomGroupsImpl();
-        RoomData room = new RoomDataImpl(settings, groups);
+        RoomData room = new RoomDataImpl(roomId, settings, permissions);
+
+        PermissionGroups groups = new PermissionGroupsImpl();
 
         JSONArray array = json.getJSONArray("groups");
         for (int i = 0; i < array.length(); i++) {
             JSONObject g = array.getJSONObject(i);
             String id = g.getString("id");
-            String r = g.getString("room");
 
             Group group;
 
@@ -139,21 +144,17 @@ public class JSONStorage implements Storage {
 
             JSONArray u = g.getJSONArray("users");
             for (int x = 0; x < u.length(); x++) {
-                users.put(u.getString(x), group);
+                group.addUser(u.getString(x));
             }
 
             groupsList.add(group);
         }
 
         settings.setValues(data);
-        groups.setValues(groupsList);
-        groups.setValues(users);
+        groups.setGroups(groupsList);
+        permissions.setGroups(roomId, groups);
 
         if (changed) {
-            /*FileUtils.writeFile(file, new JSONObject()
-                    .put("settings", data)
-                    .toString());*/
-
             FileUtils.writeFile(file, room.toJson().toString());
         }
 

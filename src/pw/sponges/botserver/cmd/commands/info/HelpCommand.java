@@ -74,7 +74,7 @@ public class HelpCommand extends Command {
             request.reply(withPrefixes(reply, room));
         }*/
 
-        StringBuilder str = new StringBuilder("Commands:");
+        StringBuilder str = new StringBuilder("Commands:\n");
 
         List<Command> commands = commandHandler.getCommands();
         for (int i = 0; i < commands.size(); i++) {

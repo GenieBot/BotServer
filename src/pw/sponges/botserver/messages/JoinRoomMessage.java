@@ -14,7 +14,7 @@ public class JoinRoomMessage extends Message {
     }
 
     @Override
-    public JSONObject getJSON() {
+    public JSONObject toJson() {
         return JSONBuilder.create(getClient())
                 .setType(getType())
                 .withValue("room", room)

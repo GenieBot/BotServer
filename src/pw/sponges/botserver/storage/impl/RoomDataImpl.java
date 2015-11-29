@@ -3,18 +3,22 @@ package pw.sponges.botserver.storage.impl;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import pw.sponges.botserver.permissions.Group;
+import pw.sponges.botserver.permissions.PermissionsManager;
 import pw.sponges.botserver.storage.RoomData;
-import pw.sponges.botserver.storage.RoomGroups;
 import pw.sponges.botserver.storage.RoomSettings;
+import pw.sponges.botserver.util.Msg;
 
 public class RoomDataImpl implements RoomData {
 
-    private RoomSettings settings;
-    private RoomGroups groups;
+    private final String room;
 
-    public RoomDataImpl(RoomSettings settings, RoomGroups groups) {
+    private final RoomSettings settings;
+    private final PermissionsManager permissions;
+
+    public RoomDataImpl(String room, RoomSettings settings, PermissionsManager permissions) {
+        this.room = room;
         this.settings = settings;
-        this.groups = groups;
+        this.permissions = permissions;
     }
 
     @Override
@@ -23,21 +27,27 @@ public class RoomDataImpl implements RoomData {
     }
 
     @Override
-    public RoomGroups getGroups() {
-        return groups;
-    }
-
-    @Override
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         json.put("settings", settings.getSettings());
 
+        if (!permissions.isLoaded(room)) {
+            Msg.warning("Perms are still not loaded?");
+            return json;
+        }
+
         JSONArray array = new JSONArray();
-        for (Group group : groups.getGroups()) {
+        for (Group group : permissions.getGroups(room).getGroups().values()) {
             JSONObject object = new JSONObject();
             object.put("id", group.getId());
             object.put("users", group.getUsers());
+            Msg.debug(group.getId() + " users: " + group.getUsers());
             object.put("nodes", group.getPermissionNodes());
+
+            if (group.getInheritance() != null) {
+                object.put("inheritance", group.getInheritance().getId());
+            }
+
             array.put(object);
         }
 

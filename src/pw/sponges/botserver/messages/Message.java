@@ -13,7 +13,7 @@ public abstract class Message {
         this.type = type;
     }
 
-    public abstract JSONObject getJSON();
+    public abstract JSONObject toJson();
 
     public Client getClient() {
         return client;
@@ -22,4 +22,10 @@ public abstract class Message {
     public String getType() {
         return type;
     }
+
+    @Override
+    public String toString() {
+        return toJson().toString();
+    }
+
 }

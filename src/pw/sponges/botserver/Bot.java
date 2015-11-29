@@ -3,35 +3,37 @@ package pw.sponges.botserver;
 import pw.sponges.botserver.cmd.framework.CommandHandler;
 import pw.sponges.botserver.event.framework.EventManager;
 import pw.sponges.botserver.internal.Server;
-import pw.sponges.botserver.permissions.PermissionsManager;
-import pw.sponges.botserver.permissions.impl.PermissionsManagerImpl;
+import pw.sponges.botserver.internal.impl.ServerImpl;
 import pw.sponges.botserver.storage.Database;
 import pw.sponges.botserver.storage.impl.DatabaseImpl;
 import pw.sponges.botserver.util.Msg;
 
+import javax.net.ssl.SSLException;
+import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Bot {
-
-    public static final boolean DEBUG = true;
 
     private final Server server;
     private final Map<String, Client> clients;
     private final EventManager eventManager;
     private final CommandHandler commandHandler;
     private final Database database;
-    private final PermissionsManager permissions;
 
     public Bot() {
-        this.server = new Server(this);
+        this.server = new ServerImpl(this);
         this.clients = new HashMap<>();
         this.database = new DatabaseImpl();
-        this.permissions = new PermissionsManagerImpl(database);
-        this.commandHandler = new CommandHandler(this);
-        this.eventManager = new EventManager(database, permissions);
-        this.eventManager.setListener(new BotListener(this, permissions));
-        this.server.start();
+        this.commandHandler = new CommandHandler(this, database.getPermissions());
+        this.eventManager = new EventManager(database);
+        this.eventManager.setListener(new BotListener(this, database.getPermissions()));
+
+        try {
+            this.server.start();
+        } catch (CertificateException | InterruptedException | SSLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {

@@ -6,8 +6,6 @@ import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
 import pw.sponges.botserver.messages.StopMessage;
 
-import java.io.IOException;
-
 public class ClientsCommand extends Command {
 
     private Bot bot;
@@ -44,12 +42,7 @@ public class ClientsCommand extends Command {
 
                 request.reply("Disconnecting " + id + "!");
                 client.sendMessage(new StopMessage(client));
-
-                try {
-                    client.getThread().stopThread();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                client.getWrapper().disconnect();
 
                 break;
             }
@@ -74,7 +67,7 @@ public class ClientsCommand extends Command {
         StringBuilder str = new StringBuilder("Connected clients:");
 
         for (Client client : bot.getClients().values()) {
-            str.append("\n- " + client.getId());
+            str.append("\n- ").append(client.getId());
         }
 
         str.append("\nAvailable subcommands: kick, stats, ping");

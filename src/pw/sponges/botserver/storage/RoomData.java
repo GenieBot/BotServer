@@ -6,8 +6,6 @@ public interface RoomData {
 
     RoomSettings getSettings();
 
-    RoomGroups getGroups();
-
     JSONObject toJson();
 
 }

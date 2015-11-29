@@ -1,13 +1,11 @@
 package pw.sponges.botserver.permissions;
 
+import pw.sponges.botserver.util.Msg;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Group {
-
-    // TODO group inheritance
-
-    private PermissionGroups groups = null;
 
     private final String id;
     private final List<String> permissionNodes;
@@ -32,8 +30,13 @@ public class Group {
     }
 
     public void setGroups(PermissionGroups groups) {
-        this.groups = groups;
-        this.inheritance = groups.getGroup(toInherit);
+        Msg.debug("setupGroups(PermissionGroups groups)");
+        if (this.toInherit != null) {
+            Msg.debug("setupGroups(PermissionGroups groups) 2 group: " + this.getId() + " toInherit: " + toInherit);
+            Msg.debug("exists? " + groups.isGroup(toInherit));
+            this.inheritance = groups.getGroup(toInherit);
+            Msg.debug("setupGroups(PermissionGroups groups) 3 " + this.inheritance.getId());
+        }
     }
 
     public String getId() {
