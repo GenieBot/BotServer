@@ -95,7 +95,7 @@ public class BotListener implements Listener {
     public void onConnect(ConnectEvent event) {
         String id = event.getClient().getId();
         if (bot.getClients().containsKey(id)) {
-            Msg.warning("There is already a client connected with the ID " + id + "!");
+            Msg.warning("There is already a client connected with the ID " + id + "! Removing old instance from map.");
             // TODO send already connected message?
             //event.getClient().getWrapper().disconnect();
             bot.getClients().remove(id);

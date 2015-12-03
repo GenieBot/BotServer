@@ -21,8 +21,7 @@ public class ChatMessage extends Message {
 
     @Override
     public JSONObject toJson() {
-        return JSONBuilder.create(client)
-                .setType(this.getType())
+        return JSONBuilder.create(this)
                 .withValue("user", user)
                 .withValue("source-room", sourceRoom)
                 .withValue("name", sourceName)

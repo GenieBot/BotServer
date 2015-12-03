@@ -22,8 +22,7 @@ public class CmdResponseMessage extends Message {
 
     @Override
     public JSONObject toJson() {
-        return JSONBuilder.create(client)
-                .setType(getType())
+        return JSONBuilder.create(this)
                 .withValue("room", room)
                 .withValue("user", user)
                 .withValue("option", option.toString())

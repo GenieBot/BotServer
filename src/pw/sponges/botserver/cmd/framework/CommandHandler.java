@@ -99,13 +99,13 @@ public class CommandHandler {
                         }
                     }
 
+                    int i = 0;
+                    for (String s : args) {
+                        Msg.debug("CMD> " + i + " " + s);
+                        i++;
+                    }
+
                     command.onCommand(request, newArgs.toArray(new String[newArgs.size()]));
-
-                    /*request.getClient().sendMessage(new CmdResponseMessage(request.getClient(),
-                            request.getRoom(),
-                            request.getUser(),
-                            message).getJSON().toString());*/
-
                     return;
                 }
             }

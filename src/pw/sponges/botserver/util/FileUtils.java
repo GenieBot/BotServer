@@ -6,7 +6,7 @@ import java.net.URL;
 
 public class FileUtils {
 
-    public static String readFile(File file) {
+    public static synchronized String readFile(File file) {
         StringBuilder str = new StringBuilder();
         BufferedReader in = null;
 
@@ -31,7 +31,7 @@ public class FileUtils {
         return str.toString();
     }
 
-    public static void writeFile(File file, String contents) {
+    public synchronized static void writeFile(File file, String contents) {
         BufferedWriter out = null;
 
         try {

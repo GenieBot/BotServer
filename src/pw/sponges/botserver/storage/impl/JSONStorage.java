@@ -9,6 +9,7 @@ import pw.sponges.botserver.permissions.PermissionsManager;
 import pw.sponges.botserver.permissions.impl.PermissionGroupsImpl;
 import pw.sponges.botserver.storage.*;
 import pw.sponges.botserver.util.FileUtils;
+import pw.sponges.botserver.util.Scheduler;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -46,9 +47,11 @@ public class JSONStorage implements Storage {
 
     @Override
     public void save(String room) {
-        JSONObject json = database.getData(room).toJson();
-        File file = new File(FILE_PATH + "/" + room + FILE_EXT);
-        FileUtils.writeFile(file, json.toString());
+        Scheduler.runAsyncTask(() -> {
+            JSONObject json = database.getData(room).toJson();
+            File file = new File(FILE_PATH + "/" + room + FILE_EXT);
+            FileUtils.writeFile(file, json.toString());
+        });
     }
 
     /**
@@ -56,24 +59,26 @@ public class JSONStorage implements Storage {
      * @param file
      */
     private void setupFile(File file, String room) {
-        //noinspection ResultOfMethodCallIgnored
-        new File(FILE_PATH).mkdirs();
-        BufferedWriter out = null;
+        Scheduler.runAsyncTask(() -> {
+            //noinspection ResultOfMethodCallIgnored
+            new File(FILE_PATH).mkdirs();
+            BufferedWriter out = null;
 
-        try {
-            out = new BufferedWriter(new FileWriter(file));
-            writeDefaults(out, room);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
             try {
-                if (out != null) {
-                    out.close();
-                }
+                out = new BufferedWriter(new FileWriter(file));
+                writeDefaults(out, room);
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
+        });
     }
 
     private void writeDefaults(BufferedWriter out, String roomId) throws IOException {

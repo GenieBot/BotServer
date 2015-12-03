@@ -12,9 +12,7 @@ public class StopMessage extends Message {
 
     @Override
     public JSONObject toJson() {
-        return JSONBuilder.create(getClient())
-                .setType(getType())
-                .build();
+        return JSONBuilder.create(this).build();
     }
 
 }

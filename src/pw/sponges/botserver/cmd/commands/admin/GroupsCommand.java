@@ -51,30 +51,40 @@ public class GroupsCommand extends Command {
 
             case "user": {
                 if (args.length == 1) {
-                    request.reply("Usage: user [username] [group]");
+                    request.reply("Usage: user [username] [set] [group]");
                 } else if (args.length == 2) {
                     // user info
                     String user = args[1];
                     request.reply(getInfo(groups, user));
-                } else if (args.length == 3) {
-                    String user = args[1];
-                    String group = args[2];
-                    Msg.debug("Group command: " + Arrays.toString(args));
-                    Msg.debug("User: " + user);
-                    Msg.debug("Group: " + group);
+                } else if (args.length == 4) {
+                    switch (args[2].toLowerCase()) {
+                        case "set": {
+                            String user = args[1];
+                            String group = args[3];
+                            Msg.debug("Group command: " + Arrays.toString(args));
+                            Msg.debug("User: " + user);
+                            Msg.debug("Group: " + group);
 
-                    if (!groups.isGroup(group)) {
-                        request.reply("Invalid group " + group + "!");
-                        return;
+                            if (!groups.isGroup(group)) {
+                                request.reply("Invalid group " + group + "!");
+                                return;
+                            }
+                            Group g = groups.getGroup(group);
+                            Msg.debug("Chosen group: " + g.getId());
+
+                            groups.setGroup(user, g);
+                            database.save(request.getRoom());
+                            request.reply("Set " + user + "'s group to " + group + "!");
+                            break;
+                        }
+
+                        default: {
+                            request.reply("Usage: user [username] [set] [group]");
+                            break;
+                        }
                     }
-                    Group g = groups.getGroup(group);
-                    Msg.debug("Chosen group: " + g.getId());
-
-                    groups.setGroup(user, g);
-                    database.save(request.getRoom());
-                    request.reply("Set " + user + "'s group to " + group + "!");
                 } else {
-                    request.reply("Invalid arguments!");
+                    request.reply("Usage: user [username] [set] [group]");
                 }
 
                 break;
