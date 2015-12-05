@@ -1,11 +1,11 @@
 package pw.sponges.botserver;
 
+import pw.sponges.botserver.bridge.BridgeManager;
 import pw.sponges.botserver.internal.ServerWrapper;
 import pw.sponges.botserver.messages.Message;
 
 /**
  * Interface for all connected clients
- * TODO move bridge stuff to BridgeManager
  */
 public interface Client {
 
@@ -28,29 +28,9 @@ public interface Client {
     ServerWrapper getWrapper();
 
     /**
-     * Checks if the specified room already has a chat bridge
-     * @param room room to check
-     * @return if room is bridged
+     * Gets the manager for room bridges
+     * @return BridgeManager instance
      */
-    boolean isBridged(String room);
-
-    /**
-     * Get the bridge instance
-     * @param room room to get 
-     * @return
-     */
-    Bridge getBridge(String room);
-
-    /**
-     * Add a bridge instance
-     * @param bridge the bridge to add
-     */
-    void addBridge(Bridge bridge);
-
-    /**
-     * Remove a bridge instance
-     * @param bridge the bridge to remove
-     */
-    void removeBridge(Bridge bridge);
+    BridgeManager getBridgeManager();
 
 }

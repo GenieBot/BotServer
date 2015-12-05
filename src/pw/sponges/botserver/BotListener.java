@@ -1,6 +1,7 @@
 package pw.sponges.botserver;
 
 import org.json.JSONObject;
+import pw.sponges.botserver.bridge.Bridge;
 import pw.sponges.botserver.cmd.framework.CommandHandler;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
 import pw.sponges.botserver.event.events.*;

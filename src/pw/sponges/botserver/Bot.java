@@ -1,5 +1,6 @@
 package pw.sponges.botserver;
 
+import pw.sponges.botserver.bridge.Bridge;
 import pw.sponges.botserver.cmd.framework.CommandHandler;
 import pw.sponges.botserver.event.framework.EventManager;
 import pw.sponges.botserver.internal.Server;

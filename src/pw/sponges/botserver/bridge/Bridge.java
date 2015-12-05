@@ -1,4 +1,4 @@
-package pw.sponges.botserver;
+package pw.sponges.botserver.bridge;
 
 /**
  * POJO for bridged rooms
