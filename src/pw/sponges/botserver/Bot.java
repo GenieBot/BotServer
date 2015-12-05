@@ -1,6 +1,7 @@
 package pw.sponges.botserver;
 
 import pw.sponges.botserver.bridge.Bridge;
+import pw.sponges.botserver.bridge.BridgeManager;
 import pw.sponges.botserver.cmd.framework.CommandHandler;
 import pw.sponges.botserver.event.framework.EventManager;
 import pw.sponges.botserver.internal.Server;
@@ -133,29 +134,31 @@ public class Bot {
         {
             // Origin client stuff
             Client client = getClient(clientId);
+            BridgeManager bridgeManager = client.getBridgeManager();
 
-            boolean isBridged = client.isBridged(clientRoom);
+            boolean isBridged = bridgeManager.isBridged(clientRoom);
             if (isBridged) {
                 Msg.warning("The room " + clientRoom + " is already bridged!");
                 return "The room " + clientRoom + " is already bridged!";
             }
 
             Bridge bridge = new Bridge(clientId, clientRoom, target, targetRoom);
-            client.addBridge(bridge);
+            bridgeManager.addBridge(bridge);
         }
 
         {
             // Target client stuff
             Client client = getClient(target);
+            BridgeManager bridgeManager = client.getBridgeManager();
 
-            boolean isBridged = client.isBridged(target);
+            boolean isBridged = bridgeManager.isBridged(target);
             if (isBridged) {
                 Msg.warning("The room " + clientRoom + " is already bridged!");
                 return "The room " + clientRoom + " is already bridged!";
             }
 
             Bridge bridge = new Bridge(target, targetRoom, clientId, clientRoom);
-            client.addBridge(bridge);
+            bridgeManager.addBridge(bridge);
         }
 
         Msg.debug("Added bridge from client " + clientId + " with room " + clientRoom + " to target " + target + " room " + targetRoom + "!");

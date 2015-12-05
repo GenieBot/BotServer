@@ -2,6 +2,7 @@ package pw.sponges.botserver;
 
 import org.json.JSONObject;
 import pw.sponges.botserver.bridge.Bridge;
+import pw.sponges.botserver.bridge.BridgeManager;
 import pw.sponges.botserver.cmd.framework.CommandHandler;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
 import pw.sponges.botserver.event.events.*;
@@ -174,9 +175,11 @@ public class BotListener implements Listener {
             eventManager.handle(new CommandRequestEvent(new CommandRequest(client, user, room, message, group)));
         }
 
+        BridgeManager bridgeManager = client.getBridgeManager();
+
         // Is the client's chat bridged
-        if (client.isBridged(room)) {
-            Bridge bridge = client.getBridge(room);
+        if (bridgeManager.isBridged(room)) {
+            Bridge bridge = bridgeManager.getBridge(room);
             String targetClient = bridge.getTargetClient();
             Client tClient = bot.getClient(targetClient);
             String tRoom = bridge.getTargetRoom();
