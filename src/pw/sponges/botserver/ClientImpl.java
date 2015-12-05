@@ -6,6 +6,9 @@ import pw.sponges.botserver.messages.Message;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of the Client interface
+ */
 public class ClientImpl implements Client {
 
     private final String id;

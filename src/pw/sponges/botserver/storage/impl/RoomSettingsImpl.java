@@ -6,11 +6,15 @@ import pw.sponges.botserver.storage.Setting;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of the RoomSettings interface
+ */
 public class RoomSettingsImpl implements RoomSettings {
 
     // Variable assigned with #setValues
     private Map<Setting, Object> settings = null;
 
+    // Pointless constructor
     public RoomSettingsImpl() {
     }
 

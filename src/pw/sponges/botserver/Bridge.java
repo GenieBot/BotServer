@@ -1,5 +1,8 @@
 package pw.sponges.botserver;
 
+/**
+ * POJO for bridged rooms
+ */
 public class Bridge {
 
     private final String client, clientRoom, targetClient, targetRoom;

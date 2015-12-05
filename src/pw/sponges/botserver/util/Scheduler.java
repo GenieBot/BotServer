@@ -10,6 +10,10 @@ import java.util.concurrent.*;
  * @since 0.1.0
  * @author 1Rogue
  * @version 0.1.0
+ *
+ * Changes:
+ * - Remove bukkit stuff
+ * - TimeUnit for specific time lengths
  */
 public final class Scheduler {
 

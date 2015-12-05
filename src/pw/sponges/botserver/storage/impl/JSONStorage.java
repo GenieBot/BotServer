@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * JSON based implementation of the Storage interface
+ */
 public class JSONStorage implements Storage {
 
     private final String FILE_PATH = "./rooms";
@@ -81,6 +84,12 @@ public class JSONStorage implements Storage {
         });
     }
 
+    /**
+     * Writes the default settings for a room to the room's file
+     * @param out the open output stream
+     * @param roomId the room to save defaults for
+     * @throws IOException
+     */
     private void writeDefaults(BufferedWriter out, String roomId) throws IOException {
         RoomSettings settings = new RoomSettingsImpl();
         RoomData room = new RoomDataImpl(roomId, settings, permissions);
@@ -96,10 +105,21 @@ public class JSONStorage implements Storage {
         out.write(room.toJson().toString());
     }
 
+    /**
+     * Gets the room File as JSON
+     * @param file the room's file
+     * @return JSONObject instance
+     */
     private JSONObject getJsonFile(File file) {
         return new JSONObject(FileUtils.readFile(file));
     }
 
+    /**
+     * Gets the settings for the room from it's file
+     * @param file the room's file
+     * @param roomId the room to get settings for
+     * @returs RoomData instance
+     */
     private RoomData getSettingsFromFile(File file, String roomId) {
         JSONObject json = getJsonFile(file);
         JSONObject storedSettings = json.getJSONObject("settings");

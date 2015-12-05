@@ -13,7 +13,7 @@ import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 
-/*
+/**
  * Main class
  * TODO abstraction
  */

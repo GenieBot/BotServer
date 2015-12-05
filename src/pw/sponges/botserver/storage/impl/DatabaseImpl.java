@@ -8,6 +8,9 @@ import pw.sponges.botserver.storage.RoomData;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Implementation of the Database interface
+ */
 public class DatabaseImpl implements Database {
 
     private PermissionsManager permissions;
@@ -18,6 +21,8 @@ public class DatabaseImpl implements Database {
     public DatabaseImpl() {
         this.permissions = new PermissionsManagerImpl(this);
         this.data = new HashMap<>();
+
+        // TODO make this cleaner
         this.storage = new JSONStorage(this, permissions);
     }
 

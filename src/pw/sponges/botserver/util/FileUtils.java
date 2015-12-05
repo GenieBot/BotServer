@@ -4,9 +4,17 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * Util class for File I/O
+ */
 public class FileUtils {
 
-    public static synchronized String readFile(File file) {
+    /**
+     * Reads the file contents as a String
+     * @param file the file to read
+     * @return file contents
+     */
+    public static String readFile(File file) {
         StringBuilder str = new StringBuilder();
         BufferedReader in = null;
 
@@ -31,7 +39,12 @@ public class FileUtils {
         return str.toString();
     }
 
-    public synchronized static void writeFile(File file, String contents) {
+    /**
+     * Writes the specified contents to a File
+     * @param file the file to write to
+     * @param contents the contents to write to the file
+     */
+    public static void writeFile(File file, String contents) {
         BufferedWriter out = null;
 
         try {
@@ -50,10 +63,22 @@ public class FileUtils {
         }
     }
 
+    /**
+     * Read the contents of a URL
+     * Assumes debug mode is false
+     * @param url the url to read from
+     * @return contents of the url
+     */
     public static String readUrl(URL url) {
         return readUrl(false, url);
     }
 
+    /**
+     * Read the contents of a URL with an option for debug mode
+     * @param debug print debug messages?
+     * @param url the url to read from
+     * @return contents of the URL
+     */
     public static String readUrl(boolean debug, URL url) {
         HttpURLConnection con;
 

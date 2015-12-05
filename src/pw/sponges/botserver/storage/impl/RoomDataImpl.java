@@ -8,6 +8,9 @@ import pw.sponges.botserver.storage.RoomData;
 import pw.sponges.botserver.storage.RoomSettings;
 import pw.sponges.botserver.util.Msg;
 
+/**
+ * Implementation of the RoomData interface
+ */
 public class RoomDataImpl implements RoomData {
 
     private final String room;
