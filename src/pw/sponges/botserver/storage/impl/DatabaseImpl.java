@@ -4,6 +4,7 @@ import pw.sponges.botserver.permissions.PermissionsManager;
 import pw.sponges.botserver.permissions.impl.PermissionsManagerImpl;
 import pw.sponges.botserver.storage.Database;
 import pw.sponges.botserver.storage.RoomData;
+import pw.sponges.botserver.storage.Storage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,14 +17,15 @@ public class DatabaseImpl implements Database {
     private PermissionsManager permissions;
 
     private Map<String, RoomData> data;
-    private JSONStorage storage;
+    private Storage storage;
 
     public DatabaseImpl() {
         this.permissions = new PermissionsManagerImpl(this);
         this.data = new HashMap<>();
 
         // TODO make this cleaner
-        this.storage = new JSONStorage(this, permissions);
+        //this.storage = new JSONStorage(this, permissions);
+        this.storage = new RedisStorage(permissions);
     }
 
     @Override
@@ -35,7 +37,7 @@ public class DatabaseImpl implements Database {
 
     @Override
     public void save(String room) {
-        storage.save(room);
+        storage.save(data.get(room));
     }
 
     @Override

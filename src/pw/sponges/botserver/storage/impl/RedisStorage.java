@@ -7,90 +7,47 @@ import pw.sponges.botserver.permissions.Group;
 import pw.sponges.botserver.permissions.PermissionGroups;
 import pw.sponges.botserver.permissions.PermissionsManager;
 import pw.sponges.botserver.permissions.impl.PermissionGroupsImpl;
-import pw.sponges.botserver.storage.*;
-import pw.sponges.botserver.util.FileUtils;
-import pw.sponges.botserver.util.Scheduler;
+import pw.sponges.botserver.storage.RoomData;
+import pw.sponges.botserver.storage.RoomSettings;
+import pw.sponges.botserver.storage.Setting;
+import pw.sponges.botserver.storage.Storage;
+import redis.clients.jedis.Jedis;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * JSON based implementation of the Storage interface
- */
-public class JSONStorage implements Storage {
+public class RedisStorage implements Storage {
 
-    private final String FILE_PATH = "./rooms";
-    private final String FILE_EXT = ".json";
+    public static final String HOST = "localhost";
+    public static final String FORMAT = "room:%s";
 
-    private final Database database;
     private final PermissionsManager permissions;
 
-    public JSONStorage(Database database, PermissionsManager permissions) {
-        this.database = database;
+    private final Jedis jedis;
+
+    public RedisStorage(PermissionsManager permissions) {
         this.permissions = permissions;
+
+        jedis = new Jedis(HOST);
     }
 
     @Override
     public RoomData load(String room) {
-        File file = new File(FILE_PATH + "/" + room + FILE_EXT);
-
-        if (file.exists()) {
-            return getSettingsFromFile(file, room);
-        } else {
-            setupFile(file, room);
-            return getSettingsFromFile(file, room);
+        if (!jedis.exists(String.format(FORMAT, room))) {
+            setup(room);
         }
+
+        return loadRoom(room);
     }
 
     @Override
-    public void save(RoomData room) {
-        Scheduler.runAsyncTask(() -> {
-            JSONObject json = database.getData(room.getId()).toJson();
-            File file = new File(FILE_PATH + "/" + room + FILE_EXT);
-            FileUtils.writeFile(file, json.toString());
-        });
+    public void save(RoomData data) {
+        jedis.set(String.format(FORMAT, data.getId()), data.toString());
     }
 
-    /**
-     * Creates the settings file
-     * @param file
-     */
-    private void setupFile(File file, String room) {
-        Scheduler.runAsyncTask(() -> {
-            //noinspection ResultOfMethodCallIgnored
-            new File(FILE_PATH).mkdirs();
-            BufferedWriter out = null;
-
-            try {
-                out = new BufferedWriter(new FileWriter(file));
-                writeDefaults(out, room);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (out != null) {
-                        out.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    /**
-     * Writes the default settings for a room to the room's file
-     * @param out the open output stream
-     * @param roomId the room to save defaults for
-     * @throws IOException
-     */
-    private void writeDefaults(BufferedWriter out, String roomId) throws IOException {
+    private void setup(String roomId) {
         RoomSettings settings = new RoomSettingsImpl();
         RoomData room = new RoomDataImpl(roomId, settings, permissions);
 
@@ -102,26 +59,15 @@ public class JSONStorage implements Storage {
         Map<Setting, Object> defaultSettings = room.getSettings().getDefaults();
         room.getSettings().setValues(defaultSettings);
 
-        out.write(room.toJson().toString());
+        jedis.set(String.format(FORMAT, roomId), room.toString());
     }
 
-    /**
-     * Gets the room File as JSON
-     * @param file the room's file
-     * @return JSONObject instance
-     */
-    private JSONObject getJsonFile(File file) {
-        return new JSONObject(FileUtils.readFile(file));
+    private JSONObject getData(String room) {
+        return new JSONObject(jedis.get(String.format(FORMAT, room)));
     }
 
-    /**
-     * Gets the settings for the room from it's file
-     * @param file the room's file
-     * @param roomId the room to get settings for
-     * @returs RoomData instance
-     */
-    private RoomData getSettingsFromFile(File file, String roomId) {
-        JSONObject json = getJsonFile(file);
+    private RoomData loadRoom(String roomId) {
+        JSONObject json = getData(roomId);
         JSONObject storedSettings = json.getJSONObject("settings");
         Map<Setting, Object> data = new HashMap<>();
 
@@ -180,7 +126,7 @@ public class JSONStorage implements Storage {
         permissions.setGroups(roomId, groups);
 
         if (changed) {
-            FileUtils.writeFile(file, room.toJson().toString());
+            save(room);
         }
 
         return room;

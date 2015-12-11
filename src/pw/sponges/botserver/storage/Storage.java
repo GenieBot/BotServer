@@ -16,6 +16,6 @@ public interface Storage {
      * Saves the data for the specified room
      * @param room the room to save data for
      */
-    void save(String room);
+    void save(RoomData data);
 
 }

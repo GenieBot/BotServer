@@ -25,6 +25,11 @@ public class RoomDataImpl implements RoomData {
     }
 
     @Override
+    public String getId() {
+        return room;
+    }
+
+    @Override
     public RoomSettings getSettings() {
         return settings;
     }
@@ -56,5 +61,10 @@ public class RoomDataImpl implements RoomData {
 
         json.put("groups", array);
         return json;
+    }
+
+    @Override
+    public String toString() {
+        return toJson().toString();
     }
 }

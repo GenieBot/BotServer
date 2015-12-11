@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import pw.sponges.botserver.Bot;
@@ -87,6 +88,11 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> implement
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        if (cause instanceof TooLongFrameException) {
+            Msg.warning("Message too long!");
+            return;
+        }
+
         cause.printStackTrace();
         ctx.close();
     }

@@ -17,7 +17,7 @@ public class MCNetworks extends Command {
     private long expire = 0;
 
     public MCNetworks() {
-        super("command.mcnetworks", "mcnetworks", "minecraftnetworks", "hypixel", "mineplex", "bigservers", "mcservers", "network", "networks");
+        super("command.mcnetworks", "mcnetworks", "mcnetwork", "minecraftnetworks", "hypixel", "mineplex", "bigservers", "mcservers", "network", "networks");
 
         Scheduler.runAsyncTask(this::reload, 30, TimeUnit.SECONDS);
     }

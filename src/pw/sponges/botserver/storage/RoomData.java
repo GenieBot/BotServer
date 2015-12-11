@@ -8,6 +8,12 @@ import org.json.JSONObject;
 public interface RoomData {
 
     /**
+     * Gets the ID of the room this data is assigned to
+     * @return room id
+     */
+    String getId();
+
+    /**
      * Gets the settings for the specified room
      * @return RoomSettings instance
      */
