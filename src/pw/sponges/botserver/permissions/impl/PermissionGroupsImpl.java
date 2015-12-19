@@ -2,6 +2,7 @@ package pw.sponges.botserver.permissions.impl;
 
 import pw.sponges.botserver.permissions.Group;
 import pw.sponges.botserver.permissions.PermissionGroups;
+import pw.sponges.botserver.permissions.simple.UserRole;
 import pw.sponges.botserver.util.Msg;
 
 import java.util.HashMap;
@@ -55,6 +56,24 @@ public class PermissionGroupsImpl implements PermissionGroups {
     @Override
     public Group setup(String user) {
         Group group = groups.get("default");
+        setGroup(user, group);
+        return group;
+    }
+
+    @Override
+    public Group setup(String user, UserRole role) {
+        Group group;
+
+        if (role == UserRole.USER) {
+            group = groups.get("default");
+        } else if (role == UserRole.ADMIN) {
+            group = groups.get("admin");
+        } else if (role == UserRole.OP) {
+            group = groups.get("op");
+        } else {
+            group = null;
+        }
+
         setGroup(user, group);
         return group;
     }

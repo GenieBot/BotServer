@@ -1,12 +1,18 @@
 package pw.sponges.botserver.cmd.framework;
 
+import pw.sponges.botserver.permissions.simple.UserRole;
+
 public abstract class Command {
 
     private final String permission;
+    private final UserRole role;
+    private final String description;
     private final String[] names;
 
-    public Command(String permission, String... names) {
+    public Command(String permission, UserRole role, String description, String... names) {
         this.permission = permission;
+        this.role = role;
+        this.description = description;
         this.names = names;
     }
 
@@ -14,9 +20,18 @@ public abstract class Command {
         return permission;
     }
 
+    public UserRole getRole() {
+        return role;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public String[] getNames() {
         return names;
     }
 
     public abstract void onCommand(CommandRequest request, String[] args);
+
 }

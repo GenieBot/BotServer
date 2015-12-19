@@ -1,5 +1,6 @@
 package pw.sponges.botserver;
 
+import org.json.JSONObject;
 import pw.sponges.botserver.bridge.BridgeManager;
 import pw.sponges.botserver.bridge.impl.BridgeManagerImpl;
 import pw.sponges.botserver.internal.ServerWrapper;
@@ -38,5 +39,10 @@ public class ClientImpl implements Client {
     @Override
     public BridgeManager getBridgeManager() {
         return bridgeManager;
+    }
+
+    @Override
+    public String toString() {
+        return new JSONObject().put("id", id).put("wrapper", wrapper.toString()).put("bridge", bridgeManager.toString()).toString();
     }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Builder class to construct JSON messages for sending to clients
  */
-public class JSONBuilder {
+public final class JSONBuilder {
 
     /**
      * Create an instance of the Builder
@@ -56,6 +56,10 @@ public class JSONBuilder {
             return this;
         }
 
+        public BuilderObject withNewObject(String key) {
+            return new BuilderObject(this, key);
+        }
+
         /**
          * Constructs the JSON from the set values & data from Message instance
          * @return JSONObject for message
@@ -71,6 +75,42 @@ public class JSONBuilder {
             }
 
             return object;
+        }
+
+    }
+
+    public static class BuilderObject {
+
+        private Map<String, Object> values = new HashMap<>();
+
+        private final Builder builder;
+        private final String key;
+
+        public BuilderObject(Builder builder, String key) {
+            this.builder = builder;
+            this.key = key;
+        }
+
+        /**
+         * Adds a value to the values Map
+         * @param key the key to assign the value to
+         * @param value the value to assign to the key
+         * @return Builder instance
+         */
+        public BuilderObject withValue(String key, Object value) {
+            this.values.put(key, value);
+            return this;
+        }
+
+        public Builder build() {
+            JSONObject object = new JSONObject();
+
+            for (String key : values.keySet()) {
+                object.put(key, values.get(key));
+            }
+
+            builder.withValue(key, object);
+            return builder;
         }
 
     }

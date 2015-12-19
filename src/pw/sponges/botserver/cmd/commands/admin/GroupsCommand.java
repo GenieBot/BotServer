@@ -5,7 +5,9 @@ import pw.sponges.botserver.cmd.framework.CommandRequest;
 import pw.sponges.botserver.permissions.Group;
 import pw.sponges.botserver.permissions.PermissionGroups;
 import pw.sponges.botserver.permissions.PermissionsManager;
+import pw.sponges.botserver.permissions.simple.UserRole;
 import pw.sponges.botserver.storage.Database;
+import pw.sponges.botserver.storage.Setting;
 import pw.sponges.botserver.util.Msg;
 
 import java.util.Arrays;
@@ -17,13 +19,18 @@ public class GroupsCommand extends Command {
     private PermissionsManager permissions;
 
     public GroupsCommand(Database database, PermissionsManager permissions) {
-        super("command.groups", "groups", "permissions", "perms", "myperms", "pex", "group", "groupmanager");
+        super("command.groups", UserRole.ADMIN, "room group management", "groups", "permissions", "perms", "myperms", "pex", "group", "groupmanager");
         this.database = database;
         this.permissions = permissions;
     }
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
+        if ((boolean) database.getData(request.getRoom()).getSettings().get(Setting.SIMPLE_PERMS)) {
+            request.reply("You are currently using the simple perms setting, please disable it to use the node permissions system!\nUse the settings command!");
+            return;
+        }
+
         if (args.length == 0) {
             request.reply("Groups subcommands:\nme, list, user");
             return;
@@ -71,6 +78,11 @@ public class GroupsCommand extends Command {
                             }
                             Group g = groups.getGroup(group);
                             Msg.debug("Chosen group: " + g.getId());
+
+                            if (g.getId().equalsIgnoreCase("op")) {
+                                request.reply("You must be op to set someone as op!");
+                                return;
+                            }
 
                             groups.setGroup(user, g);
                             database.save(request.getRoom());

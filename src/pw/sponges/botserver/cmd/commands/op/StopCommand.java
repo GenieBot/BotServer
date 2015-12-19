@@ -5,6 +5,7 @@ import pw.sponges.botserver.Client;
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
 import pw.sponges.botserver.messages.StopMessage;
+import pw.sponges.botserver.permissions.simple.UserRole;
 import pw.sponges.botserver.util.Msg;
 import pw.sponges.botserver.util.Scheduler;
 
@@ -15,7 +16,7 @@ public class StopCommand extends Command {
     private Bot bot;
 
     public StopCommand(Bot bot) {
-        super("command.op.stop", "stop");
+        super("command.op.stop", UserRole.OP, null, "stop");
         this.bot = bot;
     }
 

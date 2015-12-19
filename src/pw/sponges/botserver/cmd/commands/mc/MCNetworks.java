@@ -4,12 +4,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
+import pw.sponges.botserver.permissions.simple.UserRole;
 import pw.sponges.botserver.util.FileUtils;
 import pw.sponges.botserver.util.Scheduler;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 
 public class MCNetworks extends Command {
 
@@ -17,27 +17,26 @@ public class MCNetworks extends Command {
     private long expire = 0;
 
     public MCNetworks() {
-        super("command.mcnetworks", "mcnetworks", "mcnetwork", "minecraftnetworks", "hypixel", "mineplex", "bigservers", "mcservers", "network", "networks");
+        super("command.mcnetworks", UserRole.USER, "player counts of the biggest mc servers", "mcnetworks", "mcnetwork", "minecraftnetworks", "hypixel", "mineplex", "bigservers", "mcservers", "network", "networks");
 
-        Scheduler.runAsyncTask(this::reload, 30, TimeUnit.SECONDS);
+        //Scheduler.runAsyncTask(this::reload, 30, TimeUnit.SECONDS);
     }
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
-        if (expire == 0 || cached == null || System.currentTimeMillis() >= expire) {
+        /*if (expire == 0 || cached == null || System.currentTimeMillis() >= expire) {
             System.out.println("reloading");
             reload();
         }
-
-        System.out.println("printing " + cached);
 
         if (cached == null) {
             request.reply("Network stats are still loading, try again in a sec.");
             return;
         }
 
-        request.reply(cached.replace("%update%", ((expire - System.currentTimeMillis()) / 1000) + "s"));
-        System.out.println("printed");
+        request.reply(cached.replace("%update%", ((expire - System.currentTimeMillis()) / 1000) + "s"));*/
+
+        request.reply("The Minetrack API has been depreciated, however it is being redone soon! Check out the site: http://minetrack.me/");
     }
 
     private void reload() {
@@ -77,7 +76,7 @@ public class MCNetworks extends Command {
         String json;
 
         try {
-            json = FileUtils.readUrl(true, new URL("http://minetrack.me/status.json"));
+            json = FileUtils.readUrl(new URL("http://minetrack.me/status.json"));
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return null;

@@ -80,7 +80,7 @@ public class RedisStorage implements Storage {
             try {
                 obj = storedSettings.get(name);
             } catch (JSONException e) {
-                obj = setting.getObject();
+                obj = setting.getValue();
                 changed = true;
             }
 

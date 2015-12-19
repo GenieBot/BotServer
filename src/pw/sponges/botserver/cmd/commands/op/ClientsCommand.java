@@ -5,13 +5,14 @@ import pw.sponges.botserver.Client;
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
 import pw.sponges.botserver.messages.StopMessage;
+import pw.sponges.botserver.permissions.simple.UserRole;
 
 public class ClientsCommand extends Command {
 
     private Bot bot;
 
     public ClientsCommand(Bot bot) {
-        super("command.op.clients", "client", "clients");
+        super("command.op.clients", UserRole.OP, null, "client", "clients");
         this.bot = bot;
     }
 

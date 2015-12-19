@@ -43,7 +43,7 @@ public class RoomSettingsImpl implements RoomSettings {
         Map<Setting, Object> objects = new HashMap<>();
 
         for (Setting setting : Setting.values()) {
-            objects.put(setting, setting.getObject());
+            objects.put(setting, setting.getValue());
         }
 
         return objects;

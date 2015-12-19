@@ -3,6 +3,7 @@ package pw.sponges.botserver.cmd.commands.mc;
 import org.json.JSONObject;
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
+import pw.sponges.botserver.permissions.simple.UserRole;
 import pw.sponges.botserver.util.FileUtils;
 import pw.sponges.botserver.util.StringUtils;
 
@@ -12,7 +13,7 @@ import java.net.URL;
 public class ServerCommand extends Command {
 
     public ServerCommand() {
-        super("command.mcserver", "mcserver", "s", "ping", "slp");
+        super("command.mcserver", UserRole.USER, "shows ping info of an mc server", "mcserver", "s", "ping", "slp");
     }
 
     @Override

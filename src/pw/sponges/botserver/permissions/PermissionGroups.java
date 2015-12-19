@@ -1,5 +1,7 @@
 package pw.sponges.botserver.permissions;
 
+import pw.sponges.botserver.permissions.simple.UserRole;
+
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +14,8 @@ public interface PermissionGroups {
     void setGroup(String user, Group group);
 
     Group setup(String user);
+
+    Group setup(String user, UserRole role);
 
     void addGroup(Group group);
 

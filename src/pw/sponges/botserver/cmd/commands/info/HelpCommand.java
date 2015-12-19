@@ -3,6 +3,7 @@ package pw.sponges.botserver.cmd.commands.info;
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandHandler;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
+import pw.sponges.botserver.permissions.simple.UserRole;
 import pw.sponges.botserver.storage.Database;
 import pw.sponges.botserver.storage.Setting;
 
@@ -17,7 +18,7 @@ public class HelpCommand extends Command {
     private boolean loaded = false;
 
     public HelpCommand(Database database, CommandHandler commandHandler) {
-        super("command.help", "help", "h", "commands");
+        super("command.help", UserRole.USER, "provides a list of commands", "help", "h", "commands");
         this.database = database;
         this.commandHandler = commandHandler;
 

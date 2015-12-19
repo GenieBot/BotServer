@@ -2,6 +2,7 @@ package pw.sponges.botserver.cmd.commands.admin;
 
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
+import pw.sponges.botserver.permissions.simple.UserRole;
 import pw.sponges.botserver.storage.Database;
 import pw.sponges.botserver.storage.Setting;
 
@@ -10,7 +11,7 @@ public class PrefixCommand extends Command {
     private Database database;
 
     public PrefixCommand(Database database) {
-        super("command.prefix", "prefix");
+        super("command.prefix", UserRole.ADMIN, "changes the prefix for commands", "prefix");
         this.database = database;
     }
 

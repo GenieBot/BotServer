@@ -58,7 +58,6 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> implement
         Msg.debug("ServerHandler> Message: " + message);
         System.out.println(Arrays.toString(channels.toArray()));
 
-        // TODO message processing
         switch (message.toLowerCase()) {
             case "hi": {
                 Msg.debug("SeverHandler> Command response> \"Sending hello\"!");
@@ -94,7 +93,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> implement
         }
 
         cause.printStackTrace();
-        ctx.close();
+        //ctx.close();
     }
 
     /**

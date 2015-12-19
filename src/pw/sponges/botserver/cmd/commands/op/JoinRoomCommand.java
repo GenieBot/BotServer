@@ -3,11 +3,12 @@ package pw.sponges.botserver.cmd.commands.op;
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
 import pw.sponges.botserver.messages.JoinRoomMessage;
+import pw.sponges.botserver.permissions.simple.UserRole;
 
 public class JoinRoomCommand extends Command {
 
     public JoinRoomCommand() {
-        super("command.op.joinroom", "joinroom");
+        super("command.op.joinroom", UserRole.OP, null, "joinroom");
     }
 
     @Override

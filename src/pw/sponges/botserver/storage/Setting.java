@@ -8,21 +8,20 @@ public enum Setting {
     ADMIN_ONLY(false),
     BOT_NAME("SpongyBot"),
     PREFIX("$"),
-    AUTO_REPLY("fuck off you bad memer");
+    SIMPLE_PERMS(true);
 
-    private Object object;
+    private Object value;
 
-    Setting(Object object) {
-        this.object = object;
+    Setting(Object value) {
+        this.value = value;
     }
 
     /**
      * Gets the value of the Setting
-     * TODO change method name to #getValue
      * @return Object value
      */
-    public Object getObject() {
-        return object;
+    public Object getValue() {
+        return value;
     }
 
     /**

@@ -42,17 +42,20 @@ public class PermissionsManagerImpl implements PermissionsManager {
         defaultGroup.addPermission("command.userinfo");
         defaultGroup.addPermission("command.mcnetworks");
         defaultGroup.addPermission("command.mcserver");
-        defaultGroup.addPermission("command.groups");
+        defaultGroup.addPermission("command.jsonbeautifier");
 
         Group admin = new Group("admin", "default");
-        admin.addPermission("command.link");
+        admin.addPermission("command.bridge");
         admin.addPermission("command.prefix");
         admin.addPermission("command.settings");
+        admin.addPermission("command.groups");
 
         Group op = new Group("op", "admin");
         op.addPermission("command.op.clients");
         op.addPermission("command.op.joinroom");
         op.addPermission("command.op.stop");
+        op.addPermission("command.op.cmdlist");
+        op.addPermission("command.java");
 
         return new ArrayList<Group>() {{
             add(defaultGroup);

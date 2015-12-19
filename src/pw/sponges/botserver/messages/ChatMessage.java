@@ -7,12 +7,13 @@ import pw.sponges.botserver.util.JSONBuilder;
 public class ChatMessage extends Message {
 
     private Client client;
-    private final String user, sourceRoom, sourceName, room, message;
+    private final String userId, username, sourceRoom, sourceName, room, message;
 
-    public ChatMessage(Client client, String user, String sourceRoom, String sourceName, String room, String message) {
+    public ChatMessage(Client client, String userId, String username, String sourceRoom, String sourceName, String room, String message) {
         super(client, "CHAT");
         this.client = client;
-        this.user = user;
+        this.userId = userId;
+        this.username = username;
         this.sourceRoom = sourceRoom;
         this.sourceName = sourceName;
         this.room = room;
@@ -22,7 +23,8 @@ public class ChatMessage extends Message {
     @Override
     public JSONObject toJson() {
         return JSONBuilder.create(this)
-                .withValue("user", user)
+                .withValue("userid", userId)
+                .withValue("username", username)
                 .withValue("source-room", sourceRoom)
                 .withValue("name", sourceName)
                 .withValue("room", room)

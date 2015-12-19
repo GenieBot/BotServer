@@ -12,6 +12,9 @@ import pw.sponges.botserver.messages.ChatMessage;
 import pw.sponges.botserver.permissions.Group;
 import pw.sponges.botserver.permissions.PermissionGroups;
 import pw.sponges.botserver.permissions.PermissionsManager;
+import pw.sponges.botserver.permissions.simple.UserRole;
+import pw.sponges.botserver.storage.Database;
+import pw.sponges.botserver.storage.Setting;
 import pw.sponges.botserver.util.Msg;
 
 /**
@@ -19,10 +22,11 @@ import pw.sponges.botserver.util.Msg;
  */
 public class BotListener implements Listener {
 
-    private Bot bot;
-    private EventManager eventManager;
-    private CommandHandler commandHandler;
-    private PermissionsManager permissions;
+    private final Bot bot;
+    private final EventManager eventManager;
+    private final CommandHandler commandHandler;
+    private final PermissionsManager permissions;
+    private final Database database;
 
     // TODO instance for statistics instead of variables
     private static int chatMessages, serverMessages, commandRuns;
@@ -31,10 +35,12 @@ public class BotListener implements Listener {
      * Instantiating the variables in the constructor
      * @param bot the Bot instance
      * @param permissions the PermissionsManager instance
+     * @param database
      */
-    public BotListener(Bot bot, PermissionsManager permissions) {
+    public BotListener(Bot bot, PermissionsManager permissions, Database database) {
         this.bot = bot;
         this.permissions = permissions;
+        this.database = database;
 
         this.eventManager = bot.getEventManager();
         this.commandHandler = bot.getCommandHandler();
@@ -97,11 +103,14 @@ public class BotListener implements Listener {
             case "CHAT": {
                 String clientId = object.getString("client-id");
                 Client client = bot.getClient(clientId);
-                String user = object.getString("user");
+                String userId = object.getString("userid");
+                String username = object.getString("username");
                 String room = object.getString("room");
                 String name = object.getString("name");
                 String message = object.getString("message");
-                eventManager.handle(new ChatMessageEvent(client, user, room, name, message));
+                String role = object.getString("role");
+                UserRole userRole = UserRole.valueOf(role.toUpperCase());
+                eventManager.handle(new ChatMessageEvent(client, userId, username, room, name, message, userRole));
                 break;
             }
 
@@ -156,23 +165,36 @@ public class BotListener implements Listener {
         Client client = event.getClient();
         String clientId = client.getId();
         String room = event.getRoom();
-        String user = event.getUser();
+        String userId = event.getUserId();
+        String username = event.getUsername();
         String message = event.getMessage();
+        UserRole role = event.getRole();
 
-        Msg.log("[" + clientId + "] [" + event.getRoomName() + "] " + user + ": " + message);
+        Msg.log("[" + clientId + "] [" + event.getRoomName() + "] " + username + ": " + message);
+
+        boolean simplePerms = (boolean) database.getData(room).getSettings().get(Setting.SIMPLE_PERMS);
 
         // Loading the perms for that room
         PermissionGroups groups = permissions.getGroups(room);
 
         // If the user does not have a group
-        if (!groups.isSetup(user)) {
-            groups.setup(user);
+        if (!groups.isSetup(userId)) {
+            if (simplePerms) groups.setup(userId, role);
+            else groups.setup(userId);
         }
-        Group group = groups.getUserGroup(user);
+        Group group = groups.getUserGroup(userId);
+
+        if (simplePerms) {
+            if ((role == UserRole.OP && !group.getId().equalsIgnoreCase("op"))
+                    || (role == UserRole.USER && !group.getId().equalsIgnoreCase("default"))
+                    || (role == UserRole.ADMIN && !group.getId().equalsIgnoreCase("admin"))) {
+                groups.setup(userId, role);
+            }
+        }
 
         // Is the message a command?
         if (CommandHandler.isCommandRequest(room, message)) {
-            eventManager.handle(new CommandRequestEvent(new CommandRequest(client, user, room, message, group)));
+            eventManager.handle(new CommandRequestEvent(new CommandRequest(client, userId, room, message, group)));
         }
 
         BridgeManager bridgeManager = client.getBridgeManager();
@@ -185,7 +207,7 @@ public class BotListener implements Listener {
             String tRoom = bridge.getTargetRoom();
 
             // Send message to the bridged target room
-            tClient.sendMessage(new ChatMessage(tClient, user, room, event.getRoomName(), tRoom, message));
+            tClient.sendMessage(new ChatMessage(tClient, userId, username, room, event.getRoomName(), tRoom, message));
             Msg.debug("Sent bridge message " + message + " to client " + targetClient + " room " + tRoom + " from " + clientId + " room " + room);
         }
     }

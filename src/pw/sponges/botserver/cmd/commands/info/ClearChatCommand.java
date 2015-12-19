@@ -4,15 +4,15 @@ import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
 import pw.sponges.botserver.permissions.simple.UserRole;
 
-public class AboutCommand extends Command {
+public class ClearChatCommand extends Command {
 
-    public AboutCommand() {
+    public ClearChatCommand() {
         super("command.about", UserRole.USER, "shows information about the bot", "about", "info");
     }
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
-        request.reply("Stuff about SpongyBot!");
+        // TODO ability to send raw messages so that can print without command response prefix being appended
     }
 
 }

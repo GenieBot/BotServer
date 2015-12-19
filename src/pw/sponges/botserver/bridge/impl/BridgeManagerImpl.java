@@ -32,6 +32,7 @@ public class BridgeManagerImpl implements BridgeManager {
     @Override
     public void removeBridge(Bridge bridge) {
         bridges.remove(bridge.getClientRoom());
+        bridges.remove(bridge.getTargetRoom());
     }
 
 }

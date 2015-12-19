@@ -23,7 +23,6 @@ public class DatabaseImpl implements Database {
         this.permissions = new PermissionsManagerImpl(this);
         this.data = new HashMap<>();
 
-        // TODO make this cleaner
         //this.storage = new JSONStorage(this, permissions);
         this.storage = new RedisStorage(permissions);
     }
