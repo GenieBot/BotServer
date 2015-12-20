@@ -4,6 +4,7 @@ import pw.sponges.botserver.event.events.*;
 import pw.sponges.botserver.permissions.PermissionsManager;
 import pw.sponges.botserver.storage.Database;
 import pw.sponges.botserver.util.Msg;
+import pw.sponges.botserver.util.Scheduler;
 
 public class EventManager {
 
@@ -21,6 +22,10 @@ public class EventManager {
     }
 
     public void handle(Event event) {
+        Scheduler.runAsyncTask(() -> handleEvent(event));
+    }
+
+    public void handleEvent(Event event) {
         runChecks(event);
 
         if (event instanceof ConnectEvent) {

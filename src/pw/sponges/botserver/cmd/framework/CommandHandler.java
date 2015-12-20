@@ -11,6 +11,7 @@ import pw.sponges.botserver.cmd.commands.op.ClientsCommand;
 import pw.sponges.botserver.cmd.commands.op.CmdListCommand;
 import pw.sponges.botserver.cmd.commands.op.JoinRoomCommand;
 import pw.sponges.botserver.cmd.commands.op.StopCommand;
+import pw.sponges.botserver.cmd.commands.steam.SteamStatusCommand;
 import pw.sponges.botserver.cmd.commands.util.BridgeCommand;
 import pw.sponges.botserver.cmd.commands.util.JSONBeautifier;
 import pw.sponges.botserver.cmd.commands.util.JavaCommand;
@@ -69,7 +70,8 @@ public class CommandHandler {
                 new WebsiteCommand(),
                 new ChatbotCommand(),
                 new TimeCommand(),
-                new MirrorCommand()
+                new MirrorCommand(),
+                new SteamStatusCommand()
         );
     }
 

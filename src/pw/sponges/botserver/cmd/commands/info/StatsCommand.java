@@ -15,6 +15,8 @@ public class StatsCommand extends Command {
         this.startTime = System.currentTimeMillis();
     }
 
+    // TODO improve stats
+
     @Override
     public void onCommand(CommandRequest request, String[] args) {
         StringBuilder str = new StringBuilder("Statistics:");

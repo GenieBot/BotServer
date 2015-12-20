@@ -87,7 +87,7 @@ public class FileUtils {
             con.setRequestMethod("GET");
             con.setRequestProperty("User-Agent", "Mozilla/5.0");
 
-            if (debug) System.out.println(con.getResponseCode());
+            if (debug) Msg.debug("Got response code " + con.getResponseCode());
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -115,6 +115,8 @@ public class FileUtils {
 
             con.disconnect();
         }
+
+        if (debug) Msg.debug("Data: " + str.toString());
 
         return str.toString();
     }
