@@ -11,6 +11,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import pw.sponges.botserver.Bot;
 import pw.sponges.botserver.internal.Server;
+import pw.sponges.botserver.util.Msg;
 
 import javax.net.ssl.SSLException;
 import java.security.cert.CertificateException;
@@ -64,11 +65,19 @@ public class ServerImpl implements Server {
 
     @Override
     public void stop() throws InterruptedException {
+        Msg.debug("Stop called");
         try {
-            future.sync().channel().closeFuture().sync();
+            Msg.debug("Syncing future");
+            future.sync().channel().closeFuture().getNow();
+            Msg.debug("Synced future");
         } finally {
+            Msg.debug("Shutting down gracefully");
             boss.shutdownGracefully();
+            Msg.debug("Shutting down worker");
             worker.shutdownGracefully();
+            Msg.debug("done!");
+            System.exit(500);
+            Msg.debug("exiting!");
         }
     }
 }

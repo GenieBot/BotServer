@@ -3,6 +3,7 @@ package pw.sponges.botserver;
 import pw.sponges.botserver.cmd.framework.CommandHandler;
 import pw.sponges.botserver.event.framework.EventManager;
 import pw.sponges.botserver.internal.Server;
+import pw.sponges.botserver.parser.framework.ParserManager;
 import pw.sponges.botserver.storage.Database;
 
 import java.util.Map;
@@ -64,7 +65,12 @@ public interface Bot {
      * @param target the target client that has the room in
      * @param targetRoom the room to bridge into
      * @return command response
+     *
+     * TODO move to bridge manager
      */
     String addLink(String clientId, String clientRoom, String target, String targetRoom);
+
+    // TODO add javadoc comment for #getParserManager
+    ParserManager getParserManager();
 
 }

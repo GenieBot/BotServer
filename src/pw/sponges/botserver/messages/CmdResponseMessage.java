@@ -7,17 +7,16 @@ import pw.sponges.botserver.util.JSONBuilder;
 public class CmdResponseMessage extends Message {
 
     private final Client client;
-    private final String room, user, response;
-    private final ResponseOption option;
+    private final String room, user, username, response;
 
-    public CmdResponseMessage(Client client, String room, String user, String response, ResponseOption option) {
+    public CmdResponseMessage(Client client, String room, String user, String username, String response) {
         super(client, "COMMAND");
 
         this.client = client;
         this.room = room;
         this.user = user;
+        this.username = username;
         this.response = response;
-        this.option = option;
     }
 
     @Override
@@ -25,7 +24,7 @@ public class CmdResponseMessage extends Message {
         return JSONBuilder.create(this)
                 .withValue("room", room)
                 .withValue("user", user)
-                .withValue("option", option.toString())
+                .withValue("username", username)
                 .withValue("response", response)
                 .build();
     }

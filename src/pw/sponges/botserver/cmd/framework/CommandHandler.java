@@ -1,16 +1,11 @@
 package pw.sponges.botserver.cmd.framework;
 
 import pw.sponges.botserver.Bot;
-import pw.sponges.botserver.cmd.commands.admin.GroupsCommand;
-import pw.sponges.botserver.cmd.commands.admin.PrefixCommand;
-import pw.sponges.botserver.cmd.commands.admin.SettingsCommand;
+import pw.sponges.botserver.cmd.commands.admin.*;
 import pw.sponges.botserver.cmd.commands.fun.*;
 import pw.sponges.botserver.cmd.commands.info.*;
 import pw.sponges.botserver.cmd.commands.mc.*;
-import pw.sponges.botserver.cmd.commands.op.ClientsCommand;
-import pw.sponges.botserver.cmd.commands.op.CmdListCommand;
-import pw.sponges.botserver.cmd.commands.op.JoinRoomCommand;
-import pw.sponges.botserver.cmd.commands.op.StopCommand;
+import pw.sponges.botserver.cmd.commands.op.*;
 import pw.sponges.botserver.cmd.commands.steam.SteamStatusCommand;
 import pw.sponges.botserver.cmd.commands.util.BridgeCommand;
 import pw.sponges.botserver.cmd.commands.util.JSONBeautifier;
@@ -71,7 +66,12 @@ public class CommandHandler {
                 new ChatbotCommand(),
                 new TimeCommand(),
                 new MirrorCommand(),
-                new SteamStatusCommand()
+                new SteamStatusCommand(),
+                new ToggleCommand(database, this),
+                new KickCommand(),
+                new BanCommand(database),
+                new SendMessageCommand(),
+                new ClearChatCommand()
         );
     }
 
@@ -83,6 +83,26 @@ public class CommandHandler {
         String prefix = (String) database.getData(room).getSettings().get(Setting.PREFIX);
 
         return input.toLowerCase().startsWith(prefix.toLowerCase());
+    }
+
+    public boolean isCommand(String command) {
+        for (Command cmd : commands) {
+            for (String name : cmd.getNames()) {
+                if (name.equalsIgnoreCase(command)) return true;
+            }
+        }
+
+        return false;
+    }
+
+    public Command getCommand(String command) {
+        for (Command cmd : commands) {
+            for (String name : cmd.getNames()) {
+                if (name.equalsIgnoreCase(command)) return cmd;
+            }
+        }
+
+        return null;
     }
 
     public void handle(CommandRequest request) {
@@ -102,9 +122,17 @@ public class CommandHandler {
         for (Command command : commands) {
             for (String name : command.getNames()) {
                 if (name.equalsIgnoreCase(cmd)) {
+                    @SuppressWarnings("unchecked")
+                    List<String> disabledCommands = (List<String>) settings.get(Setting.DISABLED_COMMANDS);
+                    if (disabledCommands.contains(command.getNames()[0].toLowerCase())) {
+                        request.reply("That command is disabled! Enable it with the 'toggle' command.");
+                        return;
+                    }
+
+                    Group group = permissions.getGroups(room).getUserGroup(request.getUser());
+
                     if ((boolean) settings.get(Setting.SIMPLE_PERMS)) {
                         UserRole role = command.getRole();
-                        Group group = permissions.getGroups(room).getUserGroup(request.getUser());
 
                         switch (role) {
                             case ADMIN:
@@ -112,7 +140,6 @@ public class CommandHandler {
                                     request.reply("You do not have permission to do that! (" + role.name().toUpperCase() + ")"
                                             + "\nYour role: " + group.getId()
                                             + "\nYour id: " + request.getUser());
-
                                     return;
                                 }
                                 break;
@@ -122,14 +149,12 @@ public class CommandHandler {
                                     request.reply("You do not have permission to do that! (" + role.name().toUpperCase() + ")"
                                             + "\nYour role: " + group.getId()
                                             + "\nYour id: " + request.getUser());
-
                                     return;
                                 }
                                 break;
                         }
                     } else {
                         String node = command.getPermission();
-                        Group group = permissions.getGroups(room).getUserGroup(request.getUser());
 
                         if (!group.hasPermission(node)) {
                             request.reply("You do not have permission to do that! (" + node + ")"
@@ -137,6 +162,13 @@ public class CommandHandler {
                                     + "\nYour id: " + request.getUser());
                             return;
                         }
+                    }
+
+                    boolean adminOnly = (boolean) settings.get(Setting.ADMIN_ONLY);
+
+                    if (adminOnly && group.getId().equals("default")) {
+                        request.reply("Room is in admin only mode! To disable this, use\nset admin-only false");
+                        return;
                     }
 
                     List<String> newArgs = new ArrayList<>();

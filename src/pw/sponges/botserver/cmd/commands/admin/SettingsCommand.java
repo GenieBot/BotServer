@@ -50,12 +50,8 @@ public class SettingsCommand extends Command {
                     }
 
                     if (set == Setting.PREFIX) {
-                        switch (request.getClient().getId().toLowerCase()) {
-                            case "telegram": {
-                                request.reply("Changing command prefix is not supported in telegram!");
-                                return;
-                            }
-                        }
+                        request.reply("Please use the 'prefix' command instead!");
+                        return;
                     }
 
                     if (set == Setting.SIMPLE_PERMS) {
@@ -91,7 +87,7 @@ public class SettingsCommand extends Command {
             str.append("\n").append(s.toString()).append(": ").append(roomData.getSettings().get(s));
         }
 
-        str.append("\n").append(roomData.toJson().toString());
+        if ((boolean) roomData.getSettings().get(Setting.SHOW_FULL_JSON)) str.append("\n").append(roomData.toJson().toString());
 
         request.reply(str.toString());
     }

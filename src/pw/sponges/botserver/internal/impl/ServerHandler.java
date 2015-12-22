@@ -56,7 +56,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> implement
     @Override
     public void messageReceived(ChannelHandlerContext context, String message) {
         Msg.debug("ServerHandler> Message: " + message);
-        System.out.println(Arrays.toString(channels.toArray()));
+        Msg.debug(Arrays.toString(channels.toArray()));
 
         switch (message.toLowerCase()) {
             case "hi": {
@@ -89,6 +89,12 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> implement
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (cause instanceof TooLongFrameException) {
             Msg.warning("Message too long!");
+            return;
+        }
+
+        if (cause.getMessage().equals("An existing connection was forcibly closed by the remote host")) {
+            Msg.debug("Client disconnected!");
+            ctx.close();
             return;
         }
 

@@ -38,6 +38,8 @@ public class EventManager {
             listener.onCommandRequest((CommandRequestEvent) event);
         } else if (event instanceof LinkRequestEvent) {
             listener.onLinkRequest((LinkRequestEvent) event);
+        } else if (event instanceof UserJoinEvent) {
+            listener.onUserJoin((UserJoinEvent) event);
         }
     }
 
@@ -55,12 +57,6 @@ public class EventManager {
 
             Msg.debug("Loaded settings for " + room + "!\n" + database.getData(room).toJson());
         }
-
-        /*if (!permissions.isLoaded(room)) {
-            permissions.loadPermissions(room);
-
-            Msg.debug("Loaded permissions for " + room + "!");
-        }*/
     }
 
 }

@@ -1,14 +1,20 @@
 package pw.sponges.botserver.storage;
 
+import java.util.ArrayList;
+
 /**
  * Enum storing all the room specific settings
  */
 public enum Setting {
 
+    DEBUG(false),
     ADMIN_ONLY(false),
-    BOT_NAME("SpongyBot"),
     PREFIX("$"),
-    SIMPLE_PERMS(true);
+    SIMPLE_PERMS(true),
+    LINK_PARSING(false),
+    DISABLED_COMMANDS(new ArrayList<>()),
+    BANNED_USERS(new ArrayList<>()),
+    SHOW_FULL_JSON(false);
 
     private Object value;
 

@@ -2,12 +2,13 @@ package pw.sponges.botserver.cmd.commands.op;
 
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
+import pw.sponges.botserver.messages.SendRawMessage;
 import pw.sponges.botserver.permissions.simple.UserRole;
 
 public class SendMessageCommand extends Command {
 
     public SendMessageCommand() {
-        super("command.op.sendmessage", UserRole.OP, "sends a message to the specified room", "sendmessage", "pm");
+        super("command.op.sendmessage", UserRole.OP, null, "sendmessage", "pm");
     }
 
     @Override
@@ -29,6 +30,6 @@ public class SendMessageCommand extends Command {
             }
         }
 
-        // TODO platform room/private message sending server -> client side
+        request.getClient().sendMessage(new SendRawMessage(request.getClient(), room, message.toString()));
     }
 }

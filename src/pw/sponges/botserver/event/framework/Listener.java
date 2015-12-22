@@ -14,4 +14,6 @@ public interface Listener {
 
     void onLinkRequest(LinkRequestEvent event);
 
+    void onUserJoin(UserJoinEvent event);
+
 }

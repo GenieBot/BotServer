@@ -5,6 +5,7 @@ import pw.sponges.botserver.bridge.BridgeManager;
 import pw.sponges.botserver.bridge.impl.BridgeManagerImpl;
 import pw.sponges.botserver.internal.ServerWrapper;
 import pw.sponges.botserver.messages.Message;
+import pw.sponges.botserver.util.Msg;
 
 /**
  * Implementation of the Client interface
@@ -28,6 +29,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void sendMessage(Message message) {
+        Msg.debug(message.toString());
         wrapper.sendMessage(message.toString());
     }
 

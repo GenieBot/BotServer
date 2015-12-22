@@ -84,6 +84,18 @@ public class RedisStorage implements Storage {
                 changed = true;
             }
 
+            // Settings that use lists
+            if (setting == Setting.DISABLED_COMMANDS || setting == Setting.BANNED_USERS) {
+                JSONArray array = storedSettings.getJSONArray(name);
+                List<String> list = new ArrayList<>();
+
+                for (int i = 0; i < array.length(); i++) {
+                    list.add(array.getString(i));
+                }
+
+                obj = list;
+            }
+
             data.put(setting, obj);
         }
 

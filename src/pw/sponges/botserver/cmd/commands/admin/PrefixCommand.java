@@ -30,6 +30,7 @@ public class PrefixCommand extends Command {
         }
 
         String prefix = args[0];
+
         database.getData(request.getRoom()).getSettings().set(Setting.PREFIX, prefix);
         database.save(request.getRoom());
 

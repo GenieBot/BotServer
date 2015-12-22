@@ -31,7 +31,7 @@ public class MirrorCommand extends Command {
         for (MirrorFile file : MirrorFile.values()) {
             str.append(file.name().toLowerCase().replace("_", "-")).append(", ");
         }
-        str.deleteCharAt(str.length() - 2).append("\nUsage: tcpr [file]");
+        str.deleteCharAt(str.length() - 2).append("\nUsage: tcpr [file]\nNote: the adf.ly link is provided by tcpr.ca");
         this.noArgs = str.toString();
     }
 

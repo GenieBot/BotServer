@@ -15,23 +15,23 @@ public class TimeCommand extends Command {
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder("Times across the world:\n");
 
         Date gmt = new Date();
         SimpleDateFormat gmtFormat = new SimpleDateFormat("HH:mm:ss");
         String gmtTime = gmtFormat.format(gmt);
-        stringBuilder.append("GMT: " + gmtTime);
+        stringBuilder.append("GMT: ").append(gmtTime);
 
         Date est = new Date(); est.setHours(est.getHours() - 5);
         SimpleDateFormat estFormat = new SimpleDateFormat("HH:mm:ss");
         String estTime = estFormat.format(est);
-        stringBuilder.append("\nEST: " + estTime);
+        stringBuilder.append("\nEST: ").append(estTime);
 
         Date pst = new Date(); pst.setHours(pst.getHours() - 8);
         SimpleDateFormat pstFormat = new SimpleDateFormat("HH:mm:ss");
         String pstTime = pstFormat.format(pst);
-        stringBuilder.append("\nPST: " + pstTime);
+        stringBuilder.append("\nPST: ").append(pstTime);
 
-        request.reply("Times across the world:\n" + stringBuilder.toString());
+        request.reply(stringBuilder.toString());
     }
 }

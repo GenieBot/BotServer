@@ -1,6 +1,8 @@
 package pw.sponges.botserver;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 import pw.sponges.botserver.bridge.Bridge;
 import pw.sponges.botserver.bridge.BridgeManager;
 import pw.sponges.botserver.cmd.framework.CommandHandler;
@@ -9,13 +11,19 @@ import pw.sponges.botserver.event.events.*;
 import pw.sponges.botserver.event.framework.EventManager;
 import pw.sponges.botserver.event.framework.Listener;
 import pw.sponges.botserver.messages.ChatMessage;
+import pw.sponges.botserver.messages.KickUserMessage;
+import pw.sponges.botserver.messages.SendRawMessage;
 import pw.sponges.botserver.permissions.Group;
 import pw.sponges.botserver.permissions.PermissionGroups;
 import pw.sponges.botserver.permissions.PermissionsManager;
 import pw.sponges.botserver.permissions.simple.UserRole;
 import pw.sponges.botserver.storage.Database;
+import pw.sponges.botserver.storage.RoomSettings;
 import pw.sponges.botserver.storage.Setting;
 import pw.sponges.botserver.util.Msg;
+import pw.sponges.botserver.util.StringUtils;
+
+import java.util.List;
 
 /**
  * Listener class for bot events
@@ -107,7 +115,10 @@ public class BotListener implements Listener {
                 String username = object.getString("username");
                 String room = object.getString("room");
                 String name = object.getString("name");
+
                 String message = object.getString("message");
+                message = StringEscapeUtils.escapeJson(message);
+
                 String role = object.getString("role");
                 UserRole userRole = UserRole.valueOf(role.toUpperCase());
                 eventManager.handle(new ChatMessageEvent(client, userId, username, room, name, message, userRole));
@@ -120,7 +131,20 @@ public class BotListener implements Listener {
                 String clientRoom = object.getString("room");
                 String targetId = object.getString("target-client");
                 String targetRoom = object.getString("target-room");
+
+                targetId = StringEscapeUtils.escapeJson(targetId);
+                targetRoom = StringEscapeUtils.escapeJson(targetRoom);
+
                 eventManager.handle(new LinkRequestEvent(client, clientRoom, targetId, targetRoom));
+                break;
+            }
+
+            case "JOIN": {
+                String clientId = object.getString("client-id");
+                Client client = bot.getClient(clientId);
+                String room = object.getString("room");
+                String user = object.getString("user");
+                eventManager.handle(new UserJoinEvent(client, room, user));
                 break;
             }
 
@@ -172,7 +196,8 @@ public class BotListener implements Listener {
 
         Msg.log("[" + clientId + "] [" + event.getRoomName() + "] " + username + ": " + message);
 
-        boolean simplePerms = (boolean) database.getData(room).getSettings().get(Setting.SIMPLE_PERMS);
+        RoomSettings settings = database.getData(room).getSettings();
+        boolean simplePerms = (boolean) settings.get(Setting.SIMPLE_PERMS);
 
         // Loading the perms for that room
         PermissionGroups groups = permissions.getGroups(room);
@@ -194,7 +219,7 @@ public class BotListener implements Listener {
 
         // Is the message a command?
         if (CommandHandler.isCommandRequest(room, message)) {
-            eventManager.handle(new CommandRequestEvent(new CommandRequest(client, userId, room, message, group)));
+            eventManager.handle(new CommandRequestEvent(new CommandRequest(client, userId, username, room, message, group)));
         }
 
         BridgeManager bridgeManager = client.getBridgeManager();
@@ -209,6 +234,29 @@ public class BotListener implements Listener {
             // Send message to the bridged target room
             tClient.sendMessage(new ChatMessage(tClient, userId, username, room, event.getRoomName(), tRoom, message));
             Msg.debug("Sent bridge message " + message + " to client " + targetClient + " room " + tRoom + " from " + clientId + " room " + room);
+        }
+
+        {
+            // Link parsing
+            if ((boolean) settings.get(Setting.LINK_PARSING)) {
+                List<String> links = StringUtils.extractUrls(Jsoup.parse(message).text());
+
+                if (links.size() > 0) {
+                    if ((boolean) settings.get(Setting.DEBUG)) {
+                        for (String s : links) {
+                            client.sendMessage(new SendRawMessage(client, room, "Found " + s));
+                        }
+                    }
+
+                    String link = links.get(0);
+                    Msg.debug("got " + link + " from " + links);
+                    String parsed = bot.getParserManager().handle(link);
+
+                    if (parsed != null) {
+                        client.sendMessage(new SendRawMessage(client, room, parsed));
+                    }
+                }
+            }
         }
     }
 
@@ -238,5 +286,23 @@ public class BotListener implements Listener {
 
         // Adding the link
         bot.addLink(clientId, clientRoom, target, targetRoom);
+    }
+
+    @Override
+    public void onUserJoin(UserJoinEvent event) {
+        Client client = event.getClient();
+        String room = event.getRoom();
+        String user = event.getUser();
+        RoomSettings settings = database.getData(room).getSettings();
+
+        {
+            @SuppressWarnings("unchecked")
+            List<String> banned = (List<String>) settings.get(Setting.BANNED_USERS);
+
+            if (banned.contains(user)) {
+                client.sendMessage(new SendRawMessage(client, room, "You are banned " + user + "! To unban a user, use the 'unban' command."));
+                client.sendMessage(new KickUserMessage(client, room, user));
+            }
+        }
     }
 }

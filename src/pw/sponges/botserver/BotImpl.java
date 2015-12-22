@@ -6,6 +6,7 @@ import pw.sponges.botserver.cmd.framework.CommandHandler;
 import pw.sponges.botserver.event.framework.EventManager;
 import pw.sponges.botserver.internal.Server;
 import pw.sponges.botserver.internal.impl.ServerImpl;
+import pw.sponges.botserver.parser.framework.ParserManager;
 import pw.sponges.botserver.storage.Database;
 import pw.sponges.botserver.storage.impl.DatabaseImpl;
 import pw.sponges.botserver.util.Msg;
@@ -22,6 +23,7 @@ public class BotImpl implements Bot {
     private final EventManager eventManager;
     private final CommandHandler commandHandler;
     private final Database database;
+    private final ParserManager parserManager;
 
     /**
      * Constructor initiated in the main method
@@ -34,6 +36,7 @@ public class BotImpl implements Bot {
         this.commandHandler = new CommandHandler(this, database.getPermissions());
         this.eventManager = new EventManager(database);
         this.eventManager.setListener(new BotListener(this, database.getPermissions(), database));
+        this.parserManager = new ParserManager();
 
         // Starting the actual server
         try {
@@ -130,4 +133,8 @@ public class BotImpl implements Bot {
         return "Added bridge!";
     }
 
+    @Override
+    public ParserManager getParserManager() {
+        return parserManager;
+    }
 }
