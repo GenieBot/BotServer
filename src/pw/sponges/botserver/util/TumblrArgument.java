@@ -198,9 +198,4 @@ public class TumblrArgument {
         return builder.toString();
     }
 
-    public static void main(String[] args) {
-        String argument = new TumblrArgument().generateArgument();
-        System.out.println(argument);
-    }
-
 }

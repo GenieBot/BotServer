@@ -27,7 +27,7 @@ public class HasPaid extends Command {
         String result;
 
         try {
-            result = Jsoup.connect(url).ignoreContentType(true).header("X-Request-By-Username", request.getUser()).execute().body();
+            result = Jsoup.connect(url).ignoreContentType(true).header("X-Request-By-Username", request.getUser().getId()).execute().body();
         } catch (IOException e) {
             e.printStackTrace();
             request.reply("Something went wrong whilst connecting to mcapi.ca! Is it online?");

@@ -12,6 +12,8 @@ public class ChatInfoCommand extends Command {
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
-        request.reply("ID: " + request.getClient().getId() + "\nRoom: " + request.getRoom() + "");
+        request.reply("ID: " + request.getClient().getId()
+                + "\nNetwork: " + request.getNetwork().getId()
+                + "\nRoom: " + request.getRoom().getId());
     }
 }

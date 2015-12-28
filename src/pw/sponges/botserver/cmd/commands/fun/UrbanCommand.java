@@ -39,11 +39,11 @@ public class UrbanCommand extends Command {
         }
 
         String query = str.toString();
-        Msg.debug("Query=" + query);
+        Msg.debug("[Urban command] Query=" + query);
 
         JSONObject json = null;
         try {
-            json = searchUD(query, request.getUser());
+            json = searchUD(query, request.getUser().getId());
         } catch (IOException e) {
             e.printStackTrace();
             request.reply("Something went wrong whilst querying urbandictionary :(");
@@ -57,7 +57,7 @@ public class UrbanCommand extends Command {
 
         JSONArray array = json.getJSONArray("list");
         JSONObject object = array.getJSONObject(0);
-        Msg.debug(object.toString());
+        Msg.debug("[Urban command] " + object.toString());
 
         String definition = StringUtils.abbreviate(object.getString("definition"), 300);
         String link = object.getString("permalink");
@@ -72,7 +72,7 @@ public class UrbanCommand extends Command {
 
     private JSONObject searchUD(String query, String user) throws IOException, JSONException {
         String document = Jsoup.connect("http://api.urbandictionary.com/v0/define?term=" + query).ignoreContentType(true).header("X-Request-By-Username", user).execute().body();
-        Msg.debug(document);
+        Msg.debug("[Urban command] " + document);
         return new JSONObject(document);
     }
 

@@ -26,7 +26,7 @@ public class GroupsCommand extends Command {
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
-        if ((boolean) database.getData(request.getRoom()).getSettings().get(Setting.SIMPLE_PERMS)) {
+        if ((boolean) database.getData(request.getRoom().getId()).getSettings().get(Setting.SIMPLE_PERMS)) {
             request.reply("You are currently using the simple perms setting, please disable it to use the node permissions system!\nUse the settings command!");
             return;
         }
@@ -36,11 +36,11 @@ public class GroupsCommand extends Command {
             return;
         }
 
-        PermissionGroups groups = permissions.getGroups(request.getRoom());
+        PermissionGroups groups = permissions.getGroups(request.getRoom().getId());
 
         switch (args[0].toLowerCase()) {
             case "me": {
-                request.reply(getInfo(groups, request.getUser()));
+                request.reply(getInfo(groups, request.getUser().getId()));
                 break;
             }
 
@@ -68,16 +68,16 @@ public class GroupsCommand extends Command {
                         case "set": {
                             String user = args[1];
                             String group = args[3];
-                            Msg.debug("Group command: " + Arrays.toString(args));
-                            Msg.debug("User: " + user);
-                            Msg.debug("Group: " + group);
+                            Msg.debug("[Groups command] Group command: " + Arrays.toString(args));
+                            Msg.debug("[Groups command] User: " + user);
+                            Msg.debug("[Groups command] Group: " + group);
 
                             if (!groups.isGroup(group)) {
                                 request.reply("Invalid group " + group + "!");
                                 return;
                             }
                             Group g = groups.getGroup(group);
-                            Msg.debug("Chosen group: " + g.getId());
+                            Msg.debug("[Groups command] Chosen group: " + g.getId());
 
                             if (g.getId().equalsIgnoreCase("op")) {
                                 request.reply("You must be op to set someone as op!");
@@ -85,7 +85,7 @@ public class GroupsCommand extends Command {
                             }
 
                             groups.setGroup(user, g);
-                            database.save(request.getRoom());
+                            database.save(request.getRoom().getId());
                             request.reply("Set " + user + "'s group to " + group + "!");
                             break;
                         }

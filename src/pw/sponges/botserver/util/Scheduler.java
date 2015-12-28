@@ -98,7 +98,7 @@ public final class Scheduler {
         try {
             Scheduler.getService().awaitTermination(2, TimeUnit.SECONDS);
         } catch (InterruptedException ex) {
-            System.out.println("Error halting scheduler service");
+            Msg.warning("Error halting scheduler service");
             ex.printStackTrace();
         }
     }

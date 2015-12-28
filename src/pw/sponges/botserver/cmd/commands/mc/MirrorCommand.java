@@ -25,7 +25,7 @@ public class MirrorCommand extends Command {
 
         this.cached = new HashMap<>();
 
-        Scheduler.runAsyncTaskRepeat(this::reload, 0, 6, TimeUnit.HOURS);
+        Scheduler.runAsyncTaskRepeat(this::reload, 0, 20, TimeUnit.MINUTES);
 
         StringBuilder str = new StringBuilder("Available files on the http://tcpr.ca mirror:\n");
         for (MirrorFile file : MirrorFile.values()) {

@@ -57,7 +57,7 @@ public class ServerImpl implements Server {
             future = bootstrap.bind(PORT);
             future.sync().channel().closeFuture().sync();
         } finally {
-            System.out.println("Shutting down!");
+            Msg.warning("Shutting down!");
             boss.shutdownGracefully();
             worker.shutdownGracefully();
         }

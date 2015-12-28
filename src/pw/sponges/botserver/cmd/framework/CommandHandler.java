@@ -10,6 +10,7 @@ import pw.sponges.botserver.cmd.commands.steam.SteamStatusCommand;
 import pw.sponges.botserver.cmd.commands.util.BridgeCommand;
 import pw.sponges.botserver.cmd.commands.util.JSONBeautifier;
 import pw.sponges.botserver.cmd.commands.util.JavaCommand;
+import pw.sponges.botserver.framework.Room;
 import pw.sponges.botserver.permissions.Group;
 import pw.sponges.botserver.permissions.PermissionsManager;
 import pw.sponges.botserver.permissions.simple.UserRole;
@@ -20,6 +21,7 @@ import pw.sponges.botserver.util.Msg;
 import pw.sponges.botserver.util.Scheduler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,7 +73,8 @@ public class CommandHandler {
                 new KickCommand(),
                 new BanCommand(database),
                 new SendMessageCommand(),
-                new ClearChatCommand()
+                new ClearChatCommand(),
+                new SpamCommand()
         );
     }
 
@@ -111,12 +114,16 @@ public class CommandHandler {
 
     public void handleCommand(CommandRequest request) {
         String input = request.getInput();
-        String room = request.getRoom();
-        RoomSettings settings = database.getData(room).getSettings();
+        Room room = request.getRoom();
+
+        Msg.debug("[Command handling] New command request!\ninput=" + input + "\nroom=" + room + "\nuser" + request.getUser());
+
+        RoomSettings settings = database.getData(room.getId()).getSettings();
         String prefix = (String) settings.get(Setting.PREFIX);
         String noPrefix = input.substring(prefix.length());
 
         String[] args = noPrefix.split(" ");
+        Msg.debug("[Command handling] args=" + Arrays.toString(args));
         String cmd = args[0];
 
         for (Command command : commands) {
@@ -129,7 +136,7 @@ public class CommandHandler {
                         return;
                     }
 
-                    Group group = permissions.getGroups(room).getUserGroup(request.getUser());
+                    Group group = permissions.getGroups(room.getId()).getUserGroup(request.getUser().getId());
 
                     if ((boolean) settings.get(Setting.SIMPLE_PERMS)) {
                         UserRole role = command.getRole();
@@ -139,7 +146,7 @@ public class CommandHandler {
                                 if (!group.getId().equalsIgnoreCase("admin") && !group.getId().equalsIgnoreCase("op")) {
                                     request.reply("You do not have permission to do that! (" + role.name().toUpperCase() + ")"
                                             + "\nYour role: " + group.getId()
-                                            + "\nYour id: " + request.getUser());
+                                            + "\nYour id: " + request.getUser().getId());
                                     return;
                                 }
                                 break;
@@ -148,7 +155,7 @@ public class CommandHandler {
                                 if (!group.getId().equalsIgnoreCase("op")) {
                                     request.reply("You do not have permission to do that! (" + role.name().toUpperCase() + ")"
                                             + "\nYour role: " + group.getId()
-                                            + "\nYour id: " + request.getUser());
+                                            + "\nYour id: " + request.getUser().getId());
                                     return;
                                 }
                                 break;

@@ -36,8 +36,6 @@ public class EventManager {
             listener.onChatMessage((ChatMessageEvent) event);
         } else if (event instanceof CommandRequestEvent) {
             listener.onCommandRequest((CommandRequestEvent) event);
-        } else if (event instanceof LinkRequestEvent) {
-            listener.onLinkRequest((LinkRequestEvent) event);
         } else if (event instanceof UserJoinEvent) {
             listener.onUserJoin((UserJoinEvent) event);
         }

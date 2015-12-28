@@ -1,33 +1,35 @@
 package pw.sponges.botserver.messages;
 
 import org.json.JSONObject;
-import pw.sponges.botserver.Client;
+import pw.sponges.botserver.framework.Room;
+import pw.sponges.botserver.framework.User;
 import pw.sponges.botserver.util.JSONBuilder;
 
 public class ChatMessage extends Message {
 
-    private Client client;
-    private final String userId, username, sourceRoom, sourceName, room, message;
+    private final User user;
+    private final Room localRoom;
+    private final Room target;
+    private final String message;
 
-    public ChatMessage(Client client, String userId, String username, String sourceRoom, String sourceName, String room, String message) {
-        super(client, "CHAT");
-        this.client = client;
-        this.userId = userId;
-        this.username = username;
-        this.sourceRoom = sourceRoom;
-        this.sourceName = sourceName;
-        this.room = room;
+    public ChatMessage(User user, Room target, String message) {
+        super(user.getClient(), "CHAT");
+
+        this.user = user;
+        this.localRoom = user.getRoom();
+        this.target = target;
         this.message = message;
     }
 
+    // TODO convert message to json objects, network support
     @Override
     public JSONObject toJson() {
         return JSONBuilder.create(this)
-                .withValue("userid", userId)
-                .withValue("username", username)
-                .withValue("source-room", sourceRoom)
-                .withValue("name", sourceName)
-                .withValue("room", room)
+                .withValue("userid", user.getId())
+                .withValue("usernaeme", user.getUsername())
+                .withValue("source-room", localRoom.getId())
+                .withValue("name", localRoom.getTopic())
+                .withValue("room", target.getId())
                 .withValue("message", message)
                 .build();
     }

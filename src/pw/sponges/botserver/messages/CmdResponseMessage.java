@@ -1,32 +1,36 @@
 package pw.sponges.botserver.messages;
 
 import org.json.JSONObject;
-import pw.sponges.botserver.Client;
+import pw.sponges.botserver.framework.Network;
+import pw.sponges.botserver.framework.Room;
+import pw.sponges.botserver.framework.User;
 import pw.sponges.botserver.util.JSONBuilder;
 
 public class CmdResponseMessage extends Message {
 
-    private final Client client;
-    private final String room, user, username, response;
+    private final User user;
+    private final Room room;
+    private final Network network;
+    private final String response;
 
-    public CmdResponseMessage(Client client, String room, String user, String username, String response) {
-        super(client, "COMMAND");
+    public CmdResponseMessage(User user, String response) {
+        super(user.getClient(), "COMMAND");
 
-        this.client = client;
-        this.room = room;
         this.user = user;
-        this.username = username;
+        this.room = user.getRoom();
+        this.network = room.getNetwork();
         this.response = response;
     }
 
+    // TODO change this to json objects with more data
     @Override
     public JSONObject toJson() {
         return JSONBuilder.create(this)
-                .withValue("room", room)
-                .withValue("user", user)
-                .withValue("username", username)
+                .withValue("network", network.getId())
+                .withValue("room", room.getId())
+                .withValue("user", user.getId())
+                .withValue("username", user.getUsername())
                 .withValue("response", response)
                 .build();
     }
-
 }

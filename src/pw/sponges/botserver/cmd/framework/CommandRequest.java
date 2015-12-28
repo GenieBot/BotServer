@@ -1,11 +1,6 @@
 package pw.sponges.botserver.cmd.framework;
 
-import pw.sponges.botserver.Client;
-import pw.sponges.botserver.messages.CmdResponseMessage;
-import pw.sponges.botserver.permissions.Group;
-import pw.sponges.botserver.util.Msg;
-
-public class CommandRequest {
+/*public class CommandRequest {
 
     private final Client client;
     private final String user, username, room, input;
@@ -48,5 +43,53 @@ public class CommandRequest {
         Msg.debug("Replying with message...");
 
         client.sendMessage(new CmdResponseMessage(client, room, user, username, message));
+    }
+}
+*/
+
+import pw.sponges.botserver.Client;
+import pw.sponges.botserver.framework.Network;
+import pw.sponges.botserver.framework.Room;
+import pw.sponges.botserver.framework.User;
+import pw.sponges.botserver.messages.CmdResponseMessage;
+
+public class CommandRequest {
+
+    private final User user;
+    private final Room room;
+    private final Network network;
+    private final Client client;
+    private final String input;
+
+    public CommandRequest(User user, String input) {
+        this.user = user;
+        this.room = user.getRoom();
+        this.network = room.getNetwork();
+        this.client = network.getClient();
+        this.input = input;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public String getInput() {
+        return input;
+    }
+
+    public void reply(String message) {
+        client.sendMessage(new CmdResponseMessage(user, message));
     }
 }

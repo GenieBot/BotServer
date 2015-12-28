@@ -31,7 +31,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> implement
 
     public ServerHandler(Bot bot) {
         this.bot = bot;
-        System.out.println("new handler " + Arrays.toString(channels.toArray()));
+        Msg.debug("new handler " + Arrays.toString(channels.toArray()));
     }
 
     /**

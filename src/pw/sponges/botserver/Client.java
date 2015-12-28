@@ -1,6 +1,7 @@
 package pw.sponges.botserver;
 
 import pw.sponges.botserver.bridge.BridgeManager;
+import pw.sponges.botserver.framework.NetworkManager;
 import pw.sponges.botserver.internal.ServerWrapper;
 import pw.sponges.botserver.messages.Message;
 
@@ -32,5 +33,8 @@ public interface Client {
      * @return BridgeManager instance
      */
     BridgeManager getBridgeManager();
+
+    // TODO javadoc comment for network manager
+    NetworkManager getNetworkManager();
 
 }

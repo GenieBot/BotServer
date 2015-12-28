@@ -3,7 +3,6 @@ package pw.sponges.botserver.cmd.commands.admin;
 import pw.sponges.botserver.Client;
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
-import pw.sponges.botserver.messages.KickUserMessage;
 import pw.sponges.botserver.permissions.simple.UserRole;
 
 public class KickCommand extends Command {
@@ -27,11 +26,12 @@ public class KickCommand extends Command {
 
         Client client = request.getClient();
 
+        // TODO kicking without user object
         if (!full.contains(",")) {
-            client.sendMessage(new KickUserMessage(client, request.getRoom(), args[0]));
+            //client.sendMessage(new KickUserMessage(client, request.getRoom(), args[0]));
         } else {
             for (String username : full.split(",")) {
-                client.sendMessage(new KickUserMessage(client, request.getRoom(), username));
+                //client.sendMessage(new KickUserMessage(client, request.getRoom(), username));
             }
         }
     }

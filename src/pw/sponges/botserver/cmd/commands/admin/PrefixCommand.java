@@ -31,9 +31,9 @@ public class PrefixCommand extends Command {
 
         String prefix = args[0];
 
-        database.getData(request.getRoom()).getSettings().set(Setting.PREFIX, prefix);
-        database.save(request.getRoom());
+        database.getData(request.getRoom().getId()).getSettings().set(Setting.PREFIX, prefix);
+        database.save(request.getRoom().getId());
 
-        request.reply("Set the prefix for " + request.getRoom() + " to " + args[0] + "!");
+        request.reply("Set the prefix for " + request.getRoom().getId() + " to " + args[0] + "!");
     }
 }

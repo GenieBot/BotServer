@@ -14,12 +14,13 @@ public class JoinRoomCommand extends Command {
     @Override
     public void onCommand(CommandRequest request, String[] args) {
         if (args.length == 0) {
-            request.reply("Usage: joinroom <room>");
+            request.reply("Usage: joinroom <network> <room>");
             return;
         }
 
-        String room = args[0];
-        request.getClient().sendMessage(new JoinRoomMessage(request.getClient(), room));
+        String network = args[0];
+        String room = args[1];
+        request.getClient().sendMessage(new JoinRoomMessage(request.getClient(), network, room));
         request.reply("Attempting to join that room!");
     }
 

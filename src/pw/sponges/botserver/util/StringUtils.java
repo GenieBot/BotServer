@@ -34,6 +34,7 @@ public class StringUtils {
     }
 
     public static List<String> extractUrls(String text) {
+        text = StringEscapeUtils.unescapeJson(text);
         List<String> containedUrls = new ArrayList<String>();
         //String urlRegex = "((https?):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
         String urlRegex = "(?:(?:https?):\\/\\/|www\\.|ftp\\.)(?:\\([-A-Z0-9+&@#\\/%=~_|$?!:,.]*\\)|[-A-Z0-9+&@#\\/%=~_|$?!:,.])*(?:\\([-A-Z0-9+&@#\\/%=~_|$?!:,.]*\\)|[A-Z0-9+&@#\\/%=~_|$])";
@@ -43,6 +44,8 @@ public class StringUtils {
         while (urlMatcher.find()) {
             containedUrls.add(text.substring(urlMatcher.start(0), urlMatcher.end(0)));
         }
+
+        Msg.debug("URLS " + containedUrls);
 
         return containedUrls;
     }

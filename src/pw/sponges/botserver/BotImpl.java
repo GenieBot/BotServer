@@ -95,7 +95,7 @@ public class BotImpl implements Bot {
 
         // Sanity check
         if (!isClient) {
-            Msg.warning("Client " + clientId + " tried to bridge with invalid client " + target + "!");
+            Msg.warning("[Adding link] Client " + clientId + " tried to bridge with invalid client " + target + "!");
             return "Client " + target + " is invalid!";
         }
 
@@ -106,7 +106,7 @@ public class BotImpl implements Bot {
 
             boolean isBridged = bridgeManager.isBridged(clientRoom);
             if (isBridged) {
-                Msg.warning("The room " + clientRoom + " is already bridged!");
+                Msg.warning("[Adding link] The room " + clientRoom + " is already bridged!");
                 return "The room " + clientRoom + " is already bridged!\nTo remove it, use 'bridge remove'.";
             }
 
@@ -121,7 +121,7 @@ public class BotImpl implements Bot {
 
             boolean isBridged = bridgeManager.isBridged(target);
             if (isBridged) {
-                Msg.warning("The room " + clientRoom + " is already bridged!");
+                Msg.warning("[Adding link] The room " + clientRoom + " is already bridged!");
                 return "The room " + clientRoom + " is already bridged!";
             }
 
@@ -129,7 +129,7 @@ public class BotImpl implements Bot {
             bridgeManager.addBridge(bridge);
         }
 
-        Msg.debug("Added bridge from client " + clientId + " with room " + clientRoom + " to target " + target + " room " + targetRoom + "!");
+        Msg.debug("[Adding link] Added bridge from client " + clientId + " with room " + clientRoom + " to target " + target + " room " + targetRoom + "!");
         return "Added bridge!";
     }
 

@@ -4,6 +4,7 @@ import pw.sponges.botserver.permissions.Group;
 import pw.sponges.botserver.permissions.PermissionGroups;
 import pw.sponges.botserver.permissions.PermissionsManager;
 import pw.sponges.botserver.storage.Database;
+import pw.sponges.botserver.util.Msg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +67,7 @@ public class PermissionsManagerImpl implements PermissionsManager {
 
     @Override
     public void setGroups(String room, PermissionGroups groups) {
-        System.out.println("Set groups for " + room + "!");
+        Msg.debug("Set groups for " + room + "!");
 
         this.groups.put(room, groups);
     }

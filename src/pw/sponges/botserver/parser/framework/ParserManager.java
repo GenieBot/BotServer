@@ -1,8 +1,12 @@
 package pw.sponges.botserver.parser.framework;
 
 import pw.sponges.botserver.parser.parsers.TestParser;
+import pw.sponges.botserver.parser.parsers.TwitchParser;
+import pw.sponges.botserver.parser.parsers.TwitterParser;
+import pw.sponges.botserver.parser.parsers.YoutubeParser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ParserManager {
@@ -11,14 +15,15 @@ public class ParserManager {
 
     public ParserManager() {
         this.register(
-                new TestParser()
+                new TestParser(),
+                new TwitterParser(),
+                new YoutubeParser(),
+                new TwitchParser()
         );
     }
 
     private void register(Parser... parsers) {
-        for (Parser parser : parsers) {
-            this.parsers.add(parser);
-        }
+        Collections.addAll(this.parsers, parsers);
     }
 
     public String handle(String link) {

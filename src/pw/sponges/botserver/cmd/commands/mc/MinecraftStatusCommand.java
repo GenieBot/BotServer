@@ -5,7 +5,6 @@ import org.jsoup.Jsoup;
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
 import pw.sponges.botserver.permissions.simple.UserRole;
-import pw.sponges.botserver.util.Msg;
 
 import java.io.IOException;
 
@@ -17,20 +16,17 @@ public class MinecraftStatusCommand extends Command {
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
-        Msg.debug("working...");
-
-        String user = request.getUser();
+        String user = request.getUser().getId();
 
         request.reply("Mojang server statuses:\n" +
-                "Minecraft Website - " + getStatus("minecraft.net", user) + "\n" +
-                "Minecraft Session Service - " + getStatus("session.minecraft.net", user) + "\n" +
-                "Mojang Account Service - " + getStatus("account.mojang.com", user) + "\n" +
-                "Mojang Login Service - " + getStatus("auth.mojang.com", user) + "\n" +
-                "Minecraft Skin Service - " + getStatus("skins.minecraft.net", user) + "\n" +
-                "Mojang Session Service - " + getStatus("sessionserver.mojang.com", user) + "\n" +
-                "Mojang API Service - " + getStatus("api.mojang.com", user) + "\n" +
-                "Minecraft Texture Service - " + getStatus("textures.minecraft.net", user));
-        Msg.debug("working 2...");
+            "Minecraft Website - " + getStatus("minecraft.net", user) + "\n" +
+            "Minecraft Session Service - " + getStatus("session.minecraft.net", user) + "\n" +
+            "Mojang Account Service - " + getStatus("account.mojang.com", user) + "\n" +
+            "Mojang Login Service - " + getStatus("auth.mojang.com", user) + "\n" +
+            "Minecraft Skin Service - " + getStatus("skins.minecraft.net", user) + "\n" +
+            "Mojang Session Service - " + getStatus("sessionserver.mojang.com", user) + "\n" +
+            "Mojang API Service - " + getStatus("api.mojang.com", user) + "\n" +
+            "Minecraft Texture Service - " + getStatus("textures.minecraft.net", user));
     }
 
     private String getStatus(String url, String user) {

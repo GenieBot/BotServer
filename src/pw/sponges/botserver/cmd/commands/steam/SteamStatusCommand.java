@@ -29,6 +29,14 @@ public class SteamStatusCommand extends Command {
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
+        if (args.length == 1) {
+            if (args[0].equalsIgnoreCase("reload")) {
+                reload();
+                request.reply("Reloaded steam!");
+                return;
+            }
+        }
+
         if (datacenters.isEmpty() || servicesStatus == null || matchMakingStatus == null) {
             request.reply("Steam server status' hasn't been loaded yet! Please wait a few minutes!");
             return;

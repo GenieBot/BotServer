@@ -49,7 +49,7 @@ public class ToggleCommand extends Command {
             return;
         }
 
-        String room = request.getRoom();
+        String room = request.getRoom().getId();
         RoomData data = database.getData(room);
         RoomSettings settings = data.getSettings();
 

@@ -6,11 +6,12 @@ import pw.sponges.botserver.util.JSONBuilder;
 
 public class SendRawMessage extends Message {
 
-    private final String room, message;
+    private final String network, room, message;
 
-    public SendRawMessage(Client client, String room, String message) {
+    public SendRawMessage(Client client, String network, String room, String message) {
         super(client, "RAW");
 
+        this.network = network;
         this.room = room;
         this.message = message;
     }
@@ -18,9 +19,9 @@ public class SendRawMessage extends Message {
     @Override
     public JSONObject toJson() {
         return JSONBuilder.create(this)
+                .withValue("network", network)
                 .withValue("room", room)
                 .withValue("message", message)
                 .build();
     }
-
 }

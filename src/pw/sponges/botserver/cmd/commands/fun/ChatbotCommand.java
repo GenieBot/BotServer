@@ -35,7 +35,7 @@ public class ChatbotCommand extends Command {
             return;
         }
 
-        String room = request.getRoom();
+        String room = request.getRoom().getId();
 
         ChatterBotSession session;
         if (sessions.containsKey(room)) {

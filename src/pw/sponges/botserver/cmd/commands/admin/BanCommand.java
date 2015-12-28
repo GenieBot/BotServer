@@ -3,7 +3,7 @@ package pw.sponges.botserver.cmd.commands.admin;
 import pw.sponges.botserver.Client;
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
-import pw.sponges.botserver.messages.KickUserMessage;
+import pw.sponges.botserver.framework.Room;
 import pw.sponges.botserver.permissions.simple.UserRole;
 import pw.sponges.botserver.storage.Database;
 import pw.sponges.botserver.storage.RoomData;
@@ -30,10 +30,10 @@ public class BanCommand extends Command {
         }
 
         Client client = request.getClient();
-        String room = request.getRoom();
+        Room room = request.getRoom();
         String user = args[0].toLowerCase();
 
-        RoomData data = database.getData(room);
+        RoomData data = database.getData(room.getId());
         RoomSettings settings = data.getSettings();
 
         @SuppressWarnings("unchecked")
@@ -42,7 +42,8 @@ public class BanCommand extends Command {
         String reply;
         if (!bannedUsers.contains(user)) {
             bannedUsers.add(user);
-            client.sendMessage(new KickUserMessage(client, room, args[0]));
+            // TODO fix ban command by adding username alternative kick constructor
+            //client.sendMessage(new KickUserMessage(client, room, args[0]));
             reply = String.format("Banned %s! To unban them, use the 'unban' command.", user);
         } else {
             bannedUsers.remove(user);
@@ -50,7 +51,7 @@ public class BanCommand extends Command {
         }
 
         settings.set(Setting.BANNED_USERS, bannedUsers);
-        database.save(room);
+        database.save(room.getId());
 
         request.reply(reply);
     }

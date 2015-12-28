@@ -23,12 +23,12 @@ public class BridgeCommand extends Command {
             if (args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("delete")) {
                 BridgeManager manager = request.getClient().getBridgeManager();
 
-                if (!manager.isBridged(request.getRoom())) {
+                if (!manager.isBridged(request.getRoom().getId())) {
                     request.reply("This room is not already bridged?");
                     return;
                 }
 
-                Bridge bridge = manager.getBridge(request.getRoom());
+                Bridge bridge = manager.getBridge(request.getRoom().getId());
                 manager.removeBridge(bridge);
 
                 request.reply("Removed the bridge in this room.");
@@ -47,7 +47,7 @@ public class BridgeCommand extends Command {
         }
 
         Client client = request.getClient();
-        String requestRoom = request.getRoom();
+        String requestRoom = request.getRoom().getId();
         String targetClient = args[0];
         String targetRoom = args[1];
 

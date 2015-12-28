@@ -1,11 +1,11 @@
 package pw.sponges.botserver.event.events;
 
-import pw.sponges.botserver.Client;
 import pw.sponges.botserver.event.framework.Event;
+import pw.sponges.botserver.framework.User;
 
 public class UserJoinEvent extends Event {
 
-    private final Client client;
+    /*private final Client client;
     private final String room, user;
 
     public UserJoinEvent(Client client, String room, String user) {
@@ -29,6 +29,20 @@ public class UserJoinEvent extends Event {
     @Override
     public String needsChecks() {
         return room;
+    }*/
+
+    private final User user;
+
+    public UserJoinEvent(User user) {
+        this.user = user;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    @Override
+    public String needsChecks() {
+        return user.getRoom().getId();
+    }
 }

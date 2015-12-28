@@ -2,7 +2,6 @@ package pw.sponges.botserver.cmd.commands.admin;
 
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
-import pw.sponges.botserver.messages.SettingUpdateMessage;
 import pw.sponges.botserver.permissions.simple.UserRole;
 import pw.sponges.botserver.storage.Database;
 import pw.sponges.botserver.storage.RoomData;
@@ -20,7 +19,7 @@ public class SettingsCommand extends Command {
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
-        String room = request.getRoom();
+        String room = request.getRoom().getId();
         RoomData roomData = database.getData(room);
 
         if (args.length > 0) {
@@ -68,7 +67,6 @@ public class SettingsCommand extends Command {
                         Object v = ParsingUtils.parse(args[1]);
                         roomData.getSettings().set(set, v);
                         database.save(room);
-                        request.getClient().sendMessage(new SettingUpdateMessage(request.getClient(), room, set, v));
                         request.reply("Set the value of " + setting.toLowerCase().replace("_", "-") + " to " + v + "!");
                         break;
                     } else {

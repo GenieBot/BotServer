@@ -2,7 +2,6 @@ package pw.sponges.botserver.cmd.commands.op;
 
 import pw.sponges.botserver.cmd.framework.Command;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
-import pw.sponges.botserver.messages.SendRawMessage;
 import pw.sponges.botserver.permissions.simple.UserRole;
 
 public class SendMessageCommand extends Command {
@@ -30,6 +29,7 @@ public class SendMessageCommand extends Command {
             }
         }
 
-        request.getClient().sendMessage(new SendRawMessage(request.getClient(), room, message.toString()));
+        // TODO fix sending raw messages to non loaded rooms
+        //request.getClient().sendMessage(new SendRawMessage(room, message.toString()));
     }
 }

@@ -3,14 +3,16 @@ package pw.sponges.botserver;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import pw.sponges.botserver.bridge.Bridge;
 import pw.sponges.botserver.bridge.BridgeManager;
 import pw.sponges.botserver.cmd.framework.CommandHandler;
 import pw.sponges.botserver.cmd.framework.CommandRequest;
 import pw.sponges.botserver.event.events.*;
 import pw.sponges.botserver.event.framework.EventManager;
 import pw.sponges.botserver.event.framework.Listener;
-import pw.sponges.botserver.messages.ChatMessage;
+import pw.sponges.botserver.framework.Network;
+import pw.sponges.botserver.framework.Room;
+import pw.sponges.botserver.framework.User;
+import pw.sponges.botserver.messages.CmdResponseMessage;
 import pw.sponges.botserver.messages.KickUserMessage;
 import pw.sponges.botserver.messages.SendRawMessage;
 import pw.sponges.botserver.permissions.Group;
@@ -89,13 +91,13 @@ public class BotListener implements Listener {
 
         // Checking to see if the message received is actually a valid message
         if (!event.getInput().contains("{")) {
-            Msg.warning("Got non json message! " + event.getInput());
+            Msg.warning("[Client input] " + event.getInput());
             return;
         }
 
         // Parsing input as JSON
         JSONObject object = new JSONObject(event.getInput());
-        Msg.debug(object.toString());
+        Msg.debug("[Client input] " + object.toString());
 
         String type = object.getString("type").toUpperCase();
 
@@ -111,45 +113,56 @@ public class BotListener implements Listener {
             case "CHAT": {
                 String clientId = object.getString("client-id");
                 Client client = bot.getClient(clientId);
-                String userId = object.getString("userid");
-                String username = object.getString("username");
-                String room = object.getString("room");
-                String name = object.getString("name");
+
+                String networkId = object.getJSONObject("network").getString("id");
+                Network network = client.getNetworkManager().getOrCreateNetwork(networkId);
+
+                JSONObject roomObject = object.getJSONObject("room");
+                String roomId = roomObject.getString("id");
+                String topic = roomObject.getString("topic");
+                Room room = network.getRoomManager().getOrCreateRoom(roomId, topic);
+
+                JSONObject userObject = object.getJSONObject("user");
+                String userId = userObject.getString("id");
+                String username = userObject.getString("username");
+                String displayName = userObject.getString("display-name");
+                String role = userObject.getString("role");
+                UserRole userRole = UserRole.valueOf(role.toUpperCase());
+                User user = room.getOrCreateUser(userId, username, displayName, userRole);
 
                 String message = object.getString("message");
                 message = StringEscapeUtils.escapeJson(message);
 
-                String role = object.getString("role");
-                UserRole userRole = UserRole.valueOf(role.toUpperCase());
-                eventManager.handle(new ChatMessageEvent(client, userId, username, room, name, message, userRole));
-                break;
-            }
-
-            case "LINK": {
-                String clientId = object.getString("client-id");
-                Client client = bot.getClient(clientId);
-                String clientRoom = object.getString("room");
-                String targetId = object.getString("target-client");
-                String targetRoom = object.getString("target-room");
-
-                targetId = StringEscapeUtils.escapeJson(targetId);
-                targetRoom = StringEscapeUtils.escapeJson(targetRoom);
-
-                eventManager.handle(new LinkRequestEvent(client, clientRoom, targetId, targetRoom));
+                eventManager.handle(new ChatMessageEvent(client, network, room, user, message));
                 break;
             }
 
             case "JOIN": {
                 String clientId = object.getString("client-id");
                 Client client = bot.getClient(clientId);
-                String room = object.getString("room");
-                String user = object.getString("user");
-                eventManager.handle(new UserJoinEvent(client, room, user));
+
+                String networkId = object.getJSONObject("network").getString("id");
+                Network network = client.getNetworkManager().getOrCreateNetwork(networkId);
+
+                JSONObject roomObject = object.getJSONObject("room");
+                String roomId = roomObject.getString("id");
+                String topic = roomObject.getString("topic");
+                Room room = network.getRoomManager().getOrCreateRoom(roomId, topic);
+
+                JSONObject userObject = object.getJSONObject("user");
+                String userId = userObject.getString("id");
+                String username = userObject.getString("username");
+                String displayName = userObject.getString("display-name");
+                String role = userObject.getString("role");
+                UserRole userRole = UserRole.valueOf(role.toUpperCase());
+                User user = room.getOrCreateUser(userId, username, displayName, userRole);
+
+                eventManager.handle(new UserJoinEvent(user));
                 break;
             }
 
             default: {
-                Msg.warning("Unknown message type! " + type);
+                Msg.warning("[Client input] Unknown message type! " + type);
                 Msg.debug(object.toString());
                 break;
             }
@@ -166,14 +179,14 @@ public class BotListener implements Listener {
 
         // Check if the client is already connected
         if (bot.getClients().containsKey(id)) {
-            Msg.warning("There is already a client connected with the ID " + id + "! Removing old instance from map.");
+            Msg.warning("[Connect event] There is already a client connected with the ID " + id + "! Removing old instance from map.");
             // TODO send already connected message?
             //event.getClient().getWrapper().disconnect();
             bot.getClients().remove(id);
         }
 
         // Setup the connection
-        Msg.log("Client identified as " + id + "!");
+        Msg.log("[Connect event] Client identified as " + id + "!");
         bot.getClients().put(event.getClient().getId(), event.getClient());
     }
 
@@ -188,19 +201,27 @@ public class BotListener implements Listener {
 
         Client client = event.getClient();
         String clientId = client.getId();
-        String room = event.getRoom();
-        String userId = event.getUserId();
-        String username = event.getUsername();
+
+        Room room = event.getRoom();
+        String roomId = room.getId();
+        String topic = room.getTopic();
+
+        User user = event.getUser();
+        String userId = user.getId();
+        String username = user.getUsername();
+        String displayName = user.getDisplayName();
+        UserRole role = user.getRole();
+
         String message = event.getMessage();
-        UserRole role = event.getRole();
 
-        Msg.log("[" + clientId + "] [" + event.getRoomName() + "] " + username + ": " + message);
+        Msg.log("[" + clientId + "] [" + room.getTopic() + "] " + username + ": " + message);
 
-        RoomSettings settings = database.getData(room).getSettings();
+        // TODO rework room data storage
+        RoomSettings settings = database.getData(roomId).getSettings();
         boolean simplePerms = (boolean) settings.get(Setting.SIMPLE_PERMS);
 
         // Loading the perms for that room
-        PermissionGroups groups = permissions.getGroups(room);
+        PermissionGroups groups = permissions.getGroups(roomId);
 
         // If the user does not have a group
         if (!groups.isSetup(userId)) {
@@ -217,24 +238,40 @@ public class BotListener implements Listener {
             }
         }
 
+        if (message.toLowerCase().contains("spongybot prefix")) {
+            client.sendMessage(new CmdResponseMessage(user, "Prefix for this room: " + settings.get(Setting.PREFIX)));
+
+            if (message.toLowerCase().contains("reset")) {
+                if (group.getId().equals("admin") || group.getId().equals("op")) {
+                    settings.set(Setting.PREFIX, "$");
+                    database.save(roomId);
+                    client.sendMessage(new CmdResponseMessage(user, "Reset the prefix of this room to " + settings.get(Setting.PREFIX)));
+                } else {
+                    client.sendMessage(new CmdResponseMessage(user, "no perms fam. Needs admin!"));
+                }
+            }
+        }
+
         // Is the message a command?
-        if (CommandHandler.isCommandRequest(room, message)) {
-            eventManager.handle(new CommandRequestEvent(new CommandRequest(client, userId, username, room, message, group)));
+        if (CommandHandler.isCommandRequest(roomId, message)) {
+            eventManager.handle(new CommandRequestEvent(new CommandRequest(user, message)));
         }
 
         BridgeManager bridgeManager = client.getBridgeManager();
 
+        // TODO redo bridging
         // Is the client's chat bridged
-        if (bridgeManager.isBridged(room)) {
-            Bridge bridge = bridgeManager.getBridge(room);
+        /*if (bridgeManager.isBridged(roomId)) {
+            Bridge bridge = bridgeManager.getBridge(roomId);
             String targetClient = bridge.getTargetClient();
             Client tClient = bot.getClient(targetClient);
             String tRoom = bridge.getTargetRoom();
 
+
             // Send message to the bridged target room
-            tClient.sendMessage(new ChatMessage(tClient, userId, username, room, event.getRoomName(), tRoom, message));
-            Msg.debug("Sent bridge message " + message + " to client " + targetClient + " room " + tRoom + " from " + clientId + " room " + room);
-        }
+            //tClient.sendMessage(new ChatMessage(user, tRoom2, message));
+            Msg.debug("[Bridged Chat] Sent bridge message " + message + " to client " + targetClient + " room " + tRoom + " from " + clientId + " room " + room);
+        }*/
 
         {
             // Link parsing
@@ -244,16 +281,16 @@ public class BotListener implements Listener {
                 if (links.size() > 0) {
                     if ((boolean) settings.get(Setting.DEBUG)) {
                         for (String s : links) {
-                            client.sendMessage(new SendRawMessage(client, room, "Found " + s));
+                            client.sendMessage(new SendRawMessage(client, room.getNetwork().getId(), room.getId(), "Found " + s));
                         }
                     }
 
                     String link = links.get(0);
-                    Msg.debug("got " + link + " from " + links);
+                    Msg.debug("[Link parsing] got " + link + " from " + links);
                     String parsed = bot.getParserManager().handle(link);
 
                     if (parsed != null) {
-                        client.sendMessage(new SendRawMessage(client, room, parsed));
+                        client.sendMessage(new SendRawMessage(client, room.getNetwork().getId(), room.getId(), parsed));
                     }
                 }
             }
@@ -273,35 +310,22 @@ public class BotListener implements Listener {
         commandHandler.handle(event.getCommandRequest());
     }
 
-    /**
-     * When a chat is bridged into another chat
-     * @param event
-     */
-    @Override
-    public void onLinkRequest(LinkRequestEvent event) {
-        String clientId = event.getClient().getId();
-        String clientRoom = event.getClientRoom();
-        String target = event.getTargetId();
-        String targetRoom = event.getTargetRoom();
-
-        // Adding the link
-        bot.addLink(clientId, clientRoom, target, targetRoom);
-    }
-
     @Override
     public void onUserJoin(UserJoinEvent event) {
-        Client client = event.getClient();
-        String room = event.getRoom();
-        String user = event.getUser();
-        RoomSettings settings = database.getData(room).getSettings();
+        User user = event.getUser();
+        Room room = user.getRoom();
+        Client client = room.getClient();
+
+        RoomSettings settings = database.getData(room.getId()).getSettings();
 
         {
             @SuppressWarnings("unchecked")
             List<String> banned = (List<String>) settings.get(Setting.BANNED_USERS);
 
             if (banned.contains(user)) {
-                client.sendMessage(new SendRawMessage(client, room, "You are banned " + user + "! To unban a user, use the 'unban' command."));
-                client.sendMessage(new KickUserMessage(client, room, user));
+                client.sendMessage(new SendRawMessage(client, room.getNetwork().getId(), room.getId(),
+                        "You are banned " + user.getDisplayName() + "(" + user.getId() + ")! To unban a user, use the 'unban' command."));
+                client.sendMessage(new KickUserMessage(user));
             }
         }
     }

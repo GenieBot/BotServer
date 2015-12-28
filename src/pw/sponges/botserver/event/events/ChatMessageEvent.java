@@ -2,9 +2,11 @@ package pw.sponges.botserver.event.events;
 
 import pw.sponges.botserver.Client;
 import pw.sponges.botserver.event.framework.Event;
-import pw.sponges.botserver.permissions.simple.UserRole;
+import pw.sponges.botserver.framework.Network;
+import pw.sponges.botserver.framework.Room;
+import pw.sponges.botserver.framework.User;
 
-public class ChatMessageEvent extends Event {
+/*public class ChatMessageEvent extends Event {
 
     private final Client client;
     private final String userId, username, room, roomName, message;
@@ -51,5 +53,49 @@ public class ChatMessageEvent extends Event {
 
     public UserRole getRole() {
         return role;
+    }
+}
+*/
+
+public class ChatMessageEvent extends Event {
+
+    private final Client client;
+    private final Network network;
+    private final Room room;
+    private final User user;
+    private final String message;
+
+    public ChatMessageEvent(Client client, Network network, Room room, User user, String message) {
+        this.client = client;
+        this.network = network;
+        this.room = room;
+        this.user = user;
+        this.message = message;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    // TODO change how checks are managed
+    @Override
+    public String needsChecks() {
+        return room.getId();
     }
 }
