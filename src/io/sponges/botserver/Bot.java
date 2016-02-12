@@ -33,20 +33,6 @@ public interface Bot {
     Map<String, Client> getClients();
 
     /**
-     * Checks to see if a client with the specified id is connected
-     * @param id the client id to check
-     * @return if client is connected
-     */
-    boolean isClient(String id);
-
-    /**
-     * Returns the client instance with the specified id
-     * @param id the id of the client
-     * @return client instance
-     */
-    Client getClient(String id);
-
-    /**
      * The EventManager instance
      * @return eventManager
      */
@@ -57,18 +43,6 @@ public interface Bot {
      * @return commandHandler
      */
     CommandHandler getCommandHandler();
-
-    /**
-     * Add a chat bridge 'link' between two rooms
-     * @param clientId the id of the client bridging from
-     * @param clientRoom the room bringing chat from
-     * @param target the target client that has the room in
-     * @param targetRoom the room to bridge into
-     * @return command response
-     *
-     * TODO move to bridge manager
-     */
-    String addLink(String clientId, String clientRoom, String target, String targetRoom);
 
     /**
      * The ParserManager instance

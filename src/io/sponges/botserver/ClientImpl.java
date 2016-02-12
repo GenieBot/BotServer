@@ -4,24 +4,24 @@ import io.sponges.botserver.bridge.BridgeManager;
 import io.sponges.botserver.bridge.impl.BridgeManagerImpl;
 import io.sponges.botserver.framework.NetworkManager;
 import io.sponges.botserver.framework.impl.NetworkManagerImpl;
-import io.sponges.botserver.internal.ServerWrapper;
+import io.sponges.botserver.internal.Server;
 import io.sponges.botserver.messages.Message;
 import io.sponges.botserver.util.Msg;
-import org.json.JSONObject;
 
 /**
  * Implementation of the Client interface
  */
 public class ClientImpl implements Client {
 
-    private final String id;
-    private final ServerWrapper wrapper;
+    private final String id, channel;
+    private final Server server;
     private final NetworkManager networkManager;
     private final BridgeManager bridgeManager;
 
-    public ClientImpl(String id, ServerWrapper wrapper) {
+    public ClientImpl(String id, String channel, Server server) {
         this.id = id;
-        this.wrapper = wrapper;
+        this.channel = channel;
+        this.server = server;
         this.networkManager = new NetworkManagerImpl(this);
         this.bridgeManager = new BridgeManagerImpl();
     }
@@ -34,12 +34,12 @@ public class ClientImpl implements Client {
     @Override
     public void sendMessage(Message message) {
         Msg.debug("[Sending message] " + message.toString());
-        wrapper.sendMessage(message.toString());
+        server.publish(message);
     }
 
     @Override
-    public ServerWrapper getWrapper() {
-        return wrapper;
+    public String getChannel() {
+        return channel;
     }
 
     @Override
@@ -52,8 +52,4 @@ public class ClientImpl implements Client {
         return networkManager;
     }
 
-    @Override
-    public String toString() {
-        return new JSONObject().put("id", id).put("wrapper", wrapper.toString()).put("bridge", bridgeManager.toString()).toString();
-    }
 }

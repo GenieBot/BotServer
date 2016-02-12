@@ -10,7 +10,6 @@ import io.sponges.botserver.storage.UserRole;
 import io.sponges.botserver.storage.Setting;
 import io.sponges.botserver.Bot;
 import io.sponges.botserver.cmd.commands.steam.SteamStatusCommand;
-import io.sponges.botserver.cmd.commands.util.BridgeCommand;
 import io.sponges.botserver.cmd.commands.util.JSONBeautifier;
 import io.sponges.botserver.cmd.commands.util.JavaCommand;
 import io.sponges.botserver.framework.Room;
@@ -39,7 +38,6 @@ public class CommandHandler {
                 new TestCommand(),
                 new ChatInfoCommand(),
                 new PrefixCommand(database),
-                new BridgeCommand(bot),
                 new AboutCommand(),
                 new ClientsCommand(bot),
                 new StopCommand(bot),

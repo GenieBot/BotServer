@@ -2,7 +2,6 @@ package io.sponges.botserver;
 
 import io.sponges.botserver.bridge.BridgeManager;
 import io.sponges.botserver.framework.NetworkManager;
-import io.sponges.botserver.internal.ServerWrapper;
 import io.sponges.botserver.messages.Message;
 
 /**
@@ -16,17 +15,13 @@ public interface Client {
      */
     String getId();
 
+    String getChannel();
+
     /**
      * Send a Message to the client
      * @param message Message to send
      */
     void sendMessage(Message message);
-
-    /**
-     * The wrapper for the internal server implementation
-     * @return server wrapper
-     */
-    ServerWrapper getWrapper();
 
     /**
      * Gets the manager for room bridges

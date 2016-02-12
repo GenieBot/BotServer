@@ -8,7 +8,7 @@ import io.sponges.botserver.util.Scheduler;
 
 public class EventManager {
 
-    // TODO change to charries' EventBus
+    // TODO change to connor cherries' EventBus
 
     private Database database;
     private Listener listener = null;

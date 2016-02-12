@@ -32,17 +32,8 @@ public class StopCommand extends Command {
         Msg.warning("STOPPING IN 10S");
 
         Scheduler.runAsyncTask(() -> {
-            // Should never happen
-            for (Client client : bot.getClients().values()) {
-                client.getWrapper().disconnect();
-            }
-
             Msg.warning("BYE! <3");
-            try {
-                bot.getServer().stop();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            bot.getServer().stop();
             System.exit(-1);
         }, 10, TimeUnit.SECONDS);
     }

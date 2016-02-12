@@ -34,16 +34,16 @@ public class ClientsCommand extends Command {
 
                 String id = args[1];
 
-                if (!bot.isClient(id)) {
+                if (!bot.getClients().containsKey(id)) {
                     request.reply("Invalid client!");
                     return;
                 }
 
-                Client client = bot.getClient(id);
+                Client client = bot.getClients().get(id);
 
                 request.reply("Disconnecting " + id + "!");
                 client.sendMessage(new StopMessage(client));
-                client.getWrapper().disconnect();
+                bot.getClients().remove(id);
 
                 break;
             }

@@ -9,6 +9,7 @@ import io.sponges.botserver.event.framework.Listener;
 import io.sponges.botserver.framework.Network;
 import io.sponges.botserver.framework.Room;
 import io.sponges.botserver.framework.User;
+import io.sponges.botserver.internal.Server;
 import io.sponges.botserver.messages.KickUserMessage;
 import io.sponges.botserver.messages.SendRawMessage;
 import io.sponges.botserver.storage.Database;
@@ -29,6 +30,7 @@ import java.util.List;
 public class BotListener implements Listener {
 
     private final Bot bot;
+    private final Server server;
     private final EventManager eventManager;
     private final CommandHandler commandHandler;
     private final Database database;
@@ -36,8 +38,9 @@ public class BotListener implements Listener {
     // TODO instance for statistics instead of variables
     private static volatile int chatMessages, serverMessages, commandRuns;
 
-    public BotListener(Bot bot, Database database) {
+    public BotListener(Bot bot, Server server, Database database) {
         this.bot = bot;
+        this.server = server;
         this.database = database;
 
         this.eventManager = bot.getEventManager();
@@ -93,14 +96,15 @@ public class BotListener implements Listener {
         switch (type) {
             case "CONNECT": {
                 String clientId = object.getString("client-id");
-                Client client = new ClientImpl(clientId, event.getWrapper());
+                String channel = object.getString("channel");
+                Client client = new ClientImpl(clientId, channel, server);
                 eventManager.handle(new ConnectEvent(client));
                 break;
             }
 
             case "CHAT": {
                 String clientId = object.getString("client-id");
-                Client client = bot.getClient(clientId);
+                Client client = bot.getClients().get(clientId);
 
                 String networkId = object.getJSONObject("network").getString("id");
                 Network network = client.getNetworkManager().getOrCreateNetwork(networkId);
@@ -127,7 +131,7 @@ public class BotListener implements Listener {
 
             case "JOIN": {
                 String clientId = object.getString("client-id");
-                Client client = bot.getClient(clientId);
+                Client client = bot.getClients().get(clientId);
 
                 String networkId = object.getJSONObject("network").getString("id");
                 Network network = client.getNetworkManager().getOrCreateNetwork(networkId);
