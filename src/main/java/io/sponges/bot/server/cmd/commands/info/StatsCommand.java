@@ -15,17 +15,15 @@ public class StatsCommand extends Command {
         this.startTime = System.currentTimeMillis();
     }
 
-    // TODO improve stats
+    // TODO improve stats, stats caching
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
-        StringBuilder str = new StringBuilder("Statistics:");
-        str.append("\n").append("Server messages: ").append(BotListener.getServerMessages());
-        str.append("\n").append("Chat messages: ").append(BotListener.getChatMessages());
-        str.append("\n").append("Command runs: ").append(BotListener.getCommandRuns());
-        str.append("\n").append("Uptime: ").append(StringUtils.formatDate(startTime, System.currentTimeMillis()));
-
-        request.reply(str.toString());
+        request.reply("Statistics:"
+                + "\nServer messages: " + BotListener.getServerMessages()
+                + "\nChat messages: " + BotListener.getChatMessages()
+                + "\nCommand runs: " + BotListener.getCommandRuns()
+                + "\nUptime: " + StringUtils.formatDate(startTime, System.currentTimeMillis()));
     }
 
 }

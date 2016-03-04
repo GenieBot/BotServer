@@ -1,37 +1,35 @@
 package io.sponges.bot.server.cmd.framework;
 
+import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.cmd.commands.admin.*;
 import io.sponges.bot.server.cmd.commands.fun.*;
 import io.sponges.bot.server.cmd.commands.info.*;
 import io.sponges.bot.server.cmd.commands.mc.*;
 import io.sponges.bot.server.cmd.commands.op.*;
+import io.sponges.bot.server.cmd.commands.steam.SteamStatusCommand;
+import io.sponges.bot.server.cmd.commands.util.JSONBeautifier;
 import io.sponges.bot.server.cmd.commands.util.JavaCommand;
+import io.sponges.bot.server.framework.Room;
+import io.sponges.bot.server.storage.Database;
 import io.sponges.bot.server.storage.RoomData;
 import io.sponges.bot.server.storage.Setting;
 import io.sponges.bot.server.storage.UserRole;
-import io.sponges.bot.server.Bot;
-import io.sponges.bot.server.cmd.commands.steam.SteamStatusCommand;
-import io.sponges.bot.server.cmd.commands.util.JSONBeautifier;
-import io.sponges.bot.server.framework.Room;
-import io.sponges.bot.server.storage.Database;
-import io.sponges.bot.server.util.Msg;
 import io.sponges.bot.server.util.Scheduler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class CommandHandler {
 
-    private Bot bot;
-    private List<Command> commands;
-    private static Database database;
+    private final List<Command> commands = new ArrayList<>();
+
+    private final Bot bot;
+    private final Database database;
 
     public CommandHandler(Bot bot) {
         this.bot = bot;
-        this.commands = new ArrayList<>();
-        database = bot.getDatabase();
+        this.database = bot.getDatabase();
 
         // TODO dynamic command registration
         this.registerCommands(
@@ -77,21 +75,14 @@ public class CommandHandler {
     }
 
     public static boolean isCommandRequest(Room room, String input) {
-        System.out.println("Checking...");
-        String prefix = (String) room.getRoomData().get(Setting.PREFIX);
-        System.out.println("Got prefix " + prefix);
-
-        return input.toLowerCase().startsWith(prefix.toLowerCase());
-    }
-
-    public boolean isCommand(String command) {
-        for (Command cmd : commands) {
-            for (String name : cmd.getNames()) {
-                if (name.equalsIgnoreCase(command)) return true;
-            }
+        String prefix;
+        if (room.getPrefix() != null) {
+            prefix = room.getPrefix();
+        } else {
+            prefix = (String) room.getRoomData().get(Setting.PREFIX);
+            room.setPrefix(prefix);
         }
-
-        return false;
+        return input.toLowerCase().startsWith(prefix.toLowerCase());
     }
 
     public Command getCommand(String command) {
@@ -112,14 +103,11 @@ public class CommandHandler {
         String input = request.getInput();
         Room room = request.getRoom();
 
-        Msg.debug("[Command handling] New command request!\ninput=" + input + "\nroom=" + room + "\nuser" + request.getUser());
-
         RoomData roomData = request.getRoom().getRoomData();
         String prefix = (String) roomData.get(Setting.PREFIX);
         String noPrefix = input.substring(prefix.length());
 
         String[] args = noPrefix.split(" ");
-        Msg.debug("[Command handling] args=" + Arrays.toString(args));
         String cmd = args[0];
 
         for (Command command : commands) {
@@ -172,8 +160,6 @@ public class CommandHandler {
                 }
             }
         }
-
-        Msg.log(request.getUser() + " RAN THE UNKNOWN COMMAND '" + noPrefix + "'!");
     }
 
     private void noPermission(CommandRequest request, UserRole role, UserRole userRole) {

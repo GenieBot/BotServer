@@ -1,89 +1,36 @@
 package io.sponges.bot.server.framework;
 
-import io.sponges.bot.server.messages.SendRawMessage;
-import io.sponges.bot.server.storage.RoomData;
 import io.sponges.bot.server.Client;
+import io.sponges.bot.server.storage.RoomData;
 import io.sponges.bot.server.storage.UserRole;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public class Room {
+public interface Room {
 
-    // TODO move internal shit to impl only
+    Map<String, User> getUsers();
 
-    private final Map<String, User> users = new HashMap<>();
+    Client getClient();
 
-    private final Client client;
-    private final Network network;
-    private final String id;
+    Network getNetwork();
 
-    // Room details
-    private final String topic;
+    String getId();
 
-    // data
-    private RoomData roomData = null;
+    String getTopic();
 
-    // TODO implement room data/settings
+    RoomData getRoomData();
 
-    public Room(Client client, Network network, String id, String topic) {
-        this.client = client;
-        this.network = network;
-        this.id = id;
-        this.topic = topic;
-    }
+    void setRoomData(RoomData roomData);
 
-    public Client getClient() {
-        return client;
-    }
+    boolean isUser(String id);
 
-    public Network getNetwork() {
-        return network;
-    }
+    User getUser(String id);
 
-    public String getId() {
-        return id;
-    }
+    User getOrCreateUser(String id, String username, String displayName, UserRole role);
 
-    public RoomData getRoomData() {
-        return roomData;
-    }
+    String getPrefix();
 
-    public void setRoomData(RoomData roomData) {
-        this.roomData = roomData;
-    }
+    void setPrefix(String prefix);
 
-    public Map<String, User> getUsers() {
-        return users;
-    }
-
-    public boolean isUser(String id) {
-        return users.containsKey(id);
-    }
-
-    public User getUser(String id) {
-        return users.get(id);
-    }
-
-    public User getOrCreateUser(String id, String username, String displayName, UserRole role) {
-        if (!isUser(id)) {
-            return createUser(id, username, displayName, role);
-        } else {
-            return getUser(id);
-        }
-    }
-
-    private User createUser(String id, String username, String displayName, UserRole role) {
-        User user = new User(client, network, this, id, username, displayName, role);
-        users.put(id, user);
-        return user;
-    }
-
-    public String getTopic() {
-        return topic;
-    }
-
-    public void sendMessage(String message) {
-        client.sendMessage(new SendRawMessage(client, network.getId(), id, message));
-    }
+    void sendMessage(String message);
 }

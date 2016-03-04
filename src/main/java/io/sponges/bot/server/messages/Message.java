@@ -5,6 +5,8 @@ import org.json.JSONObject;
 
 public abstract class Message {
 
+    // TODO improve protocol
+
     private final Client client;
     private final String type;
 

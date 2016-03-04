@@ -18,29 +18,14 @@ public class MCNetworks extends Command {
 
     public MCNetworks() {
         super("command.mcnetworks", UserRole.USER, "player counts of the biggest mc servers", "mcnetworks", "mcnetwork", "minecraftnetworks", "hypixel", "mineplex", "bigservers", "mcservers", "network", "networks");
-
-        //Scheduler.runAsyncTask(this::reload, 30, TimeUnit.SECONDS);
     }
 
     @Override
     public void onCommand(CommandRequest request, String[] args) {
-        /*if (expire == 0 || cached == null || System.currentTimeMillis() >= expire) {
-            System.out.println("reloading");
-            reload();
-        }
-
-        if (cached == null) {
-            request.reply("Network stats are still loading, try again in a sec.");
-            return;
-        }
-
-        request.reply(cached.replace("%update%", ((expire - System.currentTimeMillis()) / 1000) + "s"));*/
-
         request.reply("The Minetrack API has been depreciated, however it is being redone soon! Check out the site: http://minetrack.me/");
     }
 
     private void reload() {
-        // Update every 30s
         expire = System.currentTimeMillis() + 30000;
 
         Scheduler.runAsyncTask(() -> {

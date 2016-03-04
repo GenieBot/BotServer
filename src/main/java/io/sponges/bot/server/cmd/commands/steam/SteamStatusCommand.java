@@ -73,63 +73,40 @@ public class SteamStatusCommand extends Command {
     }
 
     private void reload() {
-        Msg.debug("reloading steam status...");
-
         String result;
         try {
             result = FileUtils.readUrl(true, new URL("http://is.steam.rip/api/v1/?request=SteamStatus"));
         } catch (MalformedURLException e) {
-            Msg.debug("malf url");
             e.printStackTrace();
             return;
         }
         JSONObject json = null;
 
         if (result != null) {
-            Msg.debug("Parsing results...");
             json = new JSONObject(result).getJSONObject("result");
-            Msg.debug("Parsed results!");
         } else {
-            Msg.debug("Result is null????");
+            Msg.warning("Result is null????");
+            return;
         }
 
         if (json == null || !json.getBoolean("success")) {
-            Msg.debug("could not reload steam status!");
+            Msg.warning("Could not reload steam status!");
             return;
         }
 
         JSONObject statuses = json.getJSONObject("SteamStatus");
         Msg.debug(statuses.toString());
 
-        {
-            Msg.debug("setting up servicesstatus");
-            ServicesStatus servicesStatus = new ServicesStatus(statuses.getJSONObject("services"));
-            Msg.debug("set up up servicesstatus");
-            this.servicesStatus = servicesStatus;
+        this.servicesStatus = new ServicesStatus(statuses.getJSONObject("services"));
+        this.matchMakingStatus = new MatchMakingStatus(statuses.getJSONObject("matchmaking"));
 
-            Msg.debug(toString());
+        datacenters.clear();
+        JSONArray array = statuses.getJSONArray("datacenters");
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject object = array.getJSONObject(i);
+            DatacenterStatus status = new DatacenterStatus(object);
+            datacenters.add(status);
         }
-
-        {
-            MatchMakingStatus status = new MatchMakingStatus(statuses.getJSONObject("matchmaking"));
-            this.matchMakingStatus = status;
-            Msg.debug(status.toString());
-        }
-
-        {
-            datacenters.clear();
-            JSONArray array = statuses.getJSONArray("datacenters");
-
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject object = array.getJSONObject(i);
-
-                DatacenterStatus status = new DatacenterStatus(object);
-                datacenters.add(status);
-                Msg.debug(status.toString());
-            }
-        }
-
-        Msg.debug("reloaded steam status!");
     }
 
 
@@ -142,13 +119,10 @@ public class SteamStatusCommand extends Command {
     private final ServiceStatus sessions, community, items, leaderboards;
 
     public ServicesStatus(JSONObject json) {
-        Msg.debug("services status instantiated");
         this.sessions = getStatus(json.getString("SessionsLogon"));
         this.community = getStatus(json.getString("SteamCommunity"));
         this.items = getStatus(json.getString("IEconItems"));
         this.leaderboards = getStatus(json.getString("LeaderBoards"));
-
-        Msg.debug(toString());
     }
 
     private ServiceStatus getStatus(String status) {

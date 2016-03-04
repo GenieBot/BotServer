@@ -29,7 +29,7 @@ public class StopCommand extends Command {
             client.sendMessage(stopMessage);
         }
 
-        Msg.warning("STOPPING IN 10S");
+        Msg.warning("STOPPING IN 5S");
 
         Scheduler.runAsyncTask(() -> {
             Msg.warning("BYE! <3");

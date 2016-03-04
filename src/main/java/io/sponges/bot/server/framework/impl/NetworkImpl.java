@@ -11,7 +11,7 @@ public class NetworkImpl implements Network {
     private final String id;
     private final RoomManager roomManager;
 
-    public NetworkImpl(Client client, String id) {
+    protected NetworkImpl(Client client, String id) {
         this.client = client;
         this.id = id;
         this.roomManager = new RoomManagerImpl(client, this);

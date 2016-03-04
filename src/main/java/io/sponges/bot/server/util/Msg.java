@@ -2,7 +2,7 @@ package io.sponges.bot.server.util;
 
 public class Msg {
 
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     public static void log(String msg) {
         System.out.printf("info> %s\n", msg);

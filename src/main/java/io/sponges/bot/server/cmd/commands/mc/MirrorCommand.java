@@ -1,14 +1,13 @@
 package io.sponges.bot.server.cmd.commands.mc;
 
+import io.sponges.bot.server.cmd.framework.Command;
 import io.sponges.bot.server.cmd.framework.CommandRequest;
 import io.sponges.bot.server.storage.UserRole;
+import io.sponges.bot.server.util.Scheduler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import io.sponges.bot.server.cmd.framework.Command;
-import io.sponges.bot.server.util.Msg;
-import io.sponges.bot.server.util.Scheduler;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -60,8 +59,6 @@ public class MirrorCommand extends Command {
     }
 
     private void reload() {
-        Msg.debug("Reloading tcpr...");
-
         for (MirrorFile file : MirrorFile.values()) {
             try {
                 MirrorItem item = scrape(file.getUrl());
@@ -70,17 +67,11 @@ public class MirrorCommand extends Command {
                 e.printStackTrace();
             }
         }
-
-        Msg.debug("Reloaded tcpr!");
     }
 
     public static void main(String[] args) {
         MirrorCommand cmd = new MirrorCommand();
         cmd.reload();
-
-        for (MirrorItem item : cmd.cached.values()) {
-            System.out.println("Latest " + args[0] + " build:\nName: " + item.getName() + "\nDate: " + item.getDate() + "\nLink: " + item.getLink() + "\nSupplied by http://tcpr.ca");
-        }
     }
 
     private MirrorItem scrape(String url) throws IOException {
@@ -93,8 +84,6 @@ public class MirrorCommand extends Command {
         String name = elements1.get(0).text();
         String date = elements1.get(1).text();
         String dl = elements1.get(2).getElementsByTag("a").get(0).attr("href");
-
-        Msg.debug("Latest build for " + url + ":\n" + name + "\n" + date + "\n" + dl);
         return new MirrorItem(name, date, dl);
     }
 

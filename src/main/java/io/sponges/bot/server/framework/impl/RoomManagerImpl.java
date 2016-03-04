@@ -50,7 +50,7 @@ public class RoomManagerImpl implements RoomManager {
     }
 
     private Room createRoom(String id, String topic) {
-        Room room = new Room(client, network, id, topic);
+        Room room = new RoomImpl(client, network, id, topic);
         rooms.put(id, room);
         return room;
     }

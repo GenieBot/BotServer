@@ -86,8 +86,6 @@ public final class FileUtils {
             con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-            if (debug) Msg.debug("Got response code " + con.getResponseCode());
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -115,8 +113,6 @@ public final class FileUtils {
 
             con.disconnect();
         }
-
-        if (debug) Msg.debug("Data: " + str.toString());
 
         return str.toString();
     }

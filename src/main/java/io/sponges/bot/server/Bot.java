@@ -1,10 +1,10 @@
 package io.sponges.bot.server;
 
 import io.sponges.bot.server.cmd.framework.CommandHandler;
-import io.sponges.bot.server.event.framework.EventManager;
+import io.sponges.bot.server.event.framework.EventBus;
+import io.sponges.bot.server.internal.Server;
 import io.sponges.bot.server.parser.framework.ParserManager;
 import io.sponges.bot.server.storage.Database;
-import io.sponges.bot.server.internal.Server;
 
 import java.util.Map;
 
@@ -33,10 +33,10 @@ public interface Bot {
     Map<String, Client> getClients();
 
     /**
-     * The EventManager instance
-     * @return eventManager
+     * The EventBus instance
+     * @return eventBus
      */
-    EventManager getEventManager();
+    EventBus getEventBus();
 
     /**
      * The CommandHandler instance

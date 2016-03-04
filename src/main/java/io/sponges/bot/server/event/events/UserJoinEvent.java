@@ -1,7 +1,6 @@
 package io.sponges.bot.server.event.events;
 
 import io.sponges.bot.server.event.framework.Event;
-import io.sponges.bot.server.framework.Room;
 import io.sponges.bot.server.framework.User;
 
 public class UserJoinEvent extends Event {
@@ -40,10 +39,5 @@ public class UserJoinEvent extends Event {
 
     public User getUser() {
         return user;
-    }
-
-    @Override
-    public Room needsChecks() {
-        return user.getRoom();
     }
 }

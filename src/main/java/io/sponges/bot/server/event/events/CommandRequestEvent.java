@@ -1,8 +1,7 @@
 package io.sponges.bot.server.event.events;
 
-import io.sponges.bot.server.event.framework.Event;
-import io.sponges.bot.server.framework.Room;
 import io.sponges.bot.server.cmd.framework.CommandRequest;
+import io.sponges.bot.server.event.framework.Event;
 
 public class CommandRequestEvent extends Event {
 
@@ -16,8 +15,8 @@ public class CommandRequestEvent extends Event {
         return commandRequest;
     }
 
-    @Override
+    /*@Override
     public Room needsChecks() {
         return null;
-    }
+    }*/
 }

@@ -55,6 +55,7 @@ public class CommandRequest {
         client.sendMessage(new CmdResponseMessage(user, insertAd(message)));
     }
 
+    // TODO much better ad inserting system
     private String insertAd(String message) {
         Random random = new Random();
         int rand = random.nextInt(5);

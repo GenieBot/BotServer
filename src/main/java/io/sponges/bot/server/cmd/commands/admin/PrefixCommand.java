@@ -19,7 +19,7 @@ public class PrefixCommand extends Command {
     @Override
     public void onCommand(CommandRequest request, String[] args) {
         switch (request.getClient().getId().toLowerCase()) {
-            case "telegram": {
+            case "telegram": { // using a switch here so it's easy to add more
                 request.reply("Changing command prefix is not supported in telegram!");
                 return;
             }
@@ -31,8 +31,9 @@ public class PrefixCommand extends Command {
         }
 
         String prefix = args[0];
-
         Room room = request.getRoom();
+        room.setPrefix(prefix);
+
         room.getRoomData().set(Setting.PREFIX, prefix);
         database.save(request.getRoom());
 

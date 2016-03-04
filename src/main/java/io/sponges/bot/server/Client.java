@@ -1,6 +1,5 @@
 package io.sponges.bot.server;
 
-import io.sponges.bot.server.bridge.BridgeManager;
 import io.sponges.bot.server.framework.NetworkManager;
 import io.sponges.bot.server.messages.Message;
 
@@ -22,12 +21,6 @@ public interface Client {
      * @param message Message to send
      */
     void sendMessage(Message message);
-
-    /**
-     * Gets the manager for room bridges
-     * @return BridgeManager instance
-     */
-    BridgeManager getBridgeManager();
 
     /**
      * The manager for each network
