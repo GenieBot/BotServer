@@ -75,7 +75,7 @@ public final class FileUtils {
 
     /**
      * Read the contents of a URL with an option for debug mode
-     * @param debug print debug messages?
+     * @param debug print debug oldmessages?
      * @param url the url to read from
      * @return contents of the URL
      */

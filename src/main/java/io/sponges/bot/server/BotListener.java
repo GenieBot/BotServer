@@ -1,16 +1,16 @@
 package io.sponges.bot.server;
 
-import io.sponges.bot.server.cmd.framework.CommandHandler;
-import io.sponges.bot.server.cmd.framework.CommandRequest;
-import io.sponges.bot.server.event.events.*;
-import io.sponges.bot.server.event.framework.EventBus;
-import io.sponges.bot.server.framework.Network;
-import io.sponges.bot.server.framework.Room;
-import io.sponges.bot.server.framework.User;
-import io.sponges.bot.server.internal.Server;
-import io.sponges.bot.server.messages.KickUserMessage;
-import io.sponges.bot.server.messages.SendRawMessage;
-import io.sponges.bot.server.storage.Database;
+import io.sponges.bot.api.cmd.CommandRequest;
+import io.sponges.bot.api.entities.Client;
+import io.sponges.bot.api.entities.Network;
+import io.sponges.bot.api.entities.User;
+import io.sponges.bot.api.event.events.server.ClientConnectEvent;
+import io.sponges.bot.api.event.events.user.UserJoinEvent;
+import io.sponges.bot.api.event.framework.EventManager;
+import io.sponges.bot.server.cmd.CommandRequestImpl;
+import io.sponges.bot.server.entities.ClientImpl;
+import io.sponges.bot.server.event.internal.ClientInputEvent;
+import io.sponges.bot.server.protocol.msg.SendRawMessage;
 import io.sponges.bot.server.storage.RoomData;
 import io.sponges.bot.server.storage.Setting;
 import io.sponges.bot.server.storage.UserRole;
@@ -25,61 +25,13 @@ import java.util.List;
  */
 public class BotListener {
 
-    private final Bot bot;
-    private final Server server;
-    private final EventBus eventBus;
-    private final CommandHandler commandHandler;
-    private final Database database;
+    private final EventManager eventManager;
 
-    private static volatile int chatMessages, serverMessages, commandRuns;
-
-    public BotListener(Bot bot, Server server, Database database) {
-        this.bot = bot;
-        this.server = server;
-        this.database = database;
-
-        this.eventBus = bot.getEventBus();
-        this.commandHandler = bot.getCommandHandler();
+    public BotListener(EventManager eventManager) {
+        this.eventManager = eventManager;
     }
 
-    /**
-     * The total number of chat messages that have been received
-     * @return chatMessages
-     */
-    public static int getChatMessages() {
-        return chatMessages;
-    }
-
-    /**
-     * The total number of server messages that have been received
-     * @return serverMessages
-     */
-    public static int getServerMessages() {
-        return serverMessages;
-    }
-
-    /**
-     * The total number of times a command has been ran
-     * @return commandRuns
-     */
-    public static int getCommandRuns() {
-        return commandRuns;
-    }
-
-    /**
-     * When the server gets (json message) input from a client
-     * @param event ClientInputEvent instance
-     */
     public void onClientInput(ClientInputEvent event) {
-        // Adding to the total server messages count
-        serverMessages++;
-
-        // Checking to see if the message received is actually a valid message
-        if (!event.getInput().contains("{")) {
-            Msg.warning("[Client input] " + event.getInput());
-            return;
-        }
-
         // Parsing input as JSON
         JSONObject object = new JSONObject(event.getInput());
         String type = object.getString("type").toUpperCase();
@@ -88,9 +40,8 @@ public class BotListener {
         switch (type) {
             case "CONNECT": {
                 String clientId = object.getString("client-id");
-                String channel = object.getString("channel");
-                Client client = new ClientImpl(clientId, channel, server);
-                eventBus.post(new ConnectEvent(client));
+                Client client = new ClientImpl(clientId);
+                eventManager.post(new ClientConnectEvent(client));
                 break;
             }
 
@@ -118,30 +69,6 @@ public class BotListener {
                 message = StringEscapeUtils.escapeJson(message);
 
                 eventBus.post(new ChatMessageEvent(client, network, room, user, message));
-                break;
-            }
-
-            case "JOIN": {
-                String clientId = object.getString("client-id");
-                Client client = bot.getClients().get(clientId);
-
-                String networkId = object.getJSONObject("network").getString("id");
-                Network network = client.getNetworkManager().getOrCreateNetwork(networkId);
-
-                JSONObject roomObject = object.getJSONObject("room");
-                String roomId = roomObject.getString("id");
-                String topic = roomObject.getString("topic");
-                Room room = network.getRoomManager().getOrCreateRoom(roomId, topic);
-
-                JSONObject userObject = object.getJSONObject("user");
-                String userId = userObject.getString("id");
-                String username = userObject.getString("username");
-                String displayName = userObject.getString("display-name");
-                String role = userObject.getString("role");
-                UserRole userRole = UserRole.valueOf(role.toUpperCase());
-                User user = room.getOrCreateUser(userId, username, displayName, userRole);
-
-                eventBus.post(new UserJoinEvent(user));
                 break;
             }
 
@@ -198,22 +125,12 @@ public class BotListener {
         // TODO rework room data storage
         RoomData data = room.getRoomData();
 
-        // Is the message a command?
-        if (CommandHandler.isCommandRequest(room, message)) {
-            eventBus.post(new CommandRequestEvent(new CommandRequest(user, message)));
-        }
-    }
-
-    /**
-     * When a command is requested
-     * @param event CommandRequestEvent instance
-     */
-    public void onCommandRequest(CommandRequestEvent event) {
-        // Increment command run counter
-        commandRuns++;
-
         // Handle the command
-        commandHandler.handle(event.getCommandRequest());
+        CommandRequest request = new CommandRequestImpl(client, network, channel)
+
+        if (commandHandler.handle(event.getCommandRequest())) {
+            commandRuns++;
+        }
     }
 
     public void onUserJoin(UserJoinEvent event) {

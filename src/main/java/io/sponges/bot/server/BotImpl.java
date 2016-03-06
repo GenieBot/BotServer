@@ -1,12 +1,18 @@
 package io.sponges.bot.server;
 
-import io.sponges.bot.server.cmd.framework.CommandHandler;
+import io.sponges.bot.api.entities.Client;
+import io.sponges.bot.api.event.events.server.ClientConnectEvent;
+import io.sponges.bot.api.event.events.user.UserChatEvent;
+import io.sponges.bot.api.event.events.user.UserJoinEvent;
+import io.sponges.bot.api.event.framework.EventManager;
+import io.sponges.bot.api.server.Server;
+import io.sponges.bot.server.cmd.CommandHandler;
+import io.sponges.bot.server.cmd.CommandManagerImpl;
 import io.sponges.bot.server.config.Configuration;
-import io.sponges.bot.server.event.events.*;
 import io.sponges.bot.server.event.framework.EventBus;
-import io.sponges.bot.server.internal.Server;
-import io.sponges.bot.server.internal.ServerImpl;
-import io.sponges.bot.server.parser.framework.ParserManager;
+import io.sponges.bot.server.event.framework.EventManagerImpl;
+import io.sponges.bot.server.event.internal.ClientInputEvent;
+import io.sponges.bot.server.server.ServerImpl;
 import io.sponges.bot.server.storage.Database;
 import io.sponges.bot.server.storage.impl.DatabaseImpl;
 import org.json.JSONArray;
@@ -15,19 +21,17 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BotImpl implements Bot {
 
-    private final Map<String, Client> clients = new HashMap<>();
-
-    private final Server server;
+    private final ServerImpl server;
     private final EventBus eventBus;
+    private final EventManager eventManager;
+    private final CommandManagerImpl commandManager;
     private final CommandHandler commandHandler;
     private final Database database;
-    private final ParserManager parserManager;
 
     /**
      * Constructor initiated in the main method
@@ -47,18 +51,16 @@ public class BotImpl implements Bot {
         // TODO deal with NPEs if not yet configured
 
         this.eventBus = new EventBus();
+        this.eventManager = new EventManagerImpl(this.eventBus);
         this.database = new DatabaseImpl();
-        this.commandHandler = new CommandHandler(this);
+        this.commandHandler = new CommandHandler();
+        this.commandManager = new CommandManagerImpl(this.commandHandler);
         this.server = new ServerImpl(this, host, port, channels);
 
         BotListener botListener = new BotListener(this, server, database);
-        this.eventBus.register(ClientInputEvent.class, botListener::onClientInput);
-        this.eventBus.register(ConnectEvent.class, botListener::onConnect);
-        this.eventBus.register(ChatMessageEvent.class, botListener::onChatMessage);
-        this.eventBus.register(UserJoinEvent.class, botListener::onUserJoin);
-        this.eventBus.register(CommandRequestEvent.class, botListener::onCommandRequest);
-
-        this.parserManager = new ParserManager();
+        this.eventManager.register(ClientInputEvent.class, botListener::onClientInput);
+        this.eventManager.register(ClientConnectEvent.class, botListener::onClientConnect);
+        this.eventManager.register(UserChatEvent.class, botListener::onUserChatMessage);
 
         // Starting the actual server
         this.server.start();
@@ -98,10 +100,5 @@ public class BotImpl implements Bot {
     @Override
     public CommandHandler getCommandHandler() {
         return commandHandler;
-    }
-
-    @Override
-    public ParserManager getParserManager() {
-        return parserManager;
     }
 }

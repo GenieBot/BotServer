@@ -3,6 +3,7 @@ package io.sponges.bot.server.event.framework;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import io.sponges.bot.api.event.framework.Event;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,7 +27,7 @@ public final class EventBus {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Event> boolean register(Class<T> clazz, Consumer<T> consumer) {
+    protected  <T extends Event> boolean register(Class<T> clazz, Consumer<T> consumer) {
         Preconditions.checkNotNull(consumer, "consumer cannot be null");
         Preconditions.checkNotNull(clazz, "clazz cannot be null");
         lock.writeLock().lock();
@@ -38,7 +39,7 @@ public final class EventBus {
         }
     }
 
-    public <T extends Event> boolean unregister(Consumer<T> consumer) {
+    protected <T extends Event> boolean unregister(Consumer<T> consumer) {
         Preconditions.checkNotNull(consumer, "consumer cannot be null");
         lock.writeLock().lock();
         try {
@@ -58,7 +59,7 @@ public final class EventBus {
         }
     }
 
-    public <T extends Event> T post(T event) {
+    protected <T extends Event> T post(T event) {
         Preconditions.checkNotNull(event, "event cannot be null");
         lock.readLock().lock();
         try {
@@ -67,7 +68,6 @@ public final class EventBus {
             for (Consumer<Event> consumer : consumers) {
                 consumer.accept(event);
             }
-            event.postEvent();
             return event;
         } finally {
             lock.readLock().unlock();

@@ -1,9 +1,9 @@
 package io.sponges.bot.server;
 
-import io.sponges.bot.server.cmd.framework.CommandHandler;
+import io.sponges.bot.api.entities.Client;
+import io.sponges.bot.api.server.Server;
+import io.sponges.bot.server.cmd.CommandHandler;
 import io.sponges.bot.server.event.framework.EventBus;
-import io.sponges.bot.server.internal.Server;
-import io.sponges.bot.server.parser.framework.ParserManager;
 import io.sponges.bot.server.storage.Database;
 
 import java.util.Map;
@@ -43,11 +43,5 @@ public interface Bot {
      * @return commandHandler
      */
     CommandHandler getCommandHandler();
-
-    /**
-     * The ParserManager instance
-     * @return parserManager
-     */
-    ParserManager getParserManager();
 
 }
