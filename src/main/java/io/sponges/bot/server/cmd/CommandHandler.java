@@ -10,10 +10,7 @@ import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.event.events.user.UserChatEvent;
 import io.sponges.bot.api.module.Module;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class CommandHandler {
@@ -39,11 +36,20 @@ public final class CommandHandler {
 
     protected void unregisterCommand(Command command) {
         String[] names = command.getNames();
-        commands.remove(names);
+        for (String name : names) {
+            commands.remove(name);
+        }
     }
 
     protected void unregisterCommands(Module module) {
+        if (!moduleCommands.containsKey(module)) return;
         moduleCommands.remove(module);
+    }
+
+    protected Collection<Command> getCommands() {
+        List<Command> commands = new ArrayList<>();
+        this.commands.values().stream().filter(command -> !commands.contains(command)).forEach(commands::add);
+        return Collections.unmodifiableList(commands);
     }
 
     public void onUserChat(UserChatEvent userChatEvent) {

@@ -5,6 +5,8 @@ import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.module.Module;
 import io.sponges.bot.server.Bot;
 
+import java.util.Collection;
+
 public class CommandManagerImpl implements CommandManager {
 
     private final Bot bot;
@@ -31,5 +33,10 @@ public class CommandManagerImpl implements CommandManager {
     @Override
     public void unregisterCommands(Module module) {
         commandHandler.unregisterCommands(module);
+    }
+
+    @Override
+    public Collection<Command> getCommands() {
+        return commandHandler.getCommands();
     }
 }

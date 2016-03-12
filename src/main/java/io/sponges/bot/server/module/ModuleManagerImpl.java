@@ -64,7 +64,7 @@ public class ModuleManagerImpl implements ModuleManager {
 
     public void register(Module module) {
         modules.put(module.getId().toLowerCase(), module);
-        module.init(server, eventManager, commandManager);
+        module.init(server, eventManager, commandManager, this);
         module.getLogger().log("Enabling " + module.getId() + " version " + module.getVersion());
         module.onEnable();
     }

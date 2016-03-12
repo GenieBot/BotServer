@@ -41,10 +41,9 @@ public class EventManagerImpl implements EventManager {
 
     @Override
     public void unregister(Module module) {
+        if (!consumers.containsKey(module)) return;
         List<Consumer> consumers = this.consumers.get(module);
-        for (Consumer consumer : consumers) {
-            unregister(consumer);
-        }
+        consumers.forEach(this::unregister);
         this.consumers.remove(module);
     }
 
