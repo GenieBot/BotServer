@@ -1,83 +1,85 @@
 package io.sponges.bot.server.server;
 
-import io.sponges.bot.api.server.Server;
+import io.netty.channel.ChannelHandlerContext;
+import io.sponges.bot.api.entities.Client;
+import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.server.Bot;
-import io.sponges.bot.server.oldmessages.Message;
-import io.sponges.bot.server.util.Msg;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.exceptions.JedisConnectionException;
+import io.sponges.bot.server.entities.ClientImpl;
+import io.sponges.bot.server.event.internal.ClientInputEvent;
+import io.sponges.bot.server.server.framework.Server;
+import io.sponges.bot.server.server.framework.ServerListener;
+import io.sponges.bot.server.server.framework.exception.ServerAlreadyRunningException;
+import io.sponges.bot.server.server.framework.exception.ServerNotRunningException;
+import io.sponges.bot.server.util.ValidationUtils;
+import org.json.JSONObject;
 
-import java.util.List;
-import java.util.Optional;
+public class ServerImpl implements io.sponges.bot.api.server.Server {
 
-public class ServerImpl implements Server {
+    private final Server server;
 
-    private final Bot bot;
-    private final String host;
-    private int port = -1;
-    private final List<String> channels;
+    public ServerImpl(Bot bot, int port) {
+        this.server = new io.sponges.bot.server.server.framework.impl.ServerImpl(port);
+        this.server.registerListener(new ServerListener() {
+            @Override
+            public void onConnect(ChannelHandlerContext context) {
+                System.out.println("Unidentified client " + context.channel().remoteAddress() + " connected");
+            }
 
-    private final ServerSubscriber serverSubscriber;
+            @Override
+            public void onDisconnect(ChannelHandlerContext context) {
+                System.out.println("Client client " + context.channel().remoteAddress() + " disconnected");
+            }
 
-    private Jedis jedisSubscriber;
-    private Jedis jedisPublisher;
-
-    public ServerImpl(Bot bot, String host, int port, List<String> channels) {
-        this.bot = bot;
-        this.host = host;
-        this.port = port;
-        this.channels = channels;
-
-        this.serverSubscriber = new ServerSubscriber(this);
-        setupJedis(host, Optional.of(port));
-    }
-
-    private void setupJedis(String host, Optional<Integer> port) {
-        if (port.isPresent()) {
-            this.jedisSubscriber = new Jedis(host, port.get());
-            this.jedisPublisher = new Jedis(host, port.get());
-        } else {
-            this.jedisSubscriber = new Jedis(host);
-            this.jedisPublisher = new Jedis(host);
-        }
-    }
-
-    public void start() {
-        new Thread(() -> {
-            try {
-                jedisSubscriber.subscribe(serverSubscriber, channels.toArray(new String[channels.size()]));
-            } catch (JedisConnectionException e) {
-                if (e.getMessage().contains("Socket is closed")) {
-                    Msg.warning("Unsubscribed from " + channels);
+            @Override
+            public void onMessage(ChannelHandlerContext context, String message) {
+                if (!ValidationUtils.isValidJson(message)) {
+                    System.out.println("Got invalid json: " + message + " from " + context.channel().remoteAddress());
                     return;
                 }
-
-                e.printStackTrace();
+                JSONObject json = new JSONObject(message);
+                String clientId = json.getString("client").toLowerCase();
+                ClientManager clientManager = bot.getClientManager();
+                Client client;
+                if (clientManager.isClient(clientId)) {
+                    client = clientManager.getClient(clientId);
+                } else {
+                    client = new ClientImpl(clientId, context.channel());
+                    clientManager.getClients().put(clientId, client);
+                }
+                ClientInputEvent clientInputEvent = new ClientInputEvent(client, json);
+                bot.getEventManager().post(clientInputEvent);
             }
-        }).start();
+
+            @Override
+            public void onError(ChannelHandlerContext context, Throwable cause) {
+                cause.printStackTrace();
+            }
+        });
+    }
+
+    public void start(Runnable runnable) {
+        try {
+            this.server.start(runnable);
+        } catch (ServerAlreadyRunningException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void stop() {
-        jedisSubscriber.close();
-        jedisPublisher.close();
+        try {
+            this.server.stop(() -> {});
+        } catch (ServerNotRunningException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void publish(Message message) {
-        publish(message.getClient().getChannel(), message.toString());
-    }
-
-    public void publish(String channel, String message) {
-        new Thread(() -> {
-            jedisPublisher.publish(channel, message);
-        }).start();
-    }
-
-    public List<String> getChannels() {
-        return channels;
-    }
-
-    public Bot getBot() {
-        return bot;
+    @Override
+    public void stop(Runnable runnable) {
+        try {
+            this.server.stop(runnable);
+        } catch (ServerNotRunningException e) {
+            e.printStackTrace();
+        }
     }
 }

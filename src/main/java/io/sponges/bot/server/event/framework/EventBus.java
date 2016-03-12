@@ -7,8 +7,8 @@ import io.sponges.bot.api.event.framework.Event;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 /**
@@ -19,29 +19,29 @@ import java.util.function.Consumer;
 public final class EventBus {
 
     private final Multimap<Class<? extends Event>, Consumer<Event>> consumerMap;
-    private final ReadWriteLock lock;
+    private final Lock lock;
 
     public EventBus() {
         this.consumerMap = ArrayListMultimap.create();
-        this.lock = new ReentrantReadWriteLock();
+        this.lock = new ReentrantLock();
     }
 
     @SuppressWarnings("unchecked")
-    protected  <T extends Event> boolean register(Class<T> clazz, Consumer<T> consumer) {
+    public <T extends Event> boolean register(Class<T> clazz, Consumer<T> consumer) {
         Preconditions.checkNotNull(consumer, "consumer cannot be null");
         Preconditions.checkNotNull(clazz, "clazz cannot be null");
-        lock.writeLock().lock();
+        lock.lock();
         try {
             Consumer<Event> handler = (Consumer<Event>) consumer;
             return consumerMap.put(clazz, handler);
         } finally {
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
-    protected <T extends Event> boolean unregister(Consumer<T> consumer) {
+    public <T extends Event> boolean unregister(Consumer<T> consumer) {
         Preconditions.checkNotNull(consumer, "consumer cannot be null");
-        lock.writeLock().lock();
+        lock.lock();
         try {
             boolean removed = false;
             for(Class<? extends Event> clazz : consumerMap.keySet()) {
@@ -55,13 +55,13 @@ public final class EventBus {
             }
             return removed;
         } finally {
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
-    protected <T extends Event> T post(T event) {
+    public <T extends Event> T post(T event) {
         Preconditions.checkNotNull(event, "event cannot be null");
-        lock.readLock().lock();
+        lock.lock();
         try {
             Class<? extends Event> clazz = event.getClass();
             Collection<Consumer<Event>> consumers = consumerMap.get(clazz);
@@ -70,26 +70,7 @@ public final class EventBus {
             }
             return event;
         } finally {
-            lock.readLock().unlock();
+            lock.unlock();
         }
     }
-
-    /**
-     * TODO find a much cleaner way to do this
-     * Checks to see if the room that the event is ran in has been loaded
-     * @param event the event that may need checks
-     *
-    private void runChecks(io.sponges.bot.server.event.framework.Event event) {
-        Room room = event.needsChecks();
-
-        if (room == null) {
-            return;
-        }
-
-        if (!database.isLoaded(room)) {
-            database.load(room);
-
-            Msg.debug("Loaded settings for " + room + "!\n" + room.getRoomData().toJson());
-        }
-    }*/
 }

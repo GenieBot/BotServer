@@ -1,28 +1,29 @@
 package io.sponges.bot.server;
 
 import io.sponges.bot.api.entities.Client;
-import io.sponges.bot.api.event.events.server.ClientConnectEvent;
+import io.sponges.bot.api.entities.Message;
+import io.sponges.bot.api.entities.Network;
+import io.sponges.bot.api.entities.User;
+import io.sponges.bot.api.entities.channel.Channel;
+import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.api.event.events.user.UserChatEvent;
-import io.sponges.bot.api.event.events.user.UserJoinEvent;
 import io.sponges.bot.api.event.framework.EventManager;
+import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
 import io.sponges.bot.server.cmd.CommandHandler;
 import io.sponges.bot.server.cmd.CommandManagerImpl;
 import io.sponges.bot.server.config.Configuration;
+import io.sponges.bot.server.entities.manager.ClientManagerImpl;
 import io.sponges.bot.server.event.framework.EventBus;
 import io.sponges.bot.server.event.framework.EventManagerImpl;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
+import io.sponges.bot.server.module.ModuleManagerImpl;
+import io.sponges.bot.server.protocol.parser.ParserManager;
 import io.sponges.bot.server.server.ServerImpl;
-import io.sponges.bot.server.storage.Database;
-import io.sponges.bot.server.storage.impl.DatabaseImpl;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class BotImpl implements Bot {
 
@@ -31,39 +32,43 @@ public class BotImpl implements Bot {
     private final EventManager eventManager;
     private final CommandManagerImpl commandManager;
     private final CommandHandler commandHandler;
-    private final Database database;
+    private final ClientManager clientManager;
+    private final ParserManager parserManager;
+    private final ModuleManager moduleManager;
 
     /**
      * Constructor initiated in the main method
      */
     public BotImpl() throws IOException {
         JSONObject config = new Configuration().load(new File("config.json"));
-        JSONObject redis = config.getJSONObject("redis");
-        String host = redis.getString("host");
-        int port = redis.getInt("port");
-
-        JSONArray arrayChannels = config.getJSONArray("channels");
-        List<String> channels = new ArrayList<>();
-        for (int i = 0; i < arrayChannels.length(); i++) {
-            channels.add(arrayChannels.getString(i));
-        }
-
-        // TODO deal with NPEs if not yet configured
+        JSONObject server = config.getJSONObject("server");
+        int port = server.getInt("port");
 
         this.eventBus = new EventBus();
         this.eventManager = new EventManagerImpl(this.eventBus);
-        this.database = new DatabaseImpl();
         this.commandHandler = new CommandHandler();
-        this.commandManager = new CommandManagerImpl(this.commandHandler);
-        this.server = new ServerImpl(this, host, port, channels);
+        this.commandManager = new CommandManagerImpl(this);
+        this.server = new ServerImpl(this, port);
+        this.clientManager = new ClientManagerImpl();
+        this.parserManager = new ParserManager(this);
 
-        BotListener botListener = new BotListener(this, server, database);
-        this.eventManager.register(ClientInputEvent.class, botListener::onClientInput);
-        this.eventManager.register(ClientConnectEvent.class, botListener::onClientConnect);
-        this.eventManager.register(UserChatEvent.class, botListener::onUserChatMessage);
+        this.eventBus.register(ClientInputEvent.class, parserManager::onClientInput);
+        this.eventBus.register(UserChatEvent.class, userChatEvent -> {
+            Client client = userChatEvent.getClient();
+            Network network = userChatEvent.getNetwork();
+            Channel channel = userChatEvent.getChannel();
+            User user = userChatEvent.getUser();
+            Message message = userChatEvent.getMessage();
+            String content = message.getContent();
+            System.out.printf("[%s] [%s - %s] %s: %s\r\n", client.getId(), network.getId(), channel.getId(),
+                    user.getId(), content);
+        });
+        this.eventBus.register(UserChatEvent.class, commandHandler::onUserChat);
+
+        this.moduleManager = new ModuleManagerImpl(this.server, eventManager, commandManager);
 
         // Starting the actual server
-        this.server.start();
+        this.server.start(() -> System.out.println("Started!"));
     }
 
     /**
@@ -83,22 +88,22 @@ public class BotImpl implements Bot {
     }
 
     @Override
-    public Database getDatabase() {
-        return database;
-    }
-
-    @Override
-    public Map<String, Client> getClients() {
-        return clients;
-    }
-
-    @Override
-    public EventBus getEventBus() {
-        return eventBus;
+    public EventManager getEventManager() {
+        return eventManager;
     }
 
     @Override
     public CommandHandler getCommandHandler() {
         return commandHandler;
+    }
+
+    @Override
+    public ClientManager getClientManager() {
+        return clientManager;
+    }
+
+    @Override
+    public ModuleManager getModuleManager() {
+        return moduleManager;
     }
 }

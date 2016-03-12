@@ -1,5 +1,6 @@
 package io.sponges.bot.server.protocol.msg;
 
+import io.netty.channel.Channel;
 import io.sponges.bot.api.entities.Client;
 import org.json.JSONObject;
 
@@ -27,5 +28,9 @@ public abstract class Message {
     @Override
     public String toString() {
         return getAsJson().toString();
+    }
+
+    public void send(Channel channel) {
+        channel.writeAndFlush(toString() + "\r\n");
     }
 }

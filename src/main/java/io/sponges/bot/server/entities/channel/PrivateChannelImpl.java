@@ -4,6 +4,7 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
 import io.sponges.bot.api.storage.ChannelData;
+import io.sponges.bot.server.entities.ClientImpl;
 
 public class PrivateChannelImpl implements PrivateChannel {
 
@@ -25,8 +26,9 @@ public class PrivateChannelImpl implements PrivateChannel {
     }
 
     @Override
-    public void sendMessage(String s) {
-        // TODO message sending
+    public void sendMessage(String message) {
+        ClientImpl client = (ClientImpl) network.getClient();
+        client.getChannel().writeAndFlush(message + "\r\n");
     }
 
     @Override

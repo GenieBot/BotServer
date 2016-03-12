@@ -6,6 +6,7 @@ import io.sponges.bot.api.entities.Message;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
+import io.sponges.bot.server.protocol.msg.CmdResponseMessage;
 
 public class CommandRequestImpl implements CommandRequest {
 
@@ -25,8 +26,8 @@ public class CommandRequestImpl implements CommandRequest {
 
     @Override
     public void reply(String s) {
-        // TODO proper impl
-        channel.sendMessage(s);
+        CmdResponseMessage message = new CmdResponseMessage(client, network, channel, user, s);
+        channel.sendMessage(message.toString());
     }
 
     @Override

@@ -4,6 +4,7 @@ import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.manager.ChannelManager;
 import io.sponges.bot.api.storage.NetworkData;
+import io.sponges.bot.server.entities.manager.ChannelManagerImpl;
 
 public class NetworkImpl implements Network {
 
@@ -12,11 +13,11 @@ public class NetworkImpl implements Network {
     private final NetworkData networkData;
     private final ChannelManager channelManager;
 
-    public NetworkImpl(String id, Client client, NetworkData networkData, ChannelManager channelManager) {
+    public NetworkImpl(String id, Client client, NetworkData networkData) {
         this.id = id;
         this.client = client;
         this.networkData = networkData;
-        this.channelManager = channelManager;
+        this.channelManager = new ChannelManagerImpl(this);
     }
 
     @Override

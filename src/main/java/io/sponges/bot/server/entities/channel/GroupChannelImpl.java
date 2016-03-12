@@ -4,11 +4,14 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.GroupChannel;
 import io.sponges.bot.api.storage.ChannelData;
+import io.sponges.bot.server.entities.ClientImpl;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class GroupChannelImpl implements GroupChannel {
+
+    // TODO move user shit to NetworkImpl
 
     private final Map<String, User> users = new HashMap<>();
 
@@ -38,8 +41,9 @@ public class GroupChannelImpl implements GroupChannel {
     }
 
     @Override
-    public void sendMessage(String s) {
-        // TODO message sending
+    public void sendMessage(String message) {
+        ClientImpl client = (ClientImpl) network.getClient();
+        client.getChannel().writeAndFlush(message + "\r\n");
     }
 
     @Override
