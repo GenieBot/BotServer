@@ -10,17 +10,22 @@ import io.sponges.bot.api.event.events.user.UserChatEvent;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
+import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.cmd.CommandHandler;
 import io.sponges.bot.server.cmd.CommandManagerImpl;
 import io.sponges.bot.server.config.Configuration;
+import io.sponges.bot.server.entities.ClientImpl;
 import io.sponges.bot.server.entities.manager.ClientManagerImpl;
 import io.sponges.bot.server.event.framework.EventBus;
 import io.sponges.bot.server.event.framework.EventManagerImpl;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
 import io.sponges.bot.server.module.ModuleManagerImpl;
+import io.sponges.bot.server.protocol.msg.StopMessage;
 import io.sponges.bot.server.protocol.parser.ParserManager;
 import io.sponges.bot.server.server.ServerImpl;
+import io.sponges.bot.server.storage.StorageImpl;
 import org.json.JSONObject;
+import redis.clients.jedis.Jedis;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +40,7 @@ public class BotImpl implements Bot {
     private final ClientManager clientManager;
     private final ParserManager parserManager;
     private final ModuleManager moduleManager;
+    private final Storage storage;
 
     /**
      * Constructor initiated in the main method
@@ -67,6 +73,15 @@ public class BotImpl implements Bot {
 
         this.moduleManager = new ModuleManagerImpl(this.server, eventManager, commandManager);
 
+        JSONObject redis = config.getJSONObject("redis");
+        this.storage = new StorageImpl(redis.getString("host"), redis.getInt("port"));
+
+        StorageImpl storage = (StorageImpl) this.storage;
+        System.out.println("Jedis closed? " + storage.getPool().isClosed());
+        System.out.println("Active: " + storage.getPool().getNumActive());
+        System.out.println("Idle: " + storage.getPool().getNumIdle());
+        System.out.println("Waiters: " + storage.getPool().getNumWaiters());
+
         // Starting the actual server
         this.server.start(() -> System.out.println("Started!"));
     }
@@ -80,6 +95,32 @@ public class BotImpl implements Bot {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void stop() {
+        for (Client client : clientManager.getClients().values()) {
+            new StopMessage(client).send(((ClientImpl) client).getChannel());
+        }
+
+        new Thread(() -> {
+            StorageImpl storage = (StorageImpl) this.storage;
+            try (Jedis jedis = storage.getPool().getResource()) {
+                String response = jedis.save();
+                System.out.println("Redis save: " + response);
+            }
+            storage.getPool().destroy();
+            System.out.println("Redis stopped");
+        }).start();
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Server stopping!");
+        server.stop(() -> {
+            System.out.println("Server stopped!");
+        });
     }
 
     @Override
@@ -105,5 +146,10 @@ public class BotImpl implements Bot {
     @Override
     public ModuleManager getModuleManager() {
         return moduleManager;
+    }
+
+    @Override
+    public Storage getStorage() {
+        return storage;
     }
 }

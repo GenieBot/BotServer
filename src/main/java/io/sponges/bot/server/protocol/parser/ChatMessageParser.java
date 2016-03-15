@@ -10,7 +10,8 @@ import io.sponges.bot.api.entities.channel.PrivateChannel;
 import io.sponges.bot.api.entities.manager.ChannelManager;
 import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.api.event.events.user.UserChatEvent;
-import io.sponges.bot.api.event.framework.EventManager;
+import io.sponges.bot.api.storage.Storage;
+import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.MessageImpl;
 import io.sponges.bot.server.entities.NetworkImpl;
 import io.sponges.bot.server.entities.UserImpl;
@@ -22,11 +23,11 @@ import java.util.Date;
 
 public final class ChatMessageParser extends MessageParser {
 
-    private final EventManager eventManager;
+    private final Bot bot;
 
-    protected ChatMessageParser(EventManager eventManager) {
+    public ChatMessageParser(Bot bot) {
         super("CHAT");
-        this.eventManager = eventManager;
+        this.bot = bot;
     }
 
     @Override
@@ -38,7 +39,7 @@ public final class ChatMessageParser extends MessageParser {
             if (manager.isNetwork(id)) {
                 network = manager.getNetwork(id);
             } else {
-                network = new NetworkImpl(id, client, null); // TODO instantiate network data
+                network = new NetworkImpl(id, client); // TODO instantiate network data
                 manager.getNetworks().put(id, network);
             }
         }
@@ -71,9 +72,9 @@ public final class ChatMessageParser extends MessageParser {
                 user = new UserImpl(userId, network);
                 boolean isPrivate = json.getBoolean("private");
                 if (isPrivate) {
-                    channel = new PrivateChannelImpl(id, network, null, user); // TODO instantiate channel data
+                    channel = new PrivateChannelImpl(id, network, user); // TODO instantiate channel data
                 } else {
-                    channel = new GroupChannelImpl(id, network, null); // TODO instantiate channel data
+                    channel = new GroupChannelImpl(id, network); // TODO instantiate channel data
                     ((GroupChannel) channel).getUsers().put(userId, user);
                 }
                 manager.getChannels().put(id, channel);
@@ -90,6 +91,27 @@ public final class ChatMessageParser extends MessageParser {
         }
 
         UserChatEvent event = new UserChatEvent(client, network, channel, user, message);
-        eventManager.post(event);
+
+        Storage storage = bot.getStorage();
+        boolean networkLoaded = storage.isLoaded(network);
+        boolean channelLoaded = storage.isLoaded(channel);
+
+        if (!networkLoaded && !channelLoaded) {
+            storage.load(network, networkData -> {
+                storage.load(channel, channelData -> {
+                    bot.getEventManager().post(event);
+                });
+            });
+        } else if (!networkLoaded) {
+            storage.load(network, networkData -> {
+                bot.getEventManager().post(event);
+            });
+        } else if (!channelLoaded) {
+            bot.getStorage().load(channel, channelData -> {
+                bot.getEventManager().post(event);
+            });
+        } else {
+            bot.getEventManager().post(event);
+        }
     }
 }

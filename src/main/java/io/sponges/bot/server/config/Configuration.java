@@ -13,7 +13,10 @@ public class Configuration {
 
     public static final String CONFIG_DEFAULTS = new JSONObject()
             .put("server", new JSONObject()
-                .put("port", 9574)
+                            .put("port", 9574)
+            ).put("redis", new JSONObject()
+                            .put("host", "localhost")
+                            .put("port", 6379)
             ).toString();
 
     public JSONObject load(File file) throws IOException, JSONException {

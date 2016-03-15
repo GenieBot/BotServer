@@ -73,7 +73,8 @@ public final class CommandHandler {
 
     public boolean handle(CommandRequest request) {
         Client client = request.getClient();
-        String prefix = client.getDefaultPrefix();
+        //String prefix = client.getDefaultPrefix();
+        String prefix = request.getChannel().getData().get("prefix");
         String content = request.getMessage().getContent();
         if (!content.startsWith(prefix) || content.length() <= 1) return false; // TODO load prefix from settings
         String[] args = content.split(" ");

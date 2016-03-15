@@ -18,6 +18,7 @@ public class CommandManagerImpl implements CommandManager {
 
         registerCommand(null, new TestCommand());
         registerCommand(null, new ReloadCommand(bot));
+        registerCommand(null, new StopCommand(bot));
     }
 
     @Override

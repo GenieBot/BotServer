@@ -20,7 +20,7 @@ public final class SendRawMessage extends Message {
     }
 
     @Override
-    protected JSONObject toJson() {
+    public JSONObject toJson() {
         JSONObject channel = new JSONObject();
         channel.put("id", this.channel.getId());
         channel.put("private", channel instanceof PrivateChannel);

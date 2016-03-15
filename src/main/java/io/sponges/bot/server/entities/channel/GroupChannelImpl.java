@@ -3,7 +3,7 @@ package io.sponges.bot.server.entities.channel;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.GroupChannel;
-import io.sponges.bot.api.storage.ChannelData;
+import io.sponges.bot.api.storage.data.ChannelData;
 import io.sponges.bot.server.entities.ClientImpl;
 
 import java.util.HashMap;
@@ -17,12 +17,12 @@ public class GroupChannelImpl implements GroupChannel {
 
     private final String id;
     private final Network network;
-    private final ChannelData channelData;
 
-    public GroupChannelImpl(String id, Network network, ChannelData channelData) {
+    private ChannelData channelData = null;
+
+    public GroupChannelImpl(String id, Network network) {
         this.id = id;
         this.network = network;
-        this.channelData = channelData;
     }
 
     @Override
@@ -59,5 +59,9 @@ public class GroupChannelImpl implements GroupChannel {
     @Override
     public ChannelData getData() {
         return channelData;
+    }
+
+    public void setChannelData(ChannelData channelData) {
+        this.channelData = channelData;
     }
 }

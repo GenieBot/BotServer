@@ -34,39 +34,35 @@ public final class ServerImpl implements Server {
 
     @Override
     public void start(Runnable runnable) throws ServerAlreadyRunningException, InterruptedException {
-        synchronized (lock) {
-            if (running.get()) {
-                throw new ServerAlreadyRunningException();
-            }
-            running.set(true);
-            try {
-                ServerBootstrap serverBootstrap = new ServerBootstrap();
-                serverBootstrap.group(bossGroup, workerGroup)
-                        .channel(NioServerSocketChannel.class)
-                        .handler(new LoggingHandler(LogLevel.INFO))
-                        .childHandler(new ServerInitializer(this));
-                ChannelFuture future = serverBootstrap.bind(port);
-                runnable.run();
-                future.sync().channel().closeFuture().sync();
-            } finally {
-                bossGroup.shutdownGracefully();
-                workerGroup.shutdownGracefully();
-                running.set(false);
-            }
+        if (running.get()) {
+            throw new ServerAlreadyRunningException();
+        }
+        running.set(true);
+        try {
+            ServerBootstrap serverBootstrap = new ServerBootstrap();
+            serverBootstrap.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .handler(new LoggingHandler(LogLevel.INFO))
+                    .childHandler(new ServerInitializer(this));
+            ChannelFuture future = serverBootstrap.bind(port);
+            runnable.run();
+            future.sync().channel().closeFuture().sync();
+        } finally {
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+            running.set(false);
         }
     }
 
     @Override
     public void stop(Runnable runnable) throws ServerNotRunningException {
-        synchronized (lock) {
-            if (!running.get()) {
-                throw new ServerNotRunningException();
-            }
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-            running.set(false);
-            runnable.run();
+        if (!running.get()) {
+            throw new ServerNotRunningException();
         }
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
+        running.set(false);
+        runnable.run();
     }
 
     @Override

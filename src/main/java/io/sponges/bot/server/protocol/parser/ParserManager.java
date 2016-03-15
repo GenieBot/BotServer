@@ -13,7 +13,7 @@ public class ParserManager {
     private final Map<String, MessageParser> parsers = new HashMap<>();
 
     public ParserManager(Bot bot) {
-        register(new ChatMessageParser(bot.getEventManager()));
+        register(new ChatMessageParser(bot));
     }
 
     private void register(MessageParser parser) {

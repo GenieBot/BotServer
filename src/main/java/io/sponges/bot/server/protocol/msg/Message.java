@@ -9,12 +9,12 @@ public abstract class Message {
     private final Client client;
     private final String type;
 
-    protected Message(Client client, String type) {
+    public Message(Client client, String type) {
         this.client = client;
         this.type = type;
     }
 
-    protected abstract JSONObject toJson();
+    public abstract JSONObject toJson();
 
     public JSONObject getAsJson() {
         JSONObject json = new JSONObject();
