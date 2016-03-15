@@ -46,7 +46,7 @@ public class BotImpl implements Bot {
 
         this.eventBus = new EventBus();
         this.eventManager = new EventManagerImpl(this.eventBus);
-        this.commandHandler = new CommandHandler();
+        this.commandHandler = new CommandHandler(eventManager);
         this.commandManager = new CommandManagerImpl(this);
         this.server = new ServerImpl(this, port);
         this.clientManager = new ClientManagerImpl();

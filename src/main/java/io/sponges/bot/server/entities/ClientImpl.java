@@ -11,11 +11,13 @@ import io.sponges.bot.server.entities.manager.NetworkManagerImpl;
 public class ClientImpl implements Client {
 
     private final String id;
+    private final String defaultPrefix;
     private final Channel channel;
     private final NetworkManager networkManager;
 
-    public ClientImpl(String id, Channel channel) {
+    public ClientImpl(String id, String defaultPrefix, Channel channel) {
         this.id = id;
+        this.defaultPrefix = defaultPrefix;
         this.channel = channel;
         this.networkManager = new NetworkManagerImpl(this);
     }
@@ -23,6 +25,11 @@ public class ClientImpl implements Client {
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public String getDefaultPrefix() {
+        return defaultPrefix;
     }
 
     public Channel getChannel() {

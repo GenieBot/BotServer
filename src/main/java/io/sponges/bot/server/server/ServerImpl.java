@@ -43,7 +43,8 @@ public class ServerImpl implements io.sponges.bot.api.server.Server {
                 if (clientManager.isClient(clientId)) {
                     client = clientManager.getClient(clientId);
                 } else {
-                    client = new ClientImpl(clientId, context.channel());
+                    String defaultPrefix = json.getJSONObject("content").getString("prefix");
+                    client = new ClientImpl(clientId, defaultPrefix, context.channel());
                     clientManager.getClients().put(clientId, client);
                 }
                 ClientInputEvent clientInputEvent = new ClientInputEvent(client, json);

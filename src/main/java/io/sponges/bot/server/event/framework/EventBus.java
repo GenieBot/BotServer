@@ -18,6 +18,7 @@ import java.util.function.Consumer;
  */
 public final class EventBus {
 
+    // TODO change to thread safe ConcurrentHashMap, remove shitty locks
     private final Multimap<Class<? extends Event>, Consumer<Event>> consumerMap;
     private final Lock lock;
 

@@ -9,10 +9,11 @@ import io.sponges.bot.api.server.Server;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ModuleManagerImpl implements ModuleManager {
 
-    private Map<String, Module> modules = new HashMap<>();
+    private Map<String, Module> modules = new ConcurrentHashMap<>();
 
     private final Server server;
     private final EventManager eventManager;
