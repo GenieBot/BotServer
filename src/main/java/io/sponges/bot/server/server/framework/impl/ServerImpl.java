@@ -5,12 +5,10 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.internal.ConcurrentSet;
 import io.sponges.bot.server.server.framework.Server;
-import io.sponges.bot.server.server.framework.exception.ServerAlreadyRunningException;
 import io.sponges.bot.server.server.framework.ServerListener;
+import io.sponges.bot.server.server.framework.exception.ServerAlreadyRunningException;
 import io.sponges.bot.server.server.framework.exception.ServerNotRunningException;
 
 import java.util.Set;
@@ -42,7 +40,6 @@ public final class ServerImpl implements Server {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new ServerInitializer(this));
             ChannelFuture future = serverBootstrap.bind(port);
             runnable.run();

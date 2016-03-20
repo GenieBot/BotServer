@@ -4,12 +4,12 @@ import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.manager.NetworkManager;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NetworkManagerImpl implements NetworkManager {
 
-    private final Map<String, Network> networks = new HashMap<>();
+    private final Map<String, Network> networks = new ConcurrentHashMap<>();
 
     private final Client client;
 

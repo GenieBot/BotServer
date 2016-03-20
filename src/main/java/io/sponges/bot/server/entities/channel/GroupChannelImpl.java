@@ -5,6 +5,7 @@ import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.GroupChannel;
 import io.sponges.bot.api.storage.data.ChannelData;
 import io.sponges.bot.server.entities.ClientImpl;
+import io.sponges.bot.server.protocol.msg.SendRawMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +45,12 @@ public class GroupChannelImpl implements GroupChannel {
     public void sendMessage(String message) {
         ClientImpl client = (ClientImpl) network.getClient();
         client.getChannel().writeAndFlush(message + "\r\n");
+    }
+
+    @Override
+    public void sendChatMessage(String s) {
+        String message = new SendRawMessage(network.getClient(), network, this, s).toString();
+        sendMessage(message);
     }
 
     @Override

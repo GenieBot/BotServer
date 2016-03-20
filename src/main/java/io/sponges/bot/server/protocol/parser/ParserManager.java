@@ -29,7 +29,7 @@ public class ParserManager {
         if (parsers.containsKey(type)) {
             parsers.get(type).parse(client, time, content);
         } else {
-            System.err.println("Got invalid message type \"" + type + "\"!");
+            if (!type.equals("CONNECT")) System.err.println("Got invalid message type \"" + type + "\"!");
         }
     }
 

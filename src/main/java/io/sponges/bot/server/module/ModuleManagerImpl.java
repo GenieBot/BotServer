@@ -5,10 +5,14 @@ import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
+import io.sponges.bot.api.storage.Storage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ModuleManagerImpl implements ModuleManager {
@@ -18,11 +22,13 @@ public class ModuleManagerImpl implements ModuleManager {
     private final Server server;
     private final EventManager eventManager;
     private final CommandManager commandManager;
+    private final Storage storage;
 
-    public ModuleManagerImpl(Server server, EventManager eventManager, CommandManager commandManager) {
+    public ModuleManagerImpl(Server server, EventManager eventManager, CommandManager commandManager, Storage storage) {
         this.server = server;
         this.eventManager = eventManager;
         this.commandManager = commandManager;
+        this.storage = storage;
 
         load();
     }
@@ -65,7 +71,7 @@ public class ModuleManagerImpl implements ModuleManager {
 
     public void register(Module module) {
         modules.put(module.getId().toLowerCase(), module);
-        module.init(server, eventManager, commandManager, this);
+        module.init(server, eventManager, commandManager, this, storage);
         module.getLogger().log("Enabling " + module.getId() + " version " + module.getVersion());
         module.onEnable();
     }

@@ -12,6 +12,9 @@ import io.sponges.bot.api.event.events.cmd.CommandProcessedEvent;
 import io.sponges.bot.api.event.events.user.UserChatEvent;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.Module;
+import io.sponges.bot.api.storage.data.ChannelData;
+import io.sponges.bot.api.storage.data.NetworkData;
+import io.sponges.bot.api.storage.data.Setting;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +35,6 @@ public final class CommandHandler {
         for (String name : names) {
             commands.put(name, command);
         }
-
         if (module != null) {
             List<Command> commands = new ArrayList<>();
             if (moduleCommands.containsKey(module)) {
@@ -73,10 +75,19 @@ public final class CommandHandler {
 
     public boolean handle(CommandRequest request) {
         Client client = request.getClient();
-        //String prefix = client.getDefaultPrefix();
-        String prefix = request.getChannel().getData().get("prefix");
+        Network network = request.getNetwork();
+        Channel channel = request.getChannel();
+        NetworkData networkData = network.getData();
+        ChannelData channelData = channel.getData();
+        String prefix;
+        if (channelData.isPresent(Setting.PREFIX_KEY)) {
+            prefix = channelData.get(Setting.PREFIX_KEY);
+        } else {
+            prefix = networkData.get(Setting.PREFIX_KEY);
+        }
+
         String content = request.getMessage().getContent();
-        if (!content.startsWith(prefix) || content.length() <= 1) return false; // TODO load prefix from settings
+        if (!content.startsWith(prefix) || content.length() <= 1) return false;
         String[] args = content.split(" ");
         if (args[0].equals(prefix)) args = Arrays.copyOfRange(args, 1, args.length);
         else args[0] = args[0].substring(prefix.length());

@@ -71,16 +71,10 @@ public class BotImpl implements Bot {
         });
         this.eventBus.register(UserChatEvent.class, commandHandler::onUserChat);
 
-        this.moduleManager = new ModuleManagerImpl(this.server, eventManager, commandManager);
-
         JSONObject redis = config.getJSONObject("redis");
         this.storage = new StorageImpl(redis.getString("host"), redis.getInt("port"));
 
-        StorageImpl storage = (StorageImpl) this.storage;
-        System.out.println("Jedis closed? " + storage.getPool().isClosed());
-        System.out.println("Active: " + storage.getPool().getNumActive());
-        System.out.println("Idle: " + storage.getPool().getNumIdle());
-        System.out.println("Waiters: " + storage.getPool().getNumWaiters());
+        this.moduleManager = new ModuleManagerImpl(this.server, eventManager, commandManager, storage);
 
         // Starting the actual server
         this.server.start(() -> System.out.println("Started!"));
@@ -102,7 +96,11 @@ public class BotImpl implements Bot {
         for (Client client : clientManager.getClients().values()) {
             new StopMessage(client).send(((ClientImpl) client).getChannel());
         }
-
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         new Thread(() -> {
             StorageImpl storage = (StorageImpl) this.storage;
             try (Jedis jedis = storage.getPool().getResource()) {
@@ -110,16 +108,14 @@ public class BotImpl implements Bot {
                 System.out.println("Redis save: " + response);
             }
             storage.getPool().destroy();
-            System.out.println("Redis stopped");
         }).start();
         try {
-            Thread.sleep(3000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("Server stopping!");
         server.stop(() -> {
-            System.out.println("Server stopped!");
+            System.out.println("Server closed!");
         });
     }
 

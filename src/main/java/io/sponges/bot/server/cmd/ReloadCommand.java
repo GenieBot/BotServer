@@ -15,6 +15,10 @@ public class ReloadCommand extends Command {
 
     @Override
     public void onCommand(CommandRequest commandRequest, String[] strings) {
+        if (!commandRequest.getUser().isOp()) {
+            commandRequest.reply("Sorry, only the bot owner can run this command.");
+            return;
+        }
         long start = System.currentTimeMillis();
         bot.getModuleManager().reload();
         commandRequest.reply("Reloaded! (" + (System.currentTimeMillis() - start) + "ms)");

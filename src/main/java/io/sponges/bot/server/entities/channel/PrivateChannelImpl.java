@@ -5,6 +5,7 @@ import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
 import io.sponges.bot.api.storage.data.ChannelData;
 import io.sponges.bot.server.entities.ClientImpl;
+import io.sponges.bot.server.protocol.msg.SendRawMessage;
 
 public class PrivateChannelImpl implements PrivateChannel {
 
@@ -29,6 +30,12 @@ public class PrivateChannelImpl implements PrivateChannel {
     public void sendMessage(String message) {
         ClientImpl client = (ClientImpl) network.getClient();
         client.getChannel().writeAndFlush(message + "\r\n");
+    }
+
+    @Override
+    public void sendChatMessage(String s) {
+        String message = new SendRawMessage(network.getClient(), network, this, s).toString();
+        sendMessage(message);
     }
 
     @Override

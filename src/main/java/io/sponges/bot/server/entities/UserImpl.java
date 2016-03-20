@@ -1,6 +1,7 @@
 package io.sponges.bot.server.entities;
 
 import io.sponges.bot.api.entities.Network;
+import io.sponges.bot.api.entities.Role;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
@@ -19,10 +20,15 @@ public class UserImpl implements User {
 
     private final String id;
     private final Network network;
+    private final boolean platformAdmin, op;
 
-    public UserImpl(String id, Network network) {
+    private Role role = null;
+
+    public UserImpl(String id, Network network, boolean platformAdmin, boolean op) {
         this.id = id;
         this.network = network;
+        this.platformAdmin = platformAdmin;
+        this.op = op;
     }
 
     @Override
@@ -36,8 +42,33 @@ public class UserImpl implements User {
     }
 
     @Override
+    public boolean isGlobalAdmin() {
+        return platformAdmin;
+    }
+
+    @Override
+    public boolean isOp() {
+        return op;
+    }
+
+    @Override
     public List<Channel> getChannels() {
         return network.getChannelManager().getChannels(this);
+    }
+
+    @Override
+    public Role getRole() {
+        return role;
+    }
+
+    @Override
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    @Override
+    public boolean hasPermission(String s) {
+        return platformAdmin || role != null && role.hasPermission(s);
     }
 
     @Override

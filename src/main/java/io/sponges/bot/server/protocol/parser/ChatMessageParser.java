@@ -2,11 +2,9 @@ package io.sponges.bot.server.protocol.parser;
 
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Message;
-import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.channel.GroupChannel;
-import io.sponges.bot.api.entities.channel.PrivateChannel;
 import io.sponges.bot.api.entities.manager.ChannelManager;
 import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.api.event.events.user.UserChatEvent;
@@ -32,49 +30,54 @@ public final class ChatMessageParser extends MessageParser {
 
     @Override
     public void parse(Client client, long time, JSONObject content) {
-        Network network;
+        NetworkImpl network;
         {
             String id = content.getString("network");
             NetworkManager manager = client.getNetworkManager();
             if (manager.isNetwork(id)) {
-                network = manager.getNetwork(id);
+                network = (NetworkImpl) manager.getNetwork(id);
             } else {
-                network = new NetworkImpl(id, client); // TODO instantiate network data
+                network = new NetworkImpl(id, client);
                 manager.getNetworks().put(id, network);
             }
         }
 
         Channel channel;
-        User user = null;
+        User user;
         {
             JSONObject json = content.getJSONObject("channel");
             String id = json.getString("id");
             ChannelManager manager = network.getChannelManager();
             JSONObject userJson = content.getJSONObject("user");
             String userId = userJson.getString("id");
+            boolean isAdmin = userJson.getBoolean("admin");
+            boolean isOp = userJson.getBoolean("op");
             if (manager.isChannel(id)) {
                 channel = manager.getChannel(id);
-                if (channel instanceof PrivateChannel) {
-                    PrivateChannel privateChannel = (PrivateChannel) channel;
-                    if (privateChannel.getUser().getId().equals(userId)) {
-                        user = privateChannel.getUser();
-                    }
+                if (network.isUser(userId)) {
+                    user = network.getUser(userId);
                 } else {
+                    user = new UserImpl(userId, network, isAdmin, isOp);
+                    network.addUser(user);
+                }
+                if (channel instanceof GroupChannel) {
                     GroupChannel groupChannel = (GroupChannel) channel;
-                    if (groupChannel.isUser(userId)) {
-                        user = groupChannel.getUser(userId);
-                    } else {
-                        user = new UserImpl(userId, network);
+                    if (!groupChannel.isUser(userId)) {
                         groupChannel.getUsers().put(userId, user);
                     }
                 }
             } else {
-                user = new UserImpl(userId, network);
+                if (network.isUser(userId)) {
+                    user = network.getUser(userId);
+                } else {
+                    user = new UserImpl(userId, network, isAdmin, isOp);
+                    network.addUser(user);
+                }
                 boolean isPrivate = json.getBoolean("private");
                 if (isPrivate) {
-                    channel = new PrivateChannelImpl(id, network, user); // TODO instantiate channel data
+                    channel = new PrivateChannelImpl(id, network, user);
                 } else {
-                    channel = new GroupChannelImpl(id, network); // TODO instantiate channel data
+                    channel = new GroupChannelImpl(id, network);
                     ((GroupChannel) channel).getUsers().put(userId, user);
                 }
                 manager.getChannels().put(id, channel);
@@ -95,7 +98,6 @@ public final class ChatMessageParser extends MessageParser {
         Storage storage = bot.getStorage();
         boolean networkLoaded = storage.isLoaded(network);
         boolean channelLoaded = storage.isLoaded(channel);
-
         if (!networkLoaded && !channelLoaded) {
             storage.load(network, networkData -> {
                 storage.load(channel, channelData -> {
