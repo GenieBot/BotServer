@@ -1,7 +1,7 @@
 package io.sponges.bot.server.protocol.msg;
 
-import io.netty.channel.Channel;
 import io.sponges.bot.api.entities.Client;
+import io.sponges.bot.server.entities.ClientImpl;
 import org.json.JSONObject;
 
 public abstract class Message {
@@ -30,7 +30,7 @@ public abstract class Message {
         return getAsJson().toString();
     }
 
-    public void send(Channel channel) {
-        channel.writeAndFlush(toString() + "\r\n");
+    public void send(ClientImpl client) {
+        client.write(toString());
     }
 }

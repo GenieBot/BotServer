@@ -7,6 +7,7 @@ import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.api.event.events.user.UserChatEvent;
+import io.sponges.bot.api.event.events.user.UserJoinEvent;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
@@ -21,7 +22,7 @@ import io.sponges.bot.server.event.framework.EventManagerImpl;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
 import io.sponges.bot.server.module.ModuleManagerImpl;
 import io.sponges.bot.server.protocol.msg.StopMessage;
-import io.sponges.bot.server.protocol.parser.ParserManager;
+import io.sponges.bot.server.protocol.parser.framework.ParserManager;
 import io.sponges.bot.server.server.ServerImpl;
 import io.sponges.bot.server.storage.StorageImpl;
 import org.json.JSONObject;
@@ -70,6 +71,7 @@ public class BotImpl implements Bot {
                     user.getId(), content);
         });
         this.eventBus.register(UserChatEvent.class, commandHandler::onUserChat);
+        this.eventBus.register(UserJoinEvent.class, (event) -> System.out.println(event.getUser().getId() + " joined!"));
 
         JSONObject redis = config.getJSONObject("redis");
         this.storage = new StorageImpl(redis.getString("host"), redis.getInt("port"));
@@ -94,7 +96,7 @@ public class BotImpl implements Bot {
     @Override
     public void stop() {
         for (Client client : clientManager.getClients().values()) {
-            new StopMessage(client).send(((ClientImpl) client).getChannel());
+            new StopMessage(client).send((ClientImpl) client);
         }
         try {
             Thread.sleep(3000);
@@ -114,9 +116,7 @@ public class BotImpl implements Bot {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        server.stop(() -> {
-            System.out.println("Server closed!");
-        });
+        server.stop(() -> System.out.println("Server closed!"));
     }
 
     @Override

@@ -15,6 +15,7 @@ import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.storage.data.ChannelData;
 import io.sponges.bot.api.storage.data.NetworkData;
 import io.sponges.bot.api.storage.data.Setting;
+import io.sponges.bot.server.util.Scheduler;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,7 +74,11 @@ public final class CommandHandler {
         handle(request);
     }
 
-    public boolean handle(CommandRequest request) {
+    public void handle(CommandRequest request) {
+        Scheduler.runAsyncTask(() -> handleRequest(request));
+    }
+
+    private boolean handleRequest(CommandRequest request) {
         Client client = request.getClient();
         Network network = request.getNetwork();
         Channel channel = request.getChannel();

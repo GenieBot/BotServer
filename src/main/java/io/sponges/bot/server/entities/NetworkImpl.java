@@ -9,6 +9,7 @@ import io.sponges.bot.api.entities.manager.RoleManager;
 import io.sponges.bot.api.storage.data.NetworkData;
 import io.sponges.bot.server.entities.manager.ChannelManagerImpl;
 import io.sponges.bot.server.entities.manager.RoleManagerImpl;
+import io.sponges.bot.server.protocol.msg.KickUserMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -86,6 +87,17 @@ public class NetworkImpl implements Network {
     @Override
     public User getUser(String s) {
         return users.get(s);
+    }
+
+    @Override
+    public void kickUser(User user) {
+        KickUserMessage message = new KickUserMessage(client, this, user);
+        message.send((ClientImpl) client);
+    }
+
+    @Override
+    public void kickUser(String s) {
+        kickUser(users.get(s));
     }
 
     public Map<String, String> getToAssign() {

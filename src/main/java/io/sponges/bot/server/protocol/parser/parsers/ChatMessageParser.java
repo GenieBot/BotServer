@@ -1,4 +1,4 @@
-package io.sponges.bot.server.protocol.parser;
+package io.sponges.bot.server.protocol.parser.parsers;
 
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Message;
@@ -15,6 +15,7 @@ import io.sponges.bot.server.entities.NetworkImpl;
 import io.sponges.bot.server.entities.UserImpl;
 import io.sponges.bot.server.entities.channel.GroupChannelImpl;
 import io.sponges.bot.server.entities.channel.PrivateChannelImpl;
+import io.sponges.bot.server.protocol.parser.framework.MessageParser;
 import org.json.JSONObject;
 
 import java.util.Date;

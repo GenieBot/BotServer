@@ -1,4 +1,4 @@
-package io.sponges.bot.server.protocol.parser;
+package io.sponges.bot.server.protocol.parser.framework;
 
 import io.sponges.bot.api.entities.Client;
 import org.json.JSONObject;

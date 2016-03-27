@@ -44,7 +44,7 @@ public class GroupChannelImpl implements GroupChannel {
     @Override
     public void sendMessage(String message) {
         ClientImpl client = (ClientImpl) network.getClient();
-        client.getChannel().writeAndFlush(message + "\r\n");
+        client.write(message);
     }
 
     @Override

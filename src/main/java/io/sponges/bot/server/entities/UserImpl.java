@@ -72,6 +72,11 @@ public class UserImpl implements User {
     }
 
     @Override
+    public void kick() {
+        network.kickUser(this);
+    }
+
+    @Override
     public Optional<PrivateChannel> getPrivateChannel() {
         return privateChannel;
     }

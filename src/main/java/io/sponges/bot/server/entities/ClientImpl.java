@@ -22,6 +22,10 @@ public class ClientImpl implements Client {
         this.networkManager = new NetworkManagerImpl(this);
     }
 
+    public void write(String message) {
+        channel.writeAndFlush(message + "\r\n");
+    }
+
     @Override
     public String getId() {
         return id;
@@ -32,9 +36,6 @@ public class ClientImpl implements Client {
         return defaultPrefix;
     }
 
-    public Channel getChannel() {
-        return channel;
-    }
 
     @Override
     public NetworkManager getNetworkManager() {
