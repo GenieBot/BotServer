@@ -6,6 +6,7 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.manager.ClientManager;
+import io.sponges.bot.api.event.events.channel.ChannelTopicChangeEvent;
 import io.sponges.bot.api.event.events.user.UserChatEvent;
 import io.sponges.bot.api.event.events.user.UserJoinEvent;
 import io.sponges.bot.api.event.framework.EventManager;
@@ -72,6 +73,10 @@ public class BotImpl implements Bot {
         });
         this.eventBus.register(UserChatEvent.class, commandHandler::onUserChat);
         this.eventBus.register(UserJoinEvent.class, (event) -> System.out.println(event.getUser().getId() + " joined!"));
+        this.eventBus.register(ChannelTopicChangeEvent.class, (event) -> {
+            System.out.println(event.getUser().getId() + " changed topic to " + event.getNewTopic() + "!"
+                    + (event.getOldTopic().isPresent() ? " Old topic: " + event.getOldTopic().get() : ""));
+        });
 
         JSONObject redis = config.getJSONObject("redis");
         this.storage = new StorageImpl(redis.getString("host"), redis.getInt("port"));

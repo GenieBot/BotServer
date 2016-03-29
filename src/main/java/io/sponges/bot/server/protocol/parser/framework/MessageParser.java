@@ -7,7 +7,7 @@ public abstract class MessageParser {
 
     private final String type;
 
-    protected MessageParser(String type) {
+    public MessageParser(String type) {
         this.type = type;
     }
 

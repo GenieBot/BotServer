@@ -5,6 +5,7 @@ import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.GroupChannel;
 import io.sponges.bot.api.storage.data.ChannelData;
 import io.sponges.bot.server.entities.ClientImpl;
+import io.sponges.bot.server.protocol.msg.ChangeChannelTopicMessage;
 import io.sponges.bot.server.protocol.msg.SendRawMessage;
 
 import java.util.HashMap;
@@ -39,6 +40,13 @@ public class GroupChannelImpl implements GroupChannel {
     @Override
     public User getUser(String s) {
         return users.get(s);
+    }
+
+    @Override
+    public void setTopic(String s) {
+        ClientImpl client = (ClientImpl) network.getClient();
+        ChangeChannelTopicMessage message = new ChangeChannelTopicMessage(client, network, this, s);
+        message.send(client);
     }
 
     @Override
