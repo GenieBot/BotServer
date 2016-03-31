@@ -90,7 +90,6 @@ public final class CommandHandler {
         } else {
             prefix = networkData.get(Setting.PREFIX_KEY);
         }
-
         String content = request.getMessage().getContent();
         if (!content.startsWith(prefix) || content.length() <= 1) return false;
         String[] args = content.split(" ");
@@ -100,7 +99,11 @@ public final class CommandHandler {
         args = Arrays.copyOfRange(args, 1, args.length);
         if (!commands.containsKey(cmd)) return false;
         eventManager.post(new CommandPreProcessEvent(request, args));
-        commands.get(cmd).onCommand(request, args);
+        try {
+            commands.get(cmd).onCommand(request, args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         eventManager.post(new CommandProcessedEvent(request, args));
         return true;
     }

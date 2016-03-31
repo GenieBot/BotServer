@@ -145,6 +145,14 @@ public class StorageImpl implements Storage {
     }
 
     @Override
+    public void increment(String s, Consumer<Long> consumer) {
+        try (Jedis jedis = pool.getResource()) {
+            long response = jedis.incr(s);
+            consumer.accept(response);
+        }
+    }
+
+    @Override
     public boolean isLoaded(Network network) {
         return network.getData() != null;
     }
