@@ -64,6 +64,14 @@ public final class CommandHandler {
         return Collections.unmodifiableList(commands);
     }
 
+    protected Collection<String> getNames() {
+        return Collections.unmodifiableCollection(commands.keySet());
+    }
+
+    protected Command getCommand(String name) {
+        return commands.get(name);
+    }
+
     public void onUserChat(UserChatEvent userChatEvent) {
         Client client = userChatEvent.getClient();
         Network network = userChatEvent.getNetwork();

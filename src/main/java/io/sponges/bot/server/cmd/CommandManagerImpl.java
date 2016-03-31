@@ -40,4 +40,14 @@ public class CommandManagerImpl implements CommandManager {
     public Collection<Command> getCommands() {
         return commandHandler.getCommands();
     }
+
+    @Override
+    public Collection<String> getNames() {
+        return commandHandler.getNames();
+    }
+
+    @Override
+    public Command getCommand(String s) {
+        return commandHandler.getCommand(s);
+    }
 }
