@@ -11,19 +11,22 @@ public class PrivateChannelImpl implements PrivateChannel {
 
     private final String id;
     private final Network network;
-    private final User user;
 
+    private User user = null;
     private ChannelData channelData = null;
 
-    public PrivateChannelImpl(String id, Network network, User user) {
+    public PrivateChannelImpl(String id, Network network) {
         this.id = id;
         this.network = network;
-        this.user = user;
     }
 
     @Override
     public User getUser() {
         return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

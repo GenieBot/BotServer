@@ -1,11 +1,13 @@
 package io.sponges.bot.server.module;
 
 import io.sponges.bot.api.cmd.CommandManager;
+import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
 import io.sponges.bot.api.storage.Storage;
+import io.sponges.proxypool.ProxyPool;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,12 +25,17 @@ public class ModuleManagerImpl implements ModuleManager {
     private final EventManager eventManager;
     private final CommandManager commandManager;
     private final Storage storage;
+    private final ProxyPool proxyPool;
+    private final ClientManager clientManager;
 
-    public ModuleManagerImpl(Server server, EventManager eventManager, CommandManager commandManager, Storage storage) {
+    public ModuleManagerImpl(Server server, EventManager eventManager, CommandManager commandManager, Storage storage,
+                             ProxyPool proxyPool, ClientManager clientManager) {
         this.server = server;
         this.eventManager = eventManager;
         this.commandManager = commandManager;
         this.storage = storage;
+        this.proxyPool = proxyPool;
+        this.clientManager = clientManager;
 
         load();
     }
@@ -71,7 +78,7 @@ public class ModuleManagerImpl implements ModuleManager {
 
     public void register(Module module) {
         modules.put(module.getId().toLowerCase(), module);
-        module.init(server, eventManager, commandManager, this, storage);
+        module.init(server, eventManager, commandManager, this, storage, proxyPool, clientManager);
         module.getLogger().log("Enabling " + module.getId() + " version " + module.getVersion());
         module.onEnable();
     }

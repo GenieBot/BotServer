@@ -9,8 +9,10 @@ import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.NetworkImpl;
 import io.sponges.bot.server.entities.UserImpl;
-import io.sponges.bot.server.entities.channel.GroupChannelImpl;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
+import io.sponges.bot.server.protocol.parser.initalizer.ChannelInitializer;
+import io.sponges.bot.server.protocol.parser.initalizer.NetworkInitializer;
+import io.sponges.bot.server.protocol.parser.initalizer.UserInitializer;
 import org.json.JSONObject;
 
 public final class UserJoinMessageParser extends MessageParser {
@@ -31,7 +33,7 @@ public final class UserJoinMessageParser extends MessageParser {
             if (manager.isNetwork(id)) {
                 network = (NetworkImpl) manager.getNetwork(id);
             } else {
-                network = new NetworkImpl(id, client);
+                network = (NetworkImpl) NetworkInitializer.createNetwork(client, id);
                 manager.getNetworks().put(id, network);
             }
         }
@@ -44,7 +46,7 @@ public final class UserJoinMessageParser extends MessageParser {
             if (manager.isChannel(id)) {
                 channel = (GroupChannel) manager.getChannel(id);
             } else {
-                channel = new GroupChannelImpl(id, network);
+                channel = (GroupChannel) ChannelInitializer.createChannel(network, json);
                 manager.getChannels().put(id, channel);
             }
         }
@@ -55,14 +57,10 @@ public final class UserJoinMessageParser extends MessageParser {
             {
                 JSONObject json = content.getJSONObject("added");
                 String userId = json.getString("id");
-                boolean isAdmin = json.getBoolean("admin");
-                boolean isOp = json.getBoolean("op");
                 if (network.isUser(userId)) {
                     user = (UserImpl) network.getUser(userId);
                 } else {
-                    user = new UserImpl(userId, network, isAdmin, isOp);
-                    if (!json.isNull("username")) user.setUsername(json.getString("username"));
-                    if (!json.isNull("display-name")) user.setDisplayName(json.getString("display-name"));
+                    user = (UserImpl) UserInitializer.createUser(network, json);
                     network.addUser(user);
                 }
                 if (channel != null && !channel.isUser(userId)) {
@@ -72,14 +70,10 @@ public final class UserJoinMessageParser extends MessageParser {
             if (!content.isNull("initiator")) {
                 JSONObject json = content.getJSONObject("initiator");
                 String userId = json.getString("id");
-                boolean isAdmin = json.getBoolean("admin");
-                boolean isOp = json.getBoolean("op");
                 if (network.isUser(userId)) {
                     initiator = (UserImpl) network.getUser(userId);
                 } else {
-                    initiator = new UserImpl(userId, network, isAdmin, isOp);
-                    if (!json.isNull("username")) initiator.setUsername(json.getString("username"));
-                    if (!json.isNull("display-name")) initiator.setDisplayName(json.getString("display-name"));
+                    initiator = (UserImpl) UserInitializer.createUser(network, json);
                     network.addUser(initiator);
                 }
                 if (channel != null && !channel.isUser(userId)) {

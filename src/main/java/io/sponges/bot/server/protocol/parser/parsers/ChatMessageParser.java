@@ -12,10 +12,10 @@ import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.MessageImpl;
 import io.sponges.bot.server.entities.NetworkImpl;
-import io.sponges.bot.server.entities.UserImpl;
-import io.sponges.bot.server.entities.channel.GroupChannelImpl;
-import io.sponges.bot.server.entities.channel.PrivateChannelImpl;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
+import io.sponges.bot.server.protocol.parser.initalizer.ChannelInitializer;
+import io.sponges.bot.server.protocol.parser.initalizer.NetworkInitializer;
+import io.sponges.bot.server.protocol.parser.initalizer.UserInitializer;
 import org.json.JSONObject;
 
 import java.util.Date;
@@ -38,7 +38,7 @@ public final class ChatMessageParser extends MessageParser {
             if (manager.isNetwork(id)) {
                 network = (NetworkImpl) manager.getNetwork(id);
             } else {
-                network = new NetworkImpl(id, client);
+                network = (NetworkImpl) NetworkInitializer.createNetwork(client, id);
                 manager.getNetworks().put(id, network);
             }
         }
@@ -51,14 +51,12 @@ public final class ChatMessageParser extends MessageParser {
             ChannelManager manager = network.getChannelManager();
             JSONObject userJson = content.getJSONObject("user");
             String userId = userJson.getString("id");
-            boolean isAdmin = userJson.getBoolean("admin");
-            boolean isOp = userJson.getBoolean("op");
             if (manager.isChannel(id)) {
                 channel = manager.getChannel(id);
                 if (network.isUser(userId)) {
                     user = network.getUser(userId);
                 } else {
-                    user = new UserImpl(userId, network, isAdmin, isOp);
+                    user = UserInitializer.createUser(network, userJson);
                     network.addUser(user);
                 }
                 if (channel instanceof GroupChannel) {
@@ -71,14 +69,11 @@ public final class ChatMessageParser extends MessageParser {
                 if (network.isUser(userId)) {
                     user = network.getUser(userId);
                 } else {
-                    user = new UserImpl(userId, network, isAdmin, isOp);
+                    user = UserInitializer.createUser(network, userJson);
                     network.addUser(user);
                 }
-                boolean isPrivate = json.getBoolean("private");
-                if (isPrivate) {
-                    channel = new PrivateChannelImpl(id, network, user);
-                } else {
-                    channel = new GroupChannelImpl(id, network);
+                channel = ChannelInitializer.createChannel(network, json);
+                if (channel instanceof GroupChannel) {
                     ((GroupChannel) channel).getUsers().put(userId, user);
                 }
                 manager.getChannels().put(id, channel);

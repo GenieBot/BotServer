@@ -15,7 +15,7 @@ import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.storage.data.ChannelData;
 import io.sponges.bot.api.storage.data.NetworkData;
 import io.sponges.bot.api.storage.data.Setting;
-import io.sponges.bot.server.util.Scheduler;
+import io.sponges.bot.api.util.Scheduler;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

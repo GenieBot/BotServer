@@ -3,3 +3,8 @@
 *.iml
 target
 META-INF
+proxies.txt
+*.zip
+dependency-reduced-pom.xml
+modules
+out

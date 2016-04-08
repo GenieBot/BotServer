@@ -9,8 +9,10 @@ import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.NetworkImpl;
 import io.sponges.bot.server.entities.UserImpl;
-import io.sponges.bot.server.entities.channel.GroupChannelImpl;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
+import io.sponges.bot.server.protocol.parser.initalizer.ChannelInitializer;
+import io.sponges.bot.server.protocol.parser.initalizer.NetworkInitializer;
+import io.sponges.bot.server.protocol.parser.initalizer.UserInitializer;
 import org.json.JSONObject;
 
 public class ChannelTopicChangeParser extends MessageParser {
@@ -31,7 +33,7 @@ public class ChannelTopicChangeParser extends MessageParser {
             if (manager.isNetwork(id)) {
                 network = (NetworkImpl) manager.getNetwork(id);
             } else {
-                network = new NetworkImpl(id, client);
+                network = (NetworkImpl) NetworkInitializer.createNetwork(client, id);
                 manager.getNetworks().put(id, network);
             }
         }
@@ -44,7 +46,7 @@ public class ChannelTopicChangeParser extends MessageParser {
             if (manager.isChannel(id)) {
                 channel = (GroupChannel) manager.getChannel(id);
             } else {
-                channel = new GroupChannelImpl(id, network);
+                channel = (GroupChannel) ChannelInitializer.createChannel(network, json);
                 manager.getChannels().put(id, channel);
             }
         }
@@ -53,12 +55,10 @@ public class ChannelTopicChangeParser extends MessageParser {
         {
             JSONObject json = content.getJSONObject("user");
             String userId = json.getString("id");
-            boolean isAdmin = json.getBoolean("admin");
-            boolean isOp = json.getBoolean("op");
             if (network.isUser(userId)) {
                 user = (UserImpl) network.getUser(userId);
             } else {
-                user = new UserImpl(userId, network, isAdmin, isOp);
+                user = (UserImpl) UserInitializer.createUser(network, json);
                 if (!json.isNull("username")) user.setUsername(json.getString("username"));
                 if (!json.isNull("display-name")) user.setDisplayName(json.getString("display-name"));
                 network.addUser(user);
