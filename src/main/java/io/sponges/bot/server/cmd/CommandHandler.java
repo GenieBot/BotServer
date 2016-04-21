@@ -107,12 +107,13 @@ public final class CommandHandler {
         args = Arrays.copyOfRange(args, 1, args.length);
         if (!commands.containsKey(cmd)) return false;
         eventManager.post(new CommandPreProcessEvent(request, args));
+        Command command = commands.get(cmd);
         try {
-            commands.get(cmd).onCommand(request, args);
+            command.onCommand(request, args);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        eventManager.post(new CommandProcessedEvent(request, args));
+        eventManager.post(new CommandProcessedEvent(command, request, args));
         return true;
     }
 

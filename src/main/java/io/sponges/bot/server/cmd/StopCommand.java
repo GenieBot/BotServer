@@ -22,4 +22,9 @@ public class StopCommand extends Command {
         commandRequest.reply("Bye!");
         bot.stop();
     }
+
+    @Override
+    public boolean requiresOp() {
+        return true;
+    }
 }

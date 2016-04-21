@@ -28,7 +28,6 @@ import io.sponges.bot.server.server.ServerImpl;
 import io.sponges.bot.server.storage.StorageImpl;
 import io.sponges.proxypool.ProxyPool;
 import org.json.JSONObject;
-import redis.clients.jedis.Jedis;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -120,12 +119,7 @@ public class BotImpl implements Bot {
             e.printStackTrace();
         }
         new Thread(() -> {
-            StorageImpl storage = (StorageImpl) this.storage;
-            try (Jedis jedis = storage.getPool().getResource()) {
-                String response = jedis.save();
-                System.out.println("Redis save: " + response);
-            }
-            storage.getPool().destroy();
+            ((StorageImpl) this.storage).getPool().destroy();
         }).start();
         try {
             Thread.sleep(2000);
