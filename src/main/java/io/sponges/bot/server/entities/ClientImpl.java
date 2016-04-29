@@ -4,6 +4,9 @@ import io.netty.channel.Channel;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.server.entities.manager.NetworkManagerImpl;
+import io.sponges.bot.server.protocol.msg.ChannelMessage;
+
+import java.util.function.Consumer;
 
 /**
  * Implementation of the Client interface
@@ -40,5 +43,16 @@ public class ClientImpl implements Client {
     @Override
     public NetworkManager getNetworkManager() {
         return networkManager;
+    }
+
+    @Override
+    public void sendMessage(String s, Consumer<String> consumer) {
+        /*
+        TODO implement this
+        1) find some way to register the messages sent
+        2) register the instance of the consumer
+        3) send the received messages back to the consumer
+         */
+        new ChannelMessage(this, s, consumer).send();
     }
 }

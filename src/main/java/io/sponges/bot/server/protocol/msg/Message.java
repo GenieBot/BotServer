@@ -30,7 +30,16 @@ public abstract class Message {
         return getAsJson().toString();
     }
 
+    public void send() {
+        ((ClientImpl) client).write(toString());
+    }
+
+    /**
+     * Deprecated as client parameter is no longer needed.
+     * @param client io.sponges.bot.api.entities.Client to send the message to
+     */
+    @Deprecated
     public void send(ClientImpl client) {
-        client.write(toString());
+        send();
     }
 }

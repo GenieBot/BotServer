@@ -15,7 +15,7 @@ import io.sponges.bot.server.protocol.parser.initalizer.NetworkInitializer;
 import io.sponges.bot.server.protocol.parser.initalizer.UserInitializer;
 import org.json.JSONObject;
 
-public class ChannelTopicChangeParser extends MessageParser {
+public final class ChannelTopicChangeParser extends MessageParser {
 
     private final Bot bot;
 

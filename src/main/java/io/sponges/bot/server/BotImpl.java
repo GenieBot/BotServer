@@ -52,6 +52,7 @@ public class BotImpl implements Bot {
 
     /**
      * Constructor initiated in the main method
+     * TODO make this a bit cleaner
      */
     public BotImpl() throws IOException {
         JSONObject config = new Configuration().load(new File("config.json"));
@@ -59,7 +60,7 @@ public class BotImpl implements Bot {
         int port = server.getInt("port");
 
         List<InetSocketAddress> proxies = loadProxies(new File("proxies.txt"));
-        ProxyPool proxyPool = new ProxyPool(proxies);
+        ProxyPool proxyPool = new ProxyPool(proxies, 3);
 
         this.eventBus = new EventBus();
         this.eventManager = new EventManagerImpl(this.eventBus);
