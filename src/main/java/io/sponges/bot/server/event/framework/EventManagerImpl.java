@@ -1,5 +1,6 @@
 package io.sponges.bot.server.event.framework;
 
+import io.sponges.bot.api.event.framework.CancelListener;
 import io.sponges.bot.api.event.framework.Event;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.Module;
@@ -8,14 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class EventManagerImpl implements EventManager {
 
     // TODO add event priority
-    // TODO add event cancelling
 
     private final Map<Module, List<Consumer>> consumers = new ConcurrentHashMap<>();
+    private final List<CancelListener> cancelListeners = new CopyOnWriteArrayList<>();
 
     private final EventBus eventBus;
 
@@ -49,6 +51,21 @@ public class EventManagerImpl implements EventManager {
 
     @Override
     public <T extends Event> T post(T t) {
+        for (CancelListener listener : cancelListeners) {
+            if (listener.isCancelled(t)) {
+                return null;
+            }
+        }
         return eventBus.post(t);
+    }
+
+    @Override
+    public void registerCancelListener(CancelListener cancelListener) {
+        cancelListeners.add(cancelListener);
+    }
+
+    @Override
+    public void unregisterCancelListener(CancelListener cancelListener) {
+        cancelListeners.remove(cancelListener);
     }
 }

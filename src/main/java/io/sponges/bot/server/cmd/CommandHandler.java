@@ -106,8 +106,13 @@ public final class CommandHandler {
         String cmd = args[0].toLowerCase();
         args = Arrays.copyOfRange(args, 1, args.length);
         if (!commands.containsKey(cmd)) return false;
-        eventManager.post(new CommandPreProcessEvent(request, args));
         Command command = commands.get(cmd);
+        CommandPreProcessEvent preProcessEvent = new CommandPreProcessEvent(request, args, command);
+        if (eventManager.post(preProcessEvent) == null) return false;
+        if (command.isGlobalDisabled()) {
+            request.reply("Sorry, that command is disabled for everyone!");
+            return false;
+        }
         try {
             command.onCommand(request, args);
         } catch (Exception e) {

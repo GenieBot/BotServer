@@ -9,11 +9,9 @@ import java.util.Collection;
 
 public class CommandManagerImpl implements CommandManager {
 
-    private final Bot bot;
     private final CommandHandler commandHandler;
 
     public CommandManagerImpl(Bot bot) {
-        this.bot = bot;
         this.commandHandler = bot.getCommandHandler();
 
         registerCommand(null, new TestCommand());
