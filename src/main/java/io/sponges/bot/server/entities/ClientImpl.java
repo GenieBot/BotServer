@@ -47,12 +47,17 @@ public class ClientImpl implements Client {
 
     @Override
     public void sendMessage(String s, Consumer<String> consumer) {
-        /*
-        TODO implement this
-        1) find some way to register the messages sent
-        2) register the instance of the consumer
-        3) send the received messages back to the consumer
-         */
         new ChannelMessage(this, s, consumer).send();
+    }
+
+    /**
+     * Testing method that works within bsh interpreter
+     * @param channel the channel to send the response in
+     * @param s the message to send to the client
+     */
+    public void sendMessage(io.sponges.bot.api.entities.channel.Channel channel, String s) {
+        new ChannelMessage(this, s, response -> {
+            channel.sendChatMessage("Message response: " + response);
+        }).send();
     }
 }
