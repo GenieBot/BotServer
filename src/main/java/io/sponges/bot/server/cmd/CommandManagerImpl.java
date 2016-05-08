@@ -40,6 +40,16 @@ public class CommandManagerImpl implements CommandManager {
     }
 
     @Override
+    public boolean hasCommands(Module module) {
+        return commandHandler.hasCommands(module);
+    }
+
+    @Override
+    public Collection<Command> getCommands(Module module) {
+        return commandHandler.getCommands(module);
+    }
+
+    @Override
     public Collection<String> getNames() {
         return commandHandler.getNames();
     }

@@ -48,11 +48,7 @@ public class ServerImpl implements io.sponges.bot.api.server.Server {
                     clientManager.getClients().put(clientId, client);
                 }
                 ClientInputEvent clientInputEvent = new ClientInputEvent(client, json);
-                bot
-                        .getEventManager()
-                        .post(
-                                clientInputEvent
-                        );
+                bot.getEventManager().post(clientInputEvent);
             }
 
             @Override

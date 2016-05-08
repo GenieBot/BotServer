@@ -7,9 +7,6 @@ import io.sponges.bot.api.server.Server;
 import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.cmd.CommandHandler;
 
-/**
- * Main class
- */
 public interface Bot {
 
     /**

@@ -21,7 +21,7 @@ public final class ServerInitializer extends ChannelInitializer<SocketChannel> {
         ChannelPipeline pipeline = socketChannel.pipeline();
 
         // text line codec
-        pipeline.addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
+        pipeline.addLast(new DelimiterBasedFrameDecoder(16384, Delimiters.lineDelimiter()));
         pipeline.addLast(new StringDecoder()); // could add charset here
         pipeline.addLast(new StringEncoder());
 

@@ -15,6 +15,7 @@ public class CommandRequestImpl implements CommandRequest {
     private final Channel channel;
     private final User user;
     private final Message message;
+    private String messageId = null;
 
     public CommandRequestImpl(Client client, Network network, Channel channel, User user, Message message) {
         this.client = client;
@@ -27,6 +28,7 @@ public class CommandRequestImpl implements CommandRequest {
     @Override
     public void reply(String s) {
         CmdResponseMessage message = new CmdResponseMessage(client, network, channel, user, s);
+        if (messageId != null) message.setMessageId(messageId);
         channel.sendMessage(message.toString());
     }
 
@@ -53,5 +55,9 @@ public class CommandRequestImpl implements CommandRequest {
     @Override
     public Message getMessage() {
         return message;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 }

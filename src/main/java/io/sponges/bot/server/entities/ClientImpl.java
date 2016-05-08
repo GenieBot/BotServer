@@ -47,7 +47,7 @@ public class ClientImpl implements Client {
 
     @Override
     public void sendMessage(String s, Consumer<String> consumer) {
-        new ChannelMessage(this, s, consumer).send();
+        new ChannelMessage(this, null, s, consumer, ChannelMessage.MessageType.REQUEST).send();
     }
 
     /**
@@ -56,8 +56,8 @@ public class ClientImpl implements Client {
      * @param s the message to send to the client
      */
     public void sendMessage(io.sponges.bot.api.entities.channel.Channel channel, String s) {
-        new ChannelMessage(this, s, response -> {
+        new ChannelMessage(this, null, s, response -> {
             channel.sendChatMessage("Message response: " + response);
-        }).send();
+        }, ChannelMessage.MessageType.REQUEST).send();
     }
 }

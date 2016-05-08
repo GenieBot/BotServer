@@ -5,6 +5,7 @@ import io.sponges.bot.api.entities.channel.GroupChannel;
 import io.sponges.bot.api.entities.manager.ChannelManager;
 import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.api.event.events.user.UserJoinEvent;
+import io.sponges.bot.api.event.framework.Event;
 import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.NetworkImpl;
@@ -25,7 +26,7 @@ public final class UserJoinMessageParser extends MessageParser {
     }
 
     @Override
-    public void parse(Client client, long time, JSONObject content) {
+    public void parse(Client client, long time, String messageId, JSONObject content) {
         NetworkImpl network;
         {
             String id = content.getString("network");
@@ -91,19 +92,23 @@ public final class UserJoinMessageParser extends MessageParser {
             final GroupChannel finalChannel = channel;
             storage.load(network, networkData -> {
                 storage.load(finalChannel, channelData -> {
-                    bot.getEventManager().post(event);
+                    postEvent(event, messageId);
                 });
             });
         } else if (!networkLoaded) {
             storage.load(network, networkData -> {
-                bot.getEventManager().post(event);
+                postEvent(event, messageId);
             });
         } else if (!channelLoaded) {
-            bot.getStorage().load(channel, channelData -> {
-                bot.getEventManager().post(event);
+            storage.load(channel, channelData -> {
+                postEvent(event, messageId);
             });
         } else {
-            bot.getEventManager().post(event);
+            postEvent(event, messageId);
         }
+    }
+
+    private void postEvent(Event event, String messageId) {
+        bot.getEventManager().post(event, messageId);
     }
 }

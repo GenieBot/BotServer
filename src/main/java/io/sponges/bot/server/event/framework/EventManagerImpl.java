@@ -60,6 +60,12 @@ public class EventManagerImpl implements EventManager {
     }
 
     @Override
+    public <T extends Event> T post(T t, String s) {
+        t.setId(s);
+        return post(t);
+    }
+
+    @Override
     public void registerCancelListener(CancelListener cancelListener) {
         cancelListeners.add(cancelListener);
     }

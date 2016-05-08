@@ -18,7 +18,6 @@ import java.util.function.Consumer;
  */
 public final class EventBus {
 
-    // TODO change to thread safe ConcurrentHashMap, remove shitty locks
     private final Multimap<Class<? extends Event>, Consumer<Event>> consumerMap;
     private final Lock lock;
 
@@ -60,14 +59,16 @@ public final class EventBus {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Event> T post(T event) {
         Preconditions.checkNotNull(event, "event cannot be null");
         lock.lock();
         try {
-            Class<? extends Event> clazz = event.getClass();
-            Collection<Consumer<Event>> consumers = consumerMap.get(clazz);
-            for (Consumer<Event> consumer : consumers) {
-                consumer.accept(event);
+            for (Class zuper = event.getClass(); zuper != null && zuper != Event.class; zuper = zuper.getSuperclass()) {
+                Collection<Consumer<Event>> consumers = consumerMap.get(zuper);
+                for (Consumer<Event> consumer : consumers) {
+                    consumer.accept(event);
+                }
             }
             return event;
         } finally {

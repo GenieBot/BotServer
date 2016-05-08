@@ -64,6 +64,14 @@ public final class CommandHandler {
         return Collections.unmodifiableList(commands);
     }
 
+    protected boolean hasCommands(Module module) {
+        return moduleCommands.containsKey(module);
+    }
+
+    protected Collection<Command> getCommands(Module module) {
+        return Collections.unmodifiableCollection(moduleCommands.get(module));
+    }
+
     protected Collection<String> getNames() {
         return Collections.unmodifiableCollection(commands.keySet());
     }
@@ -78,7 +86,8 @@ public final class CommandHandler {
         Channel channel = userChatEvent.getChannel();
         User user = userChatEvent.getUser();
         Message message = userChatEvent.getMessage();
-        CommandRequest request = new CommandRequestImpl(client, network, channel, user, message);
+        CommandRequestImpl request = new CommandRequestImpl(client, network, channel, user, message);
+        if (userChatEvent.hasId()) request.setMessageId(userChatEvent.getId());
         handle(request);
     }
 
