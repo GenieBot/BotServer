@@ -5,6 +5,7 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
+import io.sponges.bot.api.entities.data.UserData;
 import org.json.JSONObject;
 
 public final class CmdResponseMessage extends Message {
@@ -12,6 +13,7 @@ public final class CmdResponseMessage extends Message {
     private final Network network;
     private final Channel channel;
     private final User user;
+    private final UserData userData;
     private final String response;
 
     public CmdResponseMessage(Client client, Network network, Channel channel, User user, String response) {
@@ -19,6 +21,7 @@ public final class CmdResponseMessage extends Message {
         this.network = network;
         this.channel = channel;
         this.user = user;
+        this.userData = user.getData();
         this.response = response;
     }
 
@@ -30,11 +33,11 @@ public final class CmdResponseMessage extends Message {
 
         JSONObject user = new JSONObject();
         user.put("id", this.user.getId());
-        if (this.user.getUsername().isPresent()) {
-            user.put("username", this.user.getUsername().get());
+        if (this.userData.getUsername().isPresent()) {
+            user.put("username", this.userData.getUsername().get());
         }
-        if (this.user.getDisplayName().isPresent()) {
-            user.put("display-name", this.user.getDisplayName().get());
+        if (this.userData.getDisplayName().isPresent()) {
+            user.put("display-name", this.userData.getDisplayName().get());
         }
 
         return new JSONObject()

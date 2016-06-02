@@ -128,6 +128,7 @@ public class BotImpl implements Bot {
             e.printStackTrace();
         }
         server.stop(() -> System.out.println("Server closed!"));
+        System.exit(-1);
     }
 
     @Override

@@ -4,15 +4,12 @@ import io.sponges.bot.api.entities.Role;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class RoleImpl implements Role {
 
     private final List<String> permissions = new ArrayList<>();
 
     private final String id;
-
-    private Optional<String> name = Optional.empty();
 
     public RoleImpl(String id) {
         this.id = id;
@@ -21,16 +18,6 @@ public class RoleImpl implements Role {
     @Override
     public String getId() {
         return id;
-    }
-
-    @Override
-    public Optional<String> getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String s) {
-        this.name = Optional.of(s);
     }
 
     @Override

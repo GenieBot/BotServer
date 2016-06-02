@@ -13,6 +13,7 @@ import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.MessageImpl;
 import io.sponges.bot.server.entities.NetworkImpl;
+import io.sponges.bot.server.entities.manager.UserManagerImpl;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
 import io.sponges.bot.server.protocol.parser.initalizer.ChannelInitializer;
 import io.sponges.bot.server.protocol.parser.initalizer.NetworkInitializer;
@@ -43,6 +44,7 @@ public final class ChatMessageParser extends MessageParser {
                 manager.getNetworks().put(id, network);
             }
         }
+        UserManagerImpl userManager = (UserManagerImpl) network.getUserManager();
 
         Channel channel;
         User user;
@@ -54,11 +56,11 @@ public final class ChatMessageParser extends MessageParser {
             String userId = userJson.getString("id");
             if (manager.isChannel(id)) {
                 channel = manager.getChannel(id);
-                if (network.isUser(userId)) {
-                    user = network.getUser(userId);
+                if (userManager.isUser(userId)) {
+                    user = userManager.getUser(userId);
                 } else {
                     user = UserInitializer.createUser(network, userJson);
-                    network.addUser(user);
+                    userManager.addUser(user);
                 }
                 if (channel instanceof GroupChannel) {
                     GroupChannel groupChannel = (GroupChannel) channel;
@@ -67,11 +69,11 @@ public final class ChatMessageParser extends MessageParser {
                     }
                 }
             } else {
-                if (network.isUser(userId)) {
-                    user = network.getUser(userId);
+                if (userManager.isUser(userId)) {
+                    user = userManager.getUser(userId);
                 } else {
                     user = UserInitializer.createUser(network, userJson);
-                    network.addUser(user);
+                    userManager.addUser(user);
                 }
                 channel = ChannelInitializer.createChannel(network, json);
                 if (channel instanceof GroupChannel) {

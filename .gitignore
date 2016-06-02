@@ -1,4 +1,3 @@
-# IntelliJ project files
 .idea
 *.iml
 target
@@ -8,3 +7,6 @@ proxies.txt
 dependency-reduced-pom.xml
 modules
 out
+scripts
+lolcode.js
+config.json

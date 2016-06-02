@@ -11,7 +11,7 @@ import java.io.*;
 
 public class Configuration {
 
-    public static final String CONFIG_DEFAULTS = new JSONObject()
+    private static final String CONFIG_DEFAULTS = new JSONObject()
             .put("server", new JSONObject()
                             .put("port", 9574)
             ).put("redis", new JSONObject()
@@ -27,41 +27,19 @@ public class Configuration {
             write(file, gson.toJson(json));
             return null;
         }
-
-        BufferedReader reader = null;
         StringBuilder builder = new StringBuilder();
-        try {
-            reader = new BufferedReader(new FileReader(file));
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String input;
             while ((input = reader.readLine()) != null) {
                 builder.append(input).append("\n");
             }
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
-
         return new JSONObject(builder.toString());
     }
 
     private void write(File file, String contents) throws IOException {
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter(file));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(contents);
-        } finally {
-            try {
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 

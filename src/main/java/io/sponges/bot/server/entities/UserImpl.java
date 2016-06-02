@@ -4,23 +4,20 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.Role;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
-import io.sponges.bot.api.entities.channel.PrivateChannel;
+import io.sponges.bot.api.entities.data.UserData;
+import io.sponges.bot.server.entities.data.UserDataImpl;
+import io.sponges.bot.server.entities.manager.RoleManagerImpl;
 
 import java.util.List;
-import java.util.Optional;
 
 public class UserImpl implements User {
-
-    private Optional<PrivateChannel> privateChannel = Optional.empty();
-    private Optional<String> username = Optional.empty();
-    private Optional<String> displayName = Optional.empty();
-    private Optional<String> profileUrl = Optional.empty();
-    private Optional<String> profileImage = Optional.empty();
-    private Optional<String> profileMood = Optional.empty();
 
     private final String id;
     private final Network network;
     private final boolean platformAdmin, op;
+
+    private final RoleManagerImpl roleManager;
+    private final UserData userData;
 
     private Role role = null;
 
@@ -29,6 +26,8 @@ public class UserImpl implements User {
         this.network = network;
         this.platformAdmin = platformAdmin;
         this.op = op;
+        this.roleManager = (RoleManagerImpl) network.getRoleManager();
+        this.userData = new UserDataImpl();
     }
 
     @Override
@@ -42,7 +41,7 @@ public class UserImpl implements User {
     }
 
     @Override
-    public boolean isGlobalAdmin() {
+    public boolean isPlatformAdmin() {
         return platformAdmin;
     }
 
@@ -64,6 +63,7 @@ public class UserImpl implements User {
     @Override
     public void setRole(Role role) {
         this.role = role;
+        this.roleManager.assignRole(this, role);
     }
 
     @Override
@@ -73,60 +73,11 @@ public class UserImpl implements User {
 
     @Override
     public void kick() {
-        network.kickUser(this);
+        network.getUserManager().kickUser(this);
     }
 
     @Override
-    public Optional<PrivateChannel> getPrivateChannel() {
-        return privateChannel;
-    }
-
-    public void setPrivateChannel(PrivateChannel privateChannel) {
-        this.privateChannel = Optional.of(privateChannel);
-    }
-
-    @Override
-    public Optional<String> getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = Optional.of(username);
-    }
-
-    @Override
-    public Optional<String> getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = Optional.of(displayName);
-    }
-
-    @Override
-    public Optional<String> getProfileURL() {
-        return profileUrl;
-    }
-
-    public void setProfileUrl(String profileUrl) {
-        this.profileUrl = Optional.of(profileUrl);
-    }
-
-    @Override
-    public Optional<String> getProfileImage() {
-        return profileImage;
-    }
-
-    public void setProfileImage(String profileImage) {
-        this.profileImage = Optional.of(profileImage);
-    }
-
-    @Override
-    public Optional<String> getProfileMood() {
-        return profileMood;
-    }
-
-    public void setProfileMood(String profileMood) {
-        this.profileMood = Optional.of(profileMood);
+    public UserData getData() {
+        return userData;
     }
 }

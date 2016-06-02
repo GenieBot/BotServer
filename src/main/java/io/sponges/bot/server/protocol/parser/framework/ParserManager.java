@@ -5,7 +5,6 @@ import io.sponges.bot.api.event.events.msg.ProtocolMessageReceiveEvent;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
 import io.sponges.bot.server.protocol.parser.parsers.ChannelMessageParser;
-import io.sponges.bot.server.protocol.parser.parsers.ChannelTopicChangeParser;
 import io.sponges.bot.server.protocol.parser.parsers.ChatMessageParser;
 import io.sponges.bot.server.protocol.parser.parsers.UserJoinMessageParser;
 import org.json.JSONObject;
@@ -25,7 +24,6 @@ public class ParserManager {
         register(
                 new ChatMessageParser(bot),
                 new UserJoinMessageParser(bot),
-                new ChannelTopicChangeParser(bot),
                 new ChannelMessageParser(bot.getEventManager())
         );
     }

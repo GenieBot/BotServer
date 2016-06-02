@@ -10,6 +10,7 @@ import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.NetworkImpl;
 import io.sponges.bot.server.entities.UserImpl;
+import io.sponges.bot.server.entities.manager.UserManagerImpl;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
 import io.sponges.bot.server.protocol.parser.initalizer.ChannelInitializer;
 import io.sponges.bot.server.protocol.parser.initalizer.NetworkInitializer;
@@ -38,6 +39,7 @@ public final class UserJoinMessageParser extends MessageParser {
                 manager.getNetworks().put(id, network);
             }
         }
+        UserManagerImpl userManager = (UserManagerImpl) network.getUserManager();
 
         GroupChannel channel = null;
         if (!content.isNull("channel")) {
@@ -58,11 +60,11 @@ public final class UserJoinMessageParser extends MessageParser {
             {
                 JSONObject json = content.getJSONObject("added");
                 String userId = json.getString("id");
-                if (network.isUser(userId)) {
-                    user = (UserImpl) network.getUser(userId);
+                if (userManager.isUser(userId)) {
+                    user = (UserImpl) userManager.getUser(userId);
                 } else {
                     user = (UserImpl) UserInitializer.createUser(network, json);
-                    network.addUser(user);
+                    userManager.addUser(user);
                 }
                 if (channel != null && !channel.isUser(userId)) {
                     channel.getUsers().put(userId, user);
@@ -71,11 +73,11 @@ public final class UserJoinMessageParser extends MessageParser {
             if (!content.isNull("initiator")) {
                 JSONObject json = content.getJSONObject("initiator");
                 String userId = json.getString("id");
-                if (network.isUser(userId)) {
-                    initiator = (UserImpl) network.getUser(userId);
+                if (userManager.isUser(userId)) {
+                    initiator = (UserImpl) userManager.getUser(userId);
                 } else {
                     initiator = (UserImpl) UserInitializer.createUser(network, json);
-                    network.addUser(initiator);
+                    userManager.addUser(initiator);
                 }
                 if (channel != null && !channel.isUser(userId)) {
                     channel.getUsers().put(userId, initiator);

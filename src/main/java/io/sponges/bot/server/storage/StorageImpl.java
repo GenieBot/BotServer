@@ -7,6 +7,7 @@ import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.channel.GroupChannel;
 import io.sponges.bot.api.entities.manager.RoleManager;
+import io.sponges.bot.api.entities.manager.UserManager;
 import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.api.storage.data.ChannelData;
 import io.sponges.bot.api.storage.data.Data;
@@ -17,6 +18,7 @@ import io.sponges.bot.server.entities.RoleImpl;
 import io.sponges.bot.server.entities.channel.GroupChannelImpl;
 import io.sponges.bot.server.entities.channel.PrivateChannelImpl;
 import io.sponges.bot.server.entities.manager.RoleManagerImpl;
+import io.sponges.bot.server.entities.manager.UserManagerImpl;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import redis.clients.jedis.Jedis;
@@ -25,7 +27,6 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class StorageImpl implements Storage {
@@ -175,9 +176,6 @@ public class StorageImpl implements Storage {
                 JSONObject item = array.getJSONObject(i);
                 String roleId = item.getString("id");
                 Role role = new RoleImpl(roleId);
-                if (!item.isNull("name")) {
-                    role.setName(item.getString("name"));
-                }
                 if (!item.isNull("permissions")) {
                     JSONArray permissionsArray = item.getJSONArray("permissions");
                     for (int x = 0; x < permissionsArray.length(); x++) {
@@ -190,12 +188,12 @@ public class StorageImpl implements Storage {
         }
         {
             JSONArray usersArray = object.getJSONArray("users");
-            NetworkImpl networkImpl = (NetworkImpl) network;
+            UserManagerImpl userManager = (UserManagerImpl) network.getUserManager();
             for (int i = 0; i < usersArray.length(); i++) {
                 JSONObject item = usersArray.getJSONObject(i);
                 String userId = item.getString("id");
                 String roleId = item.getString("role");
-                networkImpl.getToAssign().put(roleId, userId);
+                userManager.getToAssign().put(roleId, userId);
             }
         }
     }
@@ -209,18 +207,17 @@ public class StorageImpl implements Storage {
     }
 
     private JSONObject serializePermissions(Network network) {
+        UserManager userManager = network.getUserManager();
         RoleManager roleManager = network.getRoleManager();
         JSONArray rolesArray = new JSONArray();
         for (Role role : roleManager.getRoles()) {
             JSONObject json = new JSONObject();
             json.put("id", role.getId());
-            Optional<String> name = role.getName();
-            if (name.isPresent()) json.put("name", name.get());
             json.put("permissions", role.getPermissions());
             rolesArray.put(json);
         }
         JSONArray usersArray = new JSONArray();
-        for (User user : network.getUsers().values()) {
+        for (User user : userManager.getUsers().values()) {
             if (user.getRole() == null) continue;
             Role role = user.getRole();
             JSONObject json = new JSONObject();

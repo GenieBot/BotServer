@@ -122,6 +122,9 @@ public final class CommandHandler {
             request.reply("Sorry, that command is disabled for everyone!");
             return false;
         }
+        if (command.isLimitedToNetwork() && !network.getId().equals(command.getNetworkOnly())) {
+            return false;
+        }
         try {
             command.onCommand(request, args);
         } catch (Exception e) {
