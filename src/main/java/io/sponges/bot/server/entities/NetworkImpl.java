@@ -2,30 +2,38 @@ package io.sponges.bot.server.entities;
 
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
+import io.sponges.bot.api.entities.data.NetworkData;
 import io.sponges.bot.api.entities.manager.ChannelManager;
 import io.sponges.bot.api.entities.manager.RoleManager;
 import io.sponges.bot.api.entities.manager.UserManager;
-import io.sponges.bot.api.storage.data.NetworkData;
+import io.sponges.bot.api.storage.DataObject;
+import io.sponges.bot.api.storage.Storage;
+import io.sponges.bot.server.entities.data.NetworkDataImpl;
 import io.sponges.bot.server.entities.manager.ChannelManagerImpl;
 import io.sponges.bot.server.entities.manager.RoleManagerImpl;
 import io.sponges.bot.server.entities.manager.UserManagerImpl;
 
 public class NetworkImpl implements Network {
 
+    private static final String DATA_KEY = "clients:%s:networks:%s:data";
+
     private final String id;
     private final Client client;
     private final ChannelManager channelManager;
     private final UserManager userManager;
     private final RoleManager roleManager;
+    private final DataObject data;
+    private final NetworkData networkData;
 
-    private NetworkData networkData = null;
-
-    public NetworkImpl(String id, Client client) {
+    public NetworkImpl(String id, Client client, Storage storage) {
         this.id = id;
         this.client = client;
         this.channelManager = new ChannelManagerImpl(this);
         this.userManager = new UserManagerImpl(this);
         this.roleManager = new RoleManagerImpl(this);
+        this.networkData = new NetworkDataImpl();
+        this.data = new DataObject(String.format(DATA_KEY, client.getId(), id));
+        storage.load(this.data);
     }
 
     @Override
@@ -36,15 +44,6 @@ public class NetworkImpl implements Network {
     @Override
     public Client getClient() {
         return client;
-    }
-
-    @Override
-    public NetworkData getData() {
-        return networkData;
-    }
-
-    public void setNetworkData(NetworkData networkData) {
-        this.networkData = networkData;
     }
 
     @Override
@@ -60,5 +59,15 @@ public class NetworkImpl implements Network {
     @Override
     public RoleManager getRoleManager() {
         return roleManager;
+    }
+
+    @Override
+    public DataObject getData() {
+        return data;
+    }
+
+    @Override
+    public NetworkData getNetworkData() {
+        return networkData;
     }
 }

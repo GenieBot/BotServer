@@ -6,7 +6,6 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.manager.ClientManager;
-import io.sponges.bot.api.event.events.channel.ChannelTopicChangeEvent;
 import io.sponges.bot.api.event.events.user.UserChatEvent;
 import io.sponges.bot.api.event.events.user.UserJoinEvent;
 import io.sponges.bot.api.event.framework.EventManager;
@@ -50,10 +49,6 @@ public class BotImpl implements Bot {
     private final ModuleManager moduleManager;
     private final Storage storage;
 
-    /**
-     * Constructor initiated in the main method
-     * TODO make this a bit cleaner
-     */
     public BotImpl() throws IOException {
         JSONObject config = new Configuration().load(new File("config.json"));
         JSONObject server = config.getJSONObject("server");
@@ -68,6 +63,10 @@ public class BotImpl implements Bot {
         this.commandManager = new CommandManagerImpl(this);
         this.server = new ServerImpl(this, port);
         this.clientManager = new ClientManagerImpl();
+
+        JSONObject redis = config.getJSONObject("redis");
+        this.storage = new StorageImpl(redis.getString("host"), redis.getInt("port"));
+
         this.parserManager = new ParserManager(this);
 
         this.eventBus.register(ClientInputEvent.class, parserManager::onClientInput);
@@ -83,13 +82,6 @@ public class BotImpl implements Bot {
         });
         this.eventBus.register(UserChatEvent.class, commandHandler::onUserChat);
         this.eventBus.register(UserJoinEvent.class, (event) -> System.out.println(event.getUser().getId() + " joined!"));
-        this.eventBus.register(ChannelTopicChangeEvent.class, (event) -> {
-            System.out.println(event.getUser().getId() + " changed topic to " + event.getNewTopic() + "!"
-                    + (event.getOldTopic().isPresent() ? " Old topic: " + event.getOldTopic().get() : ""));
-        });
-
-        JSONObject redis = config.getJSONObject("redis");
-        this.storage = new StorageImpl(redis.getString("host"), redis.getInt("port"));
 
         this.moduleManager = new ModuleManagerImpl(this.server, eventManager, commandManager, storage, proxyPool,
                 clientManager);
@@ -98,9 +90,6 @@ public class BotImpl implements Bot {
         this.server.start(() -> System.out.println("Started!"));
     }
 
-    /**
-     * Java application main method
-     */
     public static void main(String[] args) {
         try {
             new BotImpl();

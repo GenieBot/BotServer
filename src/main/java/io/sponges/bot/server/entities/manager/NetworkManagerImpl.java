@@ -6,6 +6,7 @@ import io.sponges.bot.api.entities.manager.NetworkManager;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class NetworkManagerImpl implements NetworkManager {
 
@@ -35,5 +36,10 @@ public class NetworkManagerImpl implements NetworkManager {
     @Override
     public Network getNetwork(String id) {
         return networks.get(id);
+    }
+
+    @Override
+    public void loadNetwork(String s, Consumer<Network> consumer) {
+        // TODO loading networks
     }
 }

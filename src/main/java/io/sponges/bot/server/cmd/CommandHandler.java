@@ -12,9 +12,7 @@ import io.sponges.bot.api.event.events.cmd.CommandProcessedEvent;
 import io.sponges.bot.api.event.events.user.UserChatEvent;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.Module;
-import io.sponges.bot.api.storage.data.ChannelData;
-import io.sponges.bot.api.storage.data.NetworkData;
-import io.sponges.bot.api.storage.data.Setting;
+import io.sponges.bot.api.storage.DataObject;
 import io.sponges.bot.api.util.Scheduler;
 
 import java.util.*;
@@ -99,13 +97,17 @@ public final class CommandHandler {
         Client client = request.getClient();
         Network network = request.getNetwork();
         Channel channel = request.getChannel();
-        NetworkData networkData = network.getData();
-        ChannelData channelData = channel.getData();
+        DataObject networkObject = network.getData();
+        DataObject channelObject = channel.getData();
         String prefix;
-        if (channelData.isPresent(Setting.PREFIX_KEY)) {
-            prefix = channelData.get(Setting.PREFIX_KEY);
+        if (channelObject.exists("prefix")) {
+            prefix = (String) channelObject.get("prefix");
         } else {
-            prefix = networkData.get(Setting.PREFIX_KEY);
+            if (networkObject.exists("prefix")) {
+                prefix = (String) networkObject.get("prefix");
+            } else {
+                prefix = client.getDefaultPrefix();
+            }
         }
         String content = request.getMessage().getContent();
         if (!content.startsWith(prefix) || content.length() <= 1) return false;

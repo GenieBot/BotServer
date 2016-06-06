@@ -20,10 +20,12 @@ import org.json.JSONObject;
 public final class UserJoinMessageParser extends MessageParser {
 
     private final Bot bot;
+    private final Storage storage;
 
     public UserJoinMessageParser(Bot bot) {
         super("USER_JOIN");
         this.bot = bot;
+        this.storage = bot.getStorage();
     }
 
     @Override
@@ -35,7 +37,7 @@ public final class UserJoinMessageParser extends MessageParser {
             if (manager.isNetwork(id)) {
                 network = (NetworkImpl) manager.getNetwork(id);
             } else {
-                network = (NetworkImpl) NetworkInitializer.createNetwork(client, id);
+                network = (NetworkImpl) NetworkInitializer.createNetwork(storage, client, id);
                 manager.getNetworks().put(id, network);
             }
         }
@@ -49,7 +51,7 @@ public final class UserJoinMessageParser extends MessageParser {
             if (manager.isChannel(id)) {
                 channel = (GroupChannel) manager.getChannel(id);
             } else {
-                channel = (GroupChannel) ChannelInitializer.createChannel(network, json);
+                channel = (GroupChannel) ChannelInitializer.createChannel(storage, network, json);
                 manager.getChannels().put(id, channel);
             }
         }
@@ -63,7 +65,7 @@ public final class UserJoinMessageParser extends MessageParser {
                 if (userManager.isUser(userId)) {
                     user = (UserImpl) userManager.getUser(userId);
                 } else {
-                    user = (UserImpl) UserInitializer.createUser(network, json);
+                    user = (UserImpl) UserInitializer.createUser(storage, network, json);
                     userManager.addUser(user);
                 }
                 if (channel != null && !channel.isUser(userId)) {
@@ -76,7 +78,7 @@ public final class UserJoinMessageParser extends MessageParser {
                 if (userManager.isUser(userId)) {
                     initiator = (UserImpl) userManager.getUser(userId);
                 } else {
-                    initiator = (UserImpl) UserInitializer.createUser(network, json);
+                    initiator = (UserImpl) UserInitializer.createUser(storage, network, json);
                     userManager.addUser(initiator);
                 }
                 if (channel != null && !channel.isUser(userId)) {
@@ -86,28 +88,7 @@ public final class UserJoinMessageParser extends MessageParser {
         }
 
         UserJoinEvent event = new UserJoinEvent(client, network, channel, user, initiator);
-
-        Storage storage = bot.getStorage();
-        boolean networkLoaded = storage.isLoaded(network);
-        boolean channelLoaded = channel == null || storage.isLoaded(channel);
-        if (!networkLoaded && !channelLoaded) {
-            final GroupChannel finalChannel = channel;
-            storage.load(network, networkData -> {
-                storage.load(finalChannel, channelData -> {
-                    postEvent(event, messageId);
-                });
-            });
-        } else if (!networkLoaded) {
-            storage.load(network, networkData -> {
-                postEvent(event, messageId);
-            });
-        } else if (!channelLoaded) {
-            storage.load(channel, channelData -> {
-                postEvent(event, messageId);
-            });
-        } else {
-            postEvent(event, messageId);
-        }
+        postEvent(event, messageId);
     }
 
     private void postEvent(Event event, String messageId) {

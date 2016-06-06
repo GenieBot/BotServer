@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class ChannelManagerImpl implements ChannelManager {
 
@@ -59,5 +60,10 @@ public class ChannelManagerImpl implements ChannelManager {
             channels.add(channel);
         }
         return channels;
+    }
+
+    @Override
+    public void loadChannel(String s, Consumer<Channel> consumer) {
+        // TODO loading channel
     }
 }

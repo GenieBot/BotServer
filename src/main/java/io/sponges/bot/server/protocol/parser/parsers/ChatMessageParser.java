@@ -25,10 +25,12 @@ import java.util.Date;
 public final class ChatMessageParser extends MessageParser {
 
     private final Bot bot;
+    private final Storage storage;
 
     public ChatMessageParser(Bot bot) {
         super("CHAT");
         this.bot = bot;
+        this.storage = bot.getStorage();
     }
 
     @Override
@@ -40,7 +42,7 @@ public final class ChatMessageParser extends MessageParser {
             if (manager.isNetwork(id)) {
                 network = (NetworkImpl) manager.getNetwork(id);
             } else {
-                network = (NetworkImpl) NetworkInitializer.createNetwork(client, id);
+                network = (NetworkImpl) NetworkInitializer.createNetwork(storage, client, id);
                 manager.getNetworks().put(id, network);
             }
         }
@@ -59,7 +61,7 @@ public final class ChatMessageParser extends MessageParser {
                 if (userManager.isUser(userId)) {
                     user = userManager.getUser(userId);
                 } else {
-                    user = UserInitializer.createUser(network, userJson);
+                    user = UserInitializer.createUser(storage, network, userJson);
                     userManager.addUser(user);
                 }
                 if (channel instanceof GroupChannel) {
@@ -72,10 +74,10 @@ public final class ChatMessageParser extends MessageParser {
                 if (userManager.isUser(userId)) {
                     user = userManager.getUser(userId);
                 } else {
-                    user = UserInitializer.createUser(network, userJson);
+                    user = UserInitializer.createUser(storage, network, userJson);
                     userManager.addUser(user);
                 }
-                channel = ChannelInitializer.createChannel(network, json);
+                channel = ChannelInitializer.createChannel(storage, network, json);
                 if (channel instanceof GroupChannel) {
                     ((GroupChannel) channel).getUsers().put(userId, user);
                 }
@@ -93,27 +95,7 @@ public final class ChatMessageParser extends MessageParser {
         }
 
         UserChatEvent event = new UserChatEvent(client, network, channel, user, message);
-
-        Storage storage = bot.getStorage();
-        boolean networkLoaded = storage.isLoaded(network);
-        boolean channelLoaded = storage.isLoaded(channel);
-        if (!networkLoaded && !channelLoaded) {
-            storage.load(network, networkData -> {
-                storage.load(channel, channelData -> {
-                    postEvent(event, messageId);
-                });
-            });
-        } else if (!networkLoaded) {
-            storage.load(network, networkData -> {
-                postEvent(event, messageId);
-            });
-        } else if (!channelLoaded) {
-            storage.load(channel, channelData -> {
-                postEvent(event, messageId);
-            });
-        } else {
-            postEvent(event, messageId);
-        }
+        postEvent(event, messageId);
     }
 
     private void postEvent(Event event, String messageId) {

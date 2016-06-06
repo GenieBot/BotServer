@@ -16,7 +16,7 @@ public final class KickUserMessage extends Message {
         super(client, "KICK_USER");
         this.network = network;
         this.user = user;
-        this.userData = user.getData();
+        this.userData = user.getUserData();
     }
 
     @Override

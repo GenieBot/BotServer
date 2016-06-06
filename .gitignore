@@ -5,7 +5,7 @@ META-INF
 proxies.txt
 *.zip
 dependency-reduced-pom.xml
-modules
+oldmodules
 out
 scripts
 lolcode.js

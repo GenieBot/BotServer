@@ -21,7 +21,7 @@ public final class CmdResponseMessage extends Message {
         this.network = network;
         this.channel = channel;
         this.user = user;
-        this.userData = user.getData();
+        this.userData = user.getUserData();
         this.response = response;
     }
 
