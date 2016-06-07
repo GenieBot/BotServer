@@ -6,6 +6,7 @@ import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
 import io.sponges.bot.server.protocol.parser.parsers.ChannelMessageParser;
 import io.sponges.bot.server.protocol.parser.parsers.ChatMessageParser;
+import io.sponges.bot.server.protocol.parser.parsers.ResourceResponseParser;
 import io.sponges.bot.server.protocol.parser.parsers.UserJoinMessageParser;
 import org.json.JSONObject;
 
@@ -24,7 +25,8 @@ public class ParserManager {
         register(
                 new ChatMessageParser(bot),
                 new UserJoinMessageParser(bot),
-                new ChannelMessageParser(bot.getEventManager())
+                new ChannelMessageParser(bot.getEventManager()),
+                new ResourceResponseParser(bot.getStorage())
         );
     }
 
@@ -43,18 +45,13 @@ public class ParserManager {
         JSONObject json = event.getJson();
         String type = json.getString("type").toUpperCase();
         long time = json.getLong("time");
-        String messageId;
-        if (!json.isNull("id")) {
-            messageId = json.getString("id");
-        }
-        else messageId = null;
         JSONObject content = json.getJSONObject("content");
         if (parsers.containsKey(type)) {
-            parsers.get(type).parse(client, time, messageId, content);
+            parsers.get(type).parse(client, time, content);
         } else {
             if (!type.equals("CONNECT")) System.err.println("Got invalid message type \"" + type + "\"!");
         }
-        bot.getEventManager().post(new ProtocolMessageReceiveEvent(), messageId);
+        bot.getEventManager().post(new ProtocolMessageReceiveEvent());
     }
 
 }

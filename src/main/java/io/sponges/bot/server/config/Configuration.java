@@ -1,9 +1,5 @@
 package io.sponges.bot.server.config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,10 +17,7 @@ public class Configuration {
 
     public JSONObject load(File file) throws IOException, JSONException {
         if (!file.exists()) {
-            JsonParser parser = new JsonParser();
-            JsonObject json = parser.parse(CONFIG_DEFAULTS).getAsJsonObject();
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            write(file, gson.toJson(json));
+            write(file, new JSONObject(CONFIG_DEFAULTS).toString(4));
             return null;
         }
         StringBuilder builder = new StringBuilder();

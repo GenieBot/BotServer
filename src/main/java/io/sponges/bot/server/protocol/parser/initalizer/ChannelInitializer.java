@@ -5,13 +5,10 @@ import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.entities.channel.GroupChannelImpl;
 import io.sponges.bot.server.entities.channel.PrivateChannelImpl;
-import org.json.JSONObject;
 
 public final class ChannelInitializer {
 
-    public static Channel createChannel(Storage storage, Network network, JSONObject json) {
-        String id = json.getString("id");
-        boolean isPrivate = !json.isNull("private") && json.getBoolean("private");
+    public static Channel createChannel(Storage storage, Network network, String id, boolean isPrivate) {
         if (isPrivate) {
             return new PrivateChannelImpl(id, network, storage);
         } else {

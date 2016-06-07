@@ -25,7 +25,7 @@ public class StorageImpl implements Storage {
     }
 
     @Override
-    public Object get(String s) {
+    public String get(String s) {
         try (Jedis jedis = pool.getResource()) {
             return jedis.get(s);
         }
@@ -34,7 +34,8 @@ public class StorageImpl implements Storage {
     @Override
     public void set(String s, Object o) {
         try (Jedis jedis = pool.getResource()) {
-            jedis.set(s, String.valueOf(o));
+            jedis.set(s,
+                    String.valueOf(o));
         }
     }
 
@@ -43,7 +44,7 @@ public class StorageImpl implements Storage {
         return toJson(dataObject).toString();
     }
 
-    public JSONObject toJson(DataObject object) {
+    private JSONObject toJson(DataObject object) {
         JSONObject json = new JSONObject();
         for (Map.Entry<String, Object> entry : object.getMappings().entrySet()) {
             Object value = entry.getValue();
@@ -56,11 +57,18 @@ public class StorageImpl implements Storage {
     public void load(DataObject object) {
         String key = object.getKey();
         if (!exists(key)) {
-            set(key, serialize(object));
+            String serial = serialize(object);
+            set(key, serial);
             return;
         }
-        JSONObject json = new JSONObject(get(key));
+        String val = get(key);
+        JSONObject json = new JSONObject(val);
         load(object, json);
+    }
+
+    @Override
+    public void save(DataObject dataObject) {
+        set(dataObject.getKey(), serialize(dataObject));
     }
 
     private DataObject load(String key, JSONObject json) {

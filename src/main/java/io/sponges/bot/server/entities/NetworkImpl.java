@@ -30,7 +30,7 @@ public class NetworkImpl implements Network {
         this.client = client;
         this.channelManager = new ChannelManagerImpl(this);
         this.userManager = new UserManagerImpl(this);
-        this.roleManager = new RoleManagerImpl(this);
+        this.roleManager = new RoleManagerImpl(storage, this);
         this.networkData = new NetworkDataImpl();
         this.data = new DataObject(String.format(DATA_KEY, client.getId(), id));
         storage.load(this.data);

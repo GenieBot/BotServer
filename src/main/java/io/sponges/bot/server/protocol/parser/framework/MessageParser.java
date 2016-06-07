@@ -11,7 +11,7 @@ public abstract class MessageParser {
         this.type = type;
     }
 
-    public abstract void parse(Client client, long time, String messageId, JSONObject content);
+    public abstract void parse(Client client, long time, JSONObject content);
 
     public String getType() {
         return type;

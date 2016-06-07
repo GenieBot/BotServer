@@ -1,97 +1,54 @@
 package io.sponges.bot.server.protocol.parser.parsers;
 
 import io.sponges.bot.api.entities.Client;
+import io.sponges.bot.api.entities.Network;
+import io.sponges.bot.api.entities.User;
+import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.channel.GroupChannel;
 import io.sponges.bot.api.entities.manager.ChannelManager;
 import io.sponges.bot.api.entities.manager.NetworkManager;
+import io.sponges.bot.api.entities.manager.UserManager;
 import io.sponges.bot.api.event.events.user.UserJoinEvent;
-import io.sponges.bot.api.event.framework.Event;
-import io.sponges.bot.api.storage.Storage;
-import io.sponges.bot.server.Bot;
-import io.sponges.bot.server.entities.NetworkImpl;
-import io.sponges.bot.server.entities.UserImpl;
-import io.sponges.bot.server.entities.manager.UserManagerImpl;
+import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
-import io.sponges.bot.server.protocol.parser.initalizer.ChannelInitializer;
-import io.sponges.bot.server.protocol.parser.initalizer.NetworkInitializer;
-import io.sponges.bot.server.protocol.parser.initalizer.UserInitializer;
 import org.json.JSONObject;
 
 public final class UserJoinMessageParser extends MessageParser {
 
-    private final Bot bot;
-    private final Storage storage;
+    private final EventManager eventManager;
 
-    public UserJoinMessageParser(Bot bot) {
+    public UserJoinMessageParser(EventManager eventManager) {
         super("USER_JOIN");
-        this.bot = bot;
-        this.storage = bot.getStorage();
+        this.eventManager = eventManager;
     }
 
     @Override
-    public void parse(Client client, long time, String messageId, JSONObject content) {
-        NetworkImpl network;
-        {
-            String id = content.getString("network");
-            NetworkManager manager = client.getNetworkManager();
-            if (manager.isNetwork(id)) {
-                network = (NetworkImpl) manager.getNetwork(id);
-            } else {
-                network = (NetworkImpl) NetworkInitializer.createNetwork(storage, client, id);
-                manager.getNetworks().put(id, network);
-            }
-        }
-        UserManagerImpl userManager = (UserManagerImpl) network.getUserManager();
-
-        GroupChannel channel = null;
-        if (!content.isNull("channel")) {
-            JSONObject json = content.getJSONObject("channel");
-            String id = json.getString("id");
-            ChannelManager manager = network.getChannelManager();
-            if (manager.isChannel(id)) {
-                channel = (GroupChannel) manager.getChannel(id);
-            } else {
-                channel = (GroupChannel) ChannelInitializer.createChannel(storage, network, json);
-                manager.getChannels().put(id, channel);
-            }
-        }
-
-        UserImpl user;
-        UserImpl initiator = null;
-        {
-            {
-                JSONObject json = content.getJSONObject("added");
-                String userId = json.getString("id");
-                if (userManager.isUser(userId)) {
-                    user = (UserImpl) userManager.getUser(userId);
-                } else {
-                    user = (UserImpl) UserInitializer.createUser(storage, network, json);
-                    userManager.addUser(user);
-                }
-                if (channel != null && !channel.isUser(userId)) {
-                    channel.getUsers().put(userId, user);
-                }
-            }
-            if (!content.isNull("initiator")) {
-                JSONObject json = content.getJSONObject("initiator");
-                String userId = json.getString("id");
-                if (userManager.isUser(userId)) {
-                    initiator = (UserImpl) userManager.getUser(userId);
-                } else {
-                    initiator = (UserImpl) UserInitializer.createUser(storage, network, json);
-                    userManager.addUser(initiator);
-                }
-                if (channel != null && !channel.isUser(userId)) {
-                    channel.getUsers().put(userId, initiator);
-                }
-            }
-        }
-
-        UserJoinEvent event = new UserJoinEvent(client, network, channel, user, initiator);
-        postEvent(event, messageId);
+    public void parse(Client client, long time, JSONObject content) {
+        NetworkManager manager = client.getNetworkManager();
+        String id = content.getString("network");
+        manager.loadNetwork(id, network -> loadChannel(client, network, content));
     }
 
-    private void postEvent(Event event, String messageId) {
-        bot.getEventManager().post(event, messageId);
+    private void loadChannel(Client client, Network network, JSONObject content) {
+        ChannelManager manager = network.getChannelManager();
+        String id = content.getString("channel");
+        manager.loadChannel(id, channel -> loadAdded(client, network, channel, content));
+    }
+
+    private void loadAdded(Client client, Network network, Channel channel, JSONObject content) {
+        UserManager manager = network.getUserManager();
+        String id = content.getString("added");
+        manager.loadUser(id, added -> loadInitiator(client, network, channel, added, content));
+    }
+
+    private void loadInitiator(Client client, Network network, Channel channel, User added, JSONObject content) {
+        UserManager manager = network.getUserManager();
+        String id = content.getString("initiator");
+        manager.loadUser(id, initiator -> handleEvent(client, network, channel, added, initiator));
+    }
+
+    private void handleEvent(Client client, Network network, Channel channel, User added, User initiator) {
+        UserJoinEvent event = new UserJoinEvent(client, network, (GroupChannel) channel, added, initiator);
+        eventManager.post(event);
     }
 }

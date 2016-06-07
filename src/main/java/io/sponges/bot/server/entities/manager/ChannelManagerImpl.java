@@ -6,6 +6,7 @@ import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.channel.GroupChannel;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
 import io.sponges.bot.api.entities.manager.ChannelManager;
+import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,7 +64,16 @@ public class ChannelManagerImpl implements ChannelManager {
     }
 
     @Override
-    public void loadChannel(String s, Consumer<Channel> consumer) {
-        // TODO loading channel
+    public void loadChannel(String channelId, Consumer<Channel> consumer) {
+        if (isChannel(channelId)) {
+            consumer.accept(getChannel(channelId));
+            return;
+        }
+        new ResourceRequestMessage(network.getClient(), network.getId(), ResourceRequestMessage.ResourceType.CHANNEL,
+                channelId, entity -> {
+            Channel channel = (Channel) entity;
+            channels.put(channel.getId(), channel);
+            consumer.accept(channel);
+        }).send();
     }
 }

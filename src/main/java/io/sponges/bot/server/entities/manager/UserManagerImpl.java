@@ -5,6 +5,7 @@ import io.sponges.bot.api.entities.Role;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.manager.RoleManager;
 import io.sponges.bot.api.entities.manager.UserManager;
+import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,7 +60,8 @@ public class UserManagerImpl implements UserManager {
     }
 
     @Override
-    public void loadUser(String s, Consumer<User> consumer) {
-        // TODO user loading shit
+    public void loadUser(String userId, Consumer<User> consumer) {
+        new ResourceRequestMessage(network.getClient(), network.getId(), ResourceRequestMessage.ResourceType.USER,
+                userId, entity -> consumer.accept((User) entity));
     }
 }

@@ -4,6 +4,7 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.Role;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.manager.RoleManager;
+import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.entities.RoleImpl;
 
 import java.util.*;
@@ -14,9 +15,11 @@ public class RoleManagerImpl implements RoleManager {
     private final Map<String, Role> roles = new HashMap<>();
     private final Map<Role, List<User>> users = new ConcurrentHashMap<>();
 
+    private final Storage storage;
     private final Network network;
 
-    public RoleManagerImpl(Network network) {
+    public RoleManagerImpl(Storage storage, Network network) {
+        this.storage = storage;
         this.network = network;
     }
 

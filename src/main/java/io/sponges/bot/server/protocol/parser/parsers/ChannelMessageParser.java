@@ -18,7 +18,7 @@ public final class ChannelMessageParser extends MessageParser {
     }
 
     @Override
-    public void parse(Client client, long time, String messageId, JSONObject content) {
+    public void parse(Client client, long time, JSONObject content) {
         String message = content.getString("message");
         String id = content.getString("id");
         ChannelMessage.MessageType type = ChannelMessage.MessageType.valueOf(content.getString("type").toUpperCase());

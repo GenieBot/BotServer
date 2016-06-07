@@ -6,6 +6,7 @@ proxies.txt
 *.zip
 dependency-reduced-pom.xml
 oldmodules
+modules
 out
 scripts
 lolcode.js

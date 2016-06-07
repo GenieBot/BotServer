@@ -1,7 +1,12 @@
 package io.sponges.bot.server.protocol.msg;
 
 import io.sponges.bot.api.entities.Client;
+import io.sponges.bot.api.entities.Entity;
+import io.sponges.bot.server.protocol.manager.ResourceRequestManager;
 import org.json.JSONObject;
+
+import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * This message sends a request to the client to get more information about a resource or load in a resource
@@ -9,40 +14,53 @@ import org.json.JSONObject;
 public final class ResourceRequestMessage extends Message {
 
     private static final String TYPE = "RESOURCE_REQUEST";
+    public static final ResourceRequestManager REQUEST_MANAGER = new ResourceRequestManager();
 
     private final ResourceType type;
     private final String networkId;
     private final String channelId;
     private final String userId;
+    private final Consumer<Entity> callback;
+    private final String requestId;
 
-    public ResourceRequestMessage(Client client, String networkId) {
+    public ResourceRequestMessage(Client client, String networkId, Consumer<Entity> callback) {
         super(client, TYPE);
+        this.callback = callback;
         this.type = ResourceType.NETWORK;
         this.networkId = networkId;
         this.channelId = null;
         this.userId = null;
+        this.requestId = UUID.randomUUID().toString();
+        REQUEST_MANAGER.getRequests().put(this.requestId, callback);
     }
 
-    public ResourceRequestMessage(Client client, String networkId, ResourceType type, String id) {
+    public ResourceRequestMessage(Client client, String networkId, ResourceType type, String id, Consumer<Entity> callback) {
         super(client, TYPE);
         this.type = type;
         this.networkId = networkId;
-        if (type == ResourceType.CHANNEL) {
-            this.channelId = id;
-            this.userId = null;
-        } else if (type == ResourceType.USER) {
-            this.userId = id;
-            this.channelId = null;
-        } else {
-            this.channelId = null;
-            this.userId = null;
+        this.callback = callback;
+        switch (type) {
+            case CHANNEL:
+                this.channelId = id;
+                this.userId = null;
+                break;
+            case USER:
+                this.channelId = null;
+                this.userId = id;
+                break;
+            default:
+                this.channelId = null;
+                this.userId = null;
         }
+        this.requestId = UUID.randomUUID().toString();
+        REQUEST_MANAGER.getRequests().put(this.requestId, callback);
     }
 
     @Override
     public JSONObject toJson() {
         JSONObject object = new JSONObject();
         object.put("resource", type.name());
+        object.put("id", requestId);
         switch (type) {
             case NETWORK: {
                 object.put("network", networkId);

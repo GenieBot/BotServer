@@ -8,23 +8,11 @@ import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.cmd.CommandHandler;
 
 public interface Bot {
-
-    /**
-     * Returns the Server instance
-     * @return server
-     */
+    
     Server getServer();
 
-    /**
-     * The EventManager instance
-     * @return eventManager
-     */
     EventManager getEventManager();
 
-    /**
-     * The CommandHandler instance
-     * @return commandHandler
-     */
     CommandHandler getCommandHandler();
 
     ClientManager getClientManager();

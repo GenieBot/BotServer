@@ -3,6 +3,7 @@ package io.sponges.bot.server.entities.manager;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.manager.NetworkManager;
+import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,7 +40,15 @@ public class NetworkManagerImpl implements NetworkManager {
     }
 
     @Override
-    public void loadNetwork(String s, Consumer<Network> consumer) {
-        // TODO loading networks
+    public void loadNetwork(String networkId, Consumer<Network> consumer) {
+        if (isNetwork(networkId)) {
+            consumer.accept(getNetwork(networkId));
+            return;
+        }
+        new ResourceRequestMessage(client, networkId, entity -> {
+            Network network = (Network) entity;
+            networks.put(network.getId(), network);
+            consumer.accept(network);
+        }).send();
     }
 }

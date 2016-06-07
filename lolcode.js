@@ -244,7 +244,6 @@ function lolspace_do_string_literals(str, strip)
             if ($1.charAt(0) == '(')
               return '\\u' + $1.substr(1,$1.length-2);
 
-            // TODO: named unicode chars, don't know if js provides a shortcut for this?
             // i'm not typing out all of them.
             // http://www.unicode.org/Public/4.1.0/ucd/NamesList.txt
             return $0;

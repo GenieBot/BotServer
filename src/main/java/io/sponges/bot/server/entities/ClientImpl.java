@@ -72,11 +72,6 @@ public class ClientImpl implements Client {
         new ChannelMessage(this, UUID.randomUUID().toString(), s, consumer, ChannelMessage.MessageType.REQUEST).send();
     }
 
-    /**
-     * Testing method that works within bsh interpreter
-     * @param channel the channel to send the response in
-     * @param s the message to send to the client
-     */
     public void sendMessage(io.sponges.bot.api.entities.channel.Channel channel, String s) {
         new ChannelMessage(this, UUID.randomUUID().toString(), s, response -> {
             channel.sendChatMessage("Message response: " + response);

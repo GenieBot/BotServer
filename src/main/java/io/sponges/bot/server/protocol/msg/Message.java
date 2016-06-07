@@ -37,10 +37,6 @@ public abstract class Message {
         ((ClientImpl) client).write(toString());
     }
 
-    /**
-     * Deprecated as client parameter is no longer needed.
-     * @param client io.sponges.bot.api.entities.Client to send the message to
-     */
     @Deprecated
     public void send(ClientImpl client) {
         send();
