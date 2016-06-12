@@ -10,7 +10,6 @@ import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.entities.data.ChannelDataImpl;
 import io.sponges.bot.server.entities.data.NetworkDataImpl;
 import io.sponges.bot.server.entities.data.UserDataImpl;
-import io.sponges.bot.server.entities.manager.ChannelManagerImpl;
 import io.sponges.bot.server.entities.manager.NetworkManagerImpl;
 import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
@@ -83,11 +82,15 @@ public final class ResourceResponseParser extends MessageParser {
                     if (!parameters.isNull("mood")) data.setMood(parameters.getString("mood"));
                     if (!parameters.isNull("profile-url")) data.setProfileUrl(parameters.getString("profile-url"));
                     if (!parameters.isNull("profile-image")) data.setProfileImage(parameters.getString("profile-image"));
-                    if (!parameters.isNull("private-channel")) {
+                    if (!parameters.isNull("private-network")) {
+                        String privateNetworkId = parameters.getString("private-network");
                         String privateChannelId = parameters.getString("private-channel");
-                        ChannelManagerImpl channelManager = (ChannelManagerImpl) network.getChannelManager();
-                        channelManager.loadChannel(privateChannelId, channel -> {
-                            data.setPrivateChannel((PrivateChannel) channel);
+                        System.out.println("Loading private network id " + privateNetworkId);
+                        networkManager.loadNetwork(privateNetworkId, privateNetwork -> {
+                            privateNetwork.getChannelManager().loadChannel(privateChannelId, channel -> {
+                                System.out.println("Loading private channel id " + privateChannelId);
+                                data.setPrivateChannel((PrivateChannel) channel);
+                            });
                         });
                     }
                     consumer.accept(user);

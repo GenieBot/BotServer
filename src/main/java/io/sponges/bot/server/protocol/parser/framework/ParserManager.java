@@ -23,8 +23,8 @@ public class ParserManager {
         this.bot = bot;
 
         register(
-                new ChatMessageParser(bot),
-                new UserJoinMessageParser(bot),
+                new ChatMessageParser(bot.getEventManager()),
+                new UserJoinMessageParser(bot.getEventManager()),
                 new ChannelMessageParser(bot.getEventManager()),
                 new ResourceResponseParser(bot.getStorage())
         );

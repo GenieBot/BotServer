@@ -21,7 +21,7 @@ public final class ChannelMessage extends Message {
         this.type = type;
         if (type == MessageType.REQUEST) this.id = UUID.randomUUID().toString();
         else this.id = id;
-        if (type == MessageType.REQUEST && callback != null) MESSAGE_MANAGER.getMessages().put(id, callback);
+        if (type == MessageType.REQUEST && callback != null) MESSAGE_MANAGER.getMessages().put(this.id, callback);
     }
 
     @Override

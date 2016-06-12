@@ -75,6 +75,6 @@ public class ClientImpl implements Client {
     public void sendMessage(io.sponges.bot.api.entities.channel.Channel channel, String s) {
         new ChannelMessage(this, UUID.randomUUID().toString(), s, response -> {
             channel.sendChatMessage("Message response: " + response);
-        }, ChannelMessage.MessageType.REQUEST);
+        }, ChannelMessage.MessageType.REQUEST).send();
     }
 }

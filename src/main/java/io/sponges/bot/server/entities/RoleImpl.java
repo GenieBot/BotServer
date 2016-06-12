@@ -1,6 +1,8 @@
 package io.sponges.bot.server.entities;
 
 import io.sponges.bot.api.entities.Role;
+import io.sponges.bot.api.storage.DataObject;
+import io.sponges.bot.api.storage.Storage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +11,14 @@ public class RoleImpl implements Role {
 
     private final List<String> permissions = new ArrayList<>();
 
+    private final Storage storage;
     private final String id;
+    private final DataObject data;
 
-    public RoleImpl(String id) {
+    public RoleImpl(Storage storage, String id) {
+        this.storage = storage;
         this.id = id;
+        this.data = new DataObject();
     }
 
     @Override
@@ -40,4 +46,13 @@ public class RoleImpl implements Role {
         return permissions.contains(s);
     }
 
+    public DataObject getData() {
+        if (!data.exists("id")) {
+            data.set(storage, "id", id);
+        }
+        if (data.exists("permissions")) {
+            data.set(storage, "permissions", permissions);
+        }
+        return data;
+    }
 }

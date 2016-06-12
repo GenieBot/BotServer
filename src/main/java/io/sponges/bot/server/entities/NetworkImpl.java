@@ -21,7 +21,7 @@ public class NetworkImpl implements Network {
     private final Client client;
     private final ChannelManager channelManager;
     private final UserManager userManager;
-    private final RoleManager roleManager;
+    private final RoleManagerImpl roleManager;
     private final DataObject data;
     private final NetworkData networkData;
 
@@ -34,6 +34,9 @@ public class NetworkImpl implements Network {
         this.networkData = new NetworkDataImpl();
         this.data = new DataObject(String.format(DATA_KEY, client.getId(), id));
         storage.load(this.data);
+        if (!data.exists("roles")) {
+            this.data.set(storage, "roles", this.roleManager.getData());
+        }
     }
 
     @Override

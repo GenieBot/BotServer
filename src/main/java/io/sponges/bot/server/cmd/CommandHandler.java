@@ -85,7 +85,6 @@ public final class CommandHandler {
         User user = userChatEvent.getUser();
         Message message = userChatEvent.getMessage();
         CommandRequestImpl request = new CommandRequestImpl(client, network, channel, user, message);
-        if (userChatEvent.hasId()) request.setMessageId(userChatEvent.getId());
         handle(request);
     }
 

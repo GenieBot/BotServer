@@ -4,6 +4,7 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.Role;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.manager.RoleManager;
+import io.sponges.bot.api.storage.DataObject;
 import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.entities.RoleImpl;
 
@@ -17,10 +18,12 @@ public class RoleManagerImpl implements RoleManager {
 
     private final Storage storage;
     private final Network network;
+    private final DataObject data;
 
     public RoleManagerImpl(Storage storage, Network network) {
         this.storage = storage;
         this.network = network;
+        this.data = new DataObject();
     }
 
     @Override
@@ -40,7 +43,8 @@ public class RoleManagerImpl implements RoleManager {
 
     @Override
     public Role createRole(String id) {
-        Role role = new RoleImpl(id);
+        RoleImpl role = new RoleImpl(storage, id);
+        this.data.set(storage, role.getId(), role.getData());
         roles.put(id, role);
         return role;
     }
@@ -52,6 +56,7 @@ public class RoleManagerImpl implements RoleManager {
 
     @Override
     public void removeRole(String id) {
+        this.data.remove(storage, id);
         roles.remove(id);
     }
 
@@ -63,10 +68,6 @@ public class RoleManagerImpl implements RoleManager {
     @Override
     public Collection<User> getUsersWithRole(Role role) {
         return Collections.unmodifiableCollection(users.get(role));
-    }
-
-    public void registerRole(Role role) {
-        roles.put(role.getId(), role);
     }
 
     public void assignRole(User user, Role role) {
@@ -82,5 +83,9 @@ public class RoleManagerImpl implements RoleManager {
         }
         users.add(user);
         this.users.put(role, users);
+    }
+
+    public DataObject getData() {
+        return data;
     }
 }
