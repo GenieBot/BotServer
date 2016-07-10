@@ -13,6 +13,8 @@ public class Configuration {
             ).put("redis", new JSONObject()
                             .put("host", "localhost")
                             .put("port", 6379)
+            ).put("webhook-server", new JSONObject()
+                            .put("port", 4598)
             ).toString();
 
     public JSONObject load(File file) throws IOException, JSONException {

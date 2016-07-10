@@ -10,6 +10,7 @@ import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class UserManagerImpl implements UserManager {
@@ -72,5 +73,19 @@ public class UserManagerImpl implements UserManager {
             users.put(user.getId(), user);
             consumer.accept(user);
         }).send();
+    }
+
+    @Override
+    public User loadUserSync(String s) {
+        AtomicReference<User> net = new AtomicReference<>();
+        loadUser(s, net::set);
+        while (net.get() == null) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return net.get();
     }
 }

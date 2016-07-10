@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class ChannelManagerImpl implements ChannelManager {
@@ -76,4 +77,19 @@ public class ChannelManagerImpl implements ChannelManager {
             consumer.accept(channel);
         }).send();
     }
+
+    @Override
+    public Channel loadChannelSync(String s) {
+        AtomicReference<Channel> net = new AtomicReference<>();
+        loadChannel(s, net::set);
+        while (net.get() == null) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return net.get();
+    }
+
 }

@@ -8,6 +8,8 @@ import io.sponges.bot.server.protocol.msg.ChannelMessage;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
 import org.json.JSONObject;
 
+import java.util.function.Consumer;
+
 public final class ChannelMessageParser extends MessageParser {
 
     private final EventManager eventManager;
@@ -27,7 +29,9 @@ public final class ChannelMessageParser extends MessageParser {
             if (!manager.getMessages().containsKey(id)) {
                 return;
             }
-            manager.getMessages().get(id).accept(message);
+            Consumer<String> callback = manager.getMessages().get(id);
+            System.out.println("got channel message id=" + id + "message=" + message + "consumer=" + callback.toString());
+            callback.accept(message);
         } else {
             eventManager.post(new ChannelMessageReceiveEventImpl(client, message, id));
         }

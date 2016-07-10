@@ -6,10 +6,12 @@ import io.sponges.bot.api.entities.Message;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
+import io.sponges.bot.api.event.events.user.UserChatEvent;
 import io.sponges.bot.server.protocol.msg.CmdResponseMessage;
 
 public class CommandRequestImpl implements CommandRequest {
 
+    private final UserChatEvent event;
     private final Client client;
     private final Network network;
     private final Channel channel;
@@ -17,7 +19,8 @@ public class CommandRequestImpl implements CommandRequest {
     private final Message message;
     private String messageId = null;
 
-    public CommandRequestImpl(Client client, Network network, Channel channel, User user, Message message) {
+    public CommandRequestImpl(UserChatEvent event, Client client, Network network, Channel channel, User user, Message message) {
+        this.event = event;
         this.client = client;
         this.network = network;
         this.channel = channel;
@@ -30,6 +33,10 @@ public class CommandRequestImpl implements CommandRequest {
         CmdResponseMessage message = new CmdResponseMessage(client, network, channel, user, s);
         if (messageId != null) message.setMessageId(messageId);
         channel.sendMessage(message.toString());
+    }
+
+    public UserChatEvent getEvent() {
+        return event;
     }
 
     @Override

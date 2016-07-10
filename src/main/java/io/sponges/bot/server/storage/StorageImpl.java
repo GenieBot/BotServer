@@ -33,9 +33,9 @@ public class StorageImpl implements Storage {
 
     @Override
     public void set(String s, Object o) {
+        System.out.println("setting " + s + " to " + String.valueOf(o));
         try (Jedis jedis = pool.getResource()) {
-            jedis.set(s,
-                    String.valueOf(o));
+            jedis.set(s, String.valueOf(o));
         }
     }
 
@@ -48,7 +48,7 @@ public class StorageImpl implements Storage {
         JSONObject json = new JSONObject();
         for (Map.Entry<String, Object> entry : object.getMappings().entrySet()) {
             Object value = entry.getValue();
-            json.put(entry.getKey(), value instanceof DataObject ? serialize((DataObject) value) : value);
+            json.put(entry.getKey(), value instanceof DataObject ? toJson((DataObject) value) : value);
         }
         return json;
     }
@@ -68,7 +68,9 @@ public class StorageImpl implements Storage {
 
     @Override
     public void save(DataObject dataObject) {
-        set(dataObject.getKey(), serialize(dataObject));
+        String value = serialize(dataObject);
+        System.out.println("value: " + value);
+        set(dataObject.getKey(), value);
     }
 
     private DataObject load(String key, JSONObject json) {

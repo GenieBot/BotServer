@@ -11,6 +11,8 @@ import io.sponges.bot.server.entities.manager.NetworkManagerImpl;
 import io.sponges.bot.server.protocol.msg.ChannelMessage;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -69,12 +71,24 @@ public class ClientImpl implements Client {
 
     @Override
     public void sendMessage(String s, Consumer<String> consumer) {
-        new ChannelMessage(this, UUID.randomUUID().toString(), s, consumer, ChannelMessage.MessageType.REQUEST).send();
+        String id = UUID.randomUUID().toString();
+        System.out.println("sending channel message id=" + id + "message=" + s + "consumer=" + consumer.toString());
+        new ChannelMessage(this, id, s, consumer, ChannelMessage.MessageType.REQUEST).send();
     }
 
-    public void sendMessage(io.sponges.bot.api.entities.channel.Channel channel, String s) {
-        new ChannelMessage(this, UUID.randomUUID().toString(), s, response -> {
-            channel.sendChatMessage("Message response: " + response);
-        }, ChannelMessage.MessageType.REQUEST).send();
+    @Override
+    public String sendMessageSync(String s) {
+        AtomicReference<String> response = new AtomicReference<>();
+        sendMessage(s, response::set);
+        long start = System.currentTimeMillis();
+        while (response.get() == null) {
+            if (System.currentTimeMillis() - start > TimeUnit.SECONDS.toMillis(15)) break;
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return response.get();
     }
 }

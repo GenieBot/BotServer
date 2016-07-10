@@ -7,6 +7,7 @@ import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class NetworkManagerImpl implements NetworkManager {
@@ -50,5 +51,19 @@ public class NetworkManagerImpl implements NetworkManager {
             networks.put(network.getId(), network);
             consumer.accept(network);
         }).send();
+    }
+
+    @Override
+    public Network loadNetworkSync(String s) {
+        AtomicReference<Network> net = new AtomicReference<>();
+        loadNetwork(s, net::set);
+        while (net.get() == null) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return net.get();
     }
 }

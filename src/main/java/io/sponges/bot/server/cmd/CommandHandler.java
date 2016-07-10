@@ -84,7 +84,7 @@ public final class CommandHandler {
         Channel channel = userChatEvent.getChannel();
         User user = userChatEvent.getUser();
         Message message = userChatEvent.getMessage();
-        CommandRequestImpl request = new CommandRequestImpl(client, network, channel, user, message);
+        CommandRequestImpl request = new CommandRequestImpl(userChatEvent, client, network, channel, user, message);
         handle(request);
     }
 
@@ -134,5 +134,4 @@ public final class CommandHandler {
         eventManager.post(new CommandProcessedEvent(command, request, args));
         return true;
     }
-
 }

@@ -7,12 +7,6 @@ function onEnable() {
 			network.kickUser(user);
 		}
 	});
-	var Command = Java.type("io.sponges.bot.api.cmd.Command");
-    var cmd = new (Java.extend(Command, function (request, args) {
-          request.reply("Rules for Yive's chat: https://i.tcpr.ca/VtX68J4");
-    })) ("shows rules for yive's chat", ["yiverules"]);
-    cmd.setNetworkOnly("19:6d890b9196fb445cae3fae0dc1510799@thread.skype");
-    module.getCommandManager().registerCommand(module, cmd);
 }
 
 function onDisable() {

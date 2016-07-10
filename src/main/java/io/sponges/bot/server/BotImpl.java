@@ -12,6 +12,7 @@ import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
 import io.sponges.bot.api.storage.Storage;
+import io.sponges.bot.api.webhook.WebhookManager;
 import io.sponges.bot.server.cmd.CommandHandler;
 import io.sponges.bot.server.cmd.CommandManagerImpl;
 import io.sponges.bot.server.config.Configuration;
@@ -25,6 +26,7 @@ import io.sponges.bot.server.protocol.msg.StopMessage;
 import io.sponges.bot.server.protocol.parser.framework.ParserManager;
 import io.sponges.bot.server.server.ServerImpl;
 import io.sponges.bot.server.storage.StorageImpl;
+import io.sponges.bot.server.webhook.server.WebhookServer;
 import io.sponges.proxypool.ProxyPool;
 import org.json.JSONObject;
 
@@ -47,6 +49,8 @@ public class BotImpl implements Bot {
     private final ClientManager clientManager;
     private final ParserManager parserManager;
     private final ModuleManager moduleManager;
+    private final WebhookServer webhookServer;
+    private final WebhookManager webhookManager;
     private final Storage storage;
 
     public BotImpl() throws IOException {
@@ -63,6 +67,9 @@ public class BotImpl implements Bot {
         this.commandManager = new CommandManagerImpl(this);
         this.server = new ServerImpl(this, port);
         this.clientManager = new ClientManagerImpl();
+
+        this.webhookServer = new WebhookServer(config.getJSONObject("webhook-server").getInt("port"));
+        this.webhookManager = this.webhookServer.getWebhookManager();
 
         JSONObject redis = config.getJSONObject("redis");
         this.storage = new StorageImpl(redis.getString("host"), redis.getInt("port"));
@@ -84,10 +91,12 @@ public class BotImpl implements Bot {
         this.eventBus.register(UserJoinEvent.class, (event) -> System.out.println(event.getUser().getId() + " joined!"));
 
         this.moduleManager = new ModuleManagerImpl(this.server, eventManager, commandManager, storage, proxyPool,
-                clientManager);
+                clientManager, webhookManager);
 
         // Starting the actual server
         this.server.start(() -> System.out.println("Started!"));
+
+        proxyPool.getProxy().getAddress().getAddress().toString();
     }
 
     public static void main(String[] args) {
@@ -108,15 +117,9 @@ public class BotImpl implements Bot {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        new Thread(() -> {
-            ((StorageImpl) this.storage).getPool().destroy();
-        }).start();
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        server.stop(() -> System.out.println("Server closed!"));
+        ((StorageImpl) this.storage).getPool().destroy();
+        this.webhookServer.stop();
+        this.server.stop(() -> System.out.println("Server closed!"));
         System.exit(-1);
     }
 
