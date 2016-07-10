@@ -5,7 +5,6 @@ import io.sponges.bot.api.webhook.WebhookMessage;
 import spark.Request;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -42,9 +41,7 @@ public class WebhookImpl implements Webhook {
     }
 
     public void accept(Request request) {
-        String body = request.body();
-        Set<String> headers = request.headers();
-        WebhookMessage message = new WebhookMessageImpl(body, headers);
+        WebhookMessage message = new WebhookMessageImpl(request);
         consumers.forEach(consumer -> consumer.accept(message));
     }
 }

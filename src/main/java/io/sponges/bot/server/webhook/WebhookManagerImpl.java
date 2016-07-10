@@ -46,10 +46,4 @@ public class WebhookManagerImpl implements WebhookManager {
         webhooks.put(webhook.getId(), webhook);
         webhookServer.register((WebhookImpl) webhook);
     }
-
-    @Override
-    public void unregister(String s) {
-        Webhook webhook = webhooks.remove(s);
-        webhookServer.unregister(webhook);
-    }
 }

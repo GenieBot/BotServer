@@ -1,4 +1,4 @@
-package io.sponges.bot.server.server.framework.impl;
+package io.sponges.bot.server.server.internal;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -8,11 +8,11 @@ import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
-public final class ServerInitializer extends ChannelInitializer<SocketChannel> {
+public final class InternalServerInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final ServerImpl server;
+    private final InternalServerImpl server;
 
-    public ServerInitializer(ServerImpl server) {
+    public InternalServerInitializer(InternalServerImpl server) {
         this.server = server;
     }
 
@@ -25,7 +25,7 @@ public final class ServerInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(new StringDecoder()); // could add charset here
         pipeline.addLast(new StringEncoder());
 
-        pipeline.addLast(new ServerHandler(server));
+        pipeline.addLast(new InternalServerHandler(server));
     }
 
 }

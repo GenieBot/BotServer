@@ -1,4 +1,4 @@
-package io.sponges.bot.server.server.framework.impl;
+package io.sponges.bot.server.server.internal;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -6,41 +6,37 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.internal.ConcurrentSet;
-import io.sponges.bot.server.server.framework.Server;
-import io.sponges.bot.server.server.framework.ServerListener;
-import io.sponges.bot.server.server.framework.exception.ServerAlreadyRunningException;
-import io.sponges.bot.server.server.framework.exception.ServerNotRunningException;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class ServerImpl implements Server {
+public final class InternalServerImpl {
 
     private final Object lock = new Object();
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private final Set<ServerListener> listeners = new ConcurrentSet<>();
+    private final Set<InternalServerListener> listeners = new ConcurrentSet<>();
 
     private final int port;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
 
-    public ServerImpl(int port) {
+    public InternalServerImpl(int port) {
         this.port = port;
         this.bossGroup = new NioEventLoopGroup(1);
         this.workerGroup = new NioEventLoopGroup();
     }
 
-    @Override
-    public void start(Runnable runnable) throws ServerAlreadyRunningException, InterruptedException {
+    public void start(Runnable runnable) throws InterruptedException {
         if (running.get()) {
-            throw new ServerAlreadyRunningException();
+            System.err.println("already running");
+            return;
         }
         running.set(true);
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ServerInitializer(this));
+                    .childHandler(new InternalServerInitializer(this));
             ChannelFuture future = serverBootstrap.bind(port);
             runnable.run();
             future.sync().channel().closeFuture().sync();
@@ -51,10 +47,10 @@ public final class ServerImpl implements Server {
         }
     }
 
-    @Override
-    public void stop(Runnable runnable) throws ServerNotRunningException {
+    public void stop(Runnable runnable) {
         if (!running.get()) {
-            throw new ServerNotRunningException();
+            System.err.println("not running");
+            return;
         }
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
@@ -62,17 +58,15 @@ public final class ServerImpl implements Server {
         runnable.run();
     }
 
-    @Override
-    public void registerListener(ServerListener listener) {
+    public void registerListener(InternalServerListener listener) {
         listeners.add(listener);
     }
 
-    @Override
-    public void unregisterListener(ServerListener listener) {
+    public void unregisterListener(InternalServerListener listener) {
         listeners.remove(listener);
     }
 
-    public Set<ServerListener> getListeners() {
+    public Set<InternalServerListener> getListeners() {
         return listeners;
     }
 }

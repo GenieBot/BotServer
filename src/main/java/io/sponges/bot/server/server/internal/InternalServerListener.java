@@ -1,8 +1,8 @@
-package io.sponges.bot.server.server.framework;
+package io.sponges.bot.server.server.internal;
 
 import io.netty.channel.ChannelHandlerContext;
 
-public interface ServerListener {
+public interface InternalServerListener {
 
     void onConnect(ChannelHandlerContext context);
 

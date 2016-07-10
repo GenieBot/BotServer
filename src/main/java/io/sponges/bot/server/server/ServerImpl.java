@@ -6,20 +6,18 @@ import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.ClientImpl;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
-import io.sponges.bot.server.server.framework.Server;
-import io.sponges.bot.server.server.framework.ServerListener;
-import io.sponges.bot.server.server.framework.exception.ServerAlreadyRunningException;
-import io.sponges.bot.server.server.framework.exception.ServerNotRunningException;
+import io.sponges.bot.server.server.internal.InternalServerImpl;
+import io.sponges.bot.server.server.internal.InternalServerListener;
 import io.sponges.bot.server.util.ValidationUtils;
 import org.json.JSONObject;
 
 public class ServerImpl implements io.sponges.bot.api.server.Server {
 
-    private final Server server;
+    private final InternalServerImpl server;
 
     public ServerImpl(Bot bot, int port) {
-        this.server = new io.sponges.bot.server.server.framework.impl.ServerImpl(port);
-        this.server.registerListener(new ServerListener() {
+        this.server = new InternalServerImpl(port);
+        this.server.registerListener(new InternalServerListener() {
             @Override
             public void onConnect(ChannelHandlerContext context) {
                 System.out.println("Unidentified client " + context.channel().remoteAddress() + " connected");
@@ -61,26 +59,18 @@ public class ServerImpl implements io.sponges.bot.api.server.Server {
     public void start(Runnable runnable) {
         try {
             this.server.start(runnable);
-        } catch (ServerAlreadyRunningException | InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public void stop() {
-        try {
-            this.server.stop(() -> {});
-        } catch (ServerNotRunningException e) {
-            e.printStackTrace();
-        }
+        this.server.stop(() -> {});
     }
 
     @Override
     public void stop(Runnable runnable) {
-        try {
-            this.server.stop(runnable);
-        } catch (ServerNotRunningException e) {
-            e.printStackTrace();
-        }
+        this.server.stop(runnable);
     }
 }
