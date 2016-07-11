@@ -1,6 +1,7 @@
 package io.sponges.bot.server.storage;
 
 import io.sponges.bot.api.storage.DataObject;
+import io.sponges.bot.api.storage.ModuleDataObject;
 import io.sponges.bot.api.storage.Storage;
 import org.json.JSONObject;
 import redis.clients.jedis.Jedis;
@@ -46,6 +47,9 @@ public class StorageImpl implements Storage {
 
     private JSONObject toJson(DataObject object) {
         JSONObject json = new JSONObject();
+        if (object instanceof ModuleDataObject) {
+            json.put(ModuleDataObject.MODULE_DATA_OBJECT_IDENTIFIER, true);
+        }
         for (Map.Entry<String, Object> entry : object.getMappings().entrySet()) {
             Object value = entry.getValue();
             json.put(entry.getKey(), value instanceof DataObject ? toJson((DataObject) value) : value);
@@ -74,7 +78,12 @@ public class StorageImpl implements Storage {
     }
 
     private DataObject load(String key, JSONObject json) {
-        DataObject object = new DataObject(key);
+        DataObject object;
+        if (!json.isNull(ModuleDataObject.MODULE_DATA_OBJECT_IDENTIFIER)) {
+            object = new ModuleDataObject(key);
+        } else {
+            object = new DataObject(key);
+        }
         load(object, json);
         return object;
     }

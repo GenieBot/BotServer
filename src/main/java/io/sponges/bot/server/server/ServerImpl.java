@@ -3,6 +3,7 @@ package io.sponges.bot.server.server;
 import io.netty.channel.ChannelHandlerContext;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.manager.ClientManager;
+import io.sponges.bot.api.server.Server;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.ClientImpl;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
@@ -11,7 +12,7 @@ import io.sponges.bot.server.server.internal.InternalServerListener;
 import io.sponges.bot.server.util.ValidationUtils;
 import org.json.JSONObject;
 
-public class ServerImpl implements io.sponges.bot.api.server.Server {
+public class ServerImpl implements Server {
 
     private final InternalServerImpl server;
 
@@ -31,7 +32,7 @@ public class ServerImpl implements io.sponges.bot.api.server.Server {
             @Override
             public void onMessage(ChannelHandlerContext context, String message) {
                 if (!ValidationUtils.isValidJson(message)) {
-                    System.out.println("Got invalid json: " + message + " from " + context.channel().remoteAddress());
+                    System.err.println("Got invalid json: " + message + " from " + context.channel().remoteAddress());
                     return;
                 }
                 JSONObject json = new JSONObject(message);

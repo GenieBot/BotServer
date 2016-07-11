@@ -48,6 +48,11 @@ public class ModuleManagerImpl implements ModuleManager {
     }
 
     @Override
+    public boolean isModule(String s) {
+        return modules.containsKey(s);
+    }
+
+    @Override
     public Module getModule(String s) {
         return modules.get(s.toLowerCase());
     }

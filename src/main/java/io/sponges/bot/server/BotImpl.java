@@ -95,8 +95,6 @@ public class BotImpl implements Bot {
 
         // Starting the actual server
         this.server.start(() -> System.out.println("Started!"));
-
-        proxyPool.getProxy().getAddress().getAddress().toString();
     }
 
     public static void main(String[] args) {

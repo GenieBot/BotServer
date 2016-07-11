@@ -7,7 +7,8 @@ import java.io.*;
 
 public class Configuration {
 
-    private static final String CONFIG_DEFAULTS = new JSONObject()
+    // this is ugly as shit
+    private static final JSONObject CONFIG_DEFAULTS = new JSONObject()
             .put("server", new JSONObject()
                             .put("port", 9574)
             ).put("redis", new JSONObject()
@@ -15,11 +16,11 @@ public class Configuration {
                             .put("port", 6379)
             ).put("webhook-server", new JSONObject()
                             .put("port", 4598)
-            ).toString();
+            );
 
     public JSONObject load(File file) throws IOException, JSONException {
         if (!file.exists()) {
-            write(file, new JSONObject(CONFIG_DEFAULTS).toString(4));
+            write(file, CONFIG_DEFAULTS.toString(4));
             return null;
         }
         StringBuilder builder = new StringBuilder();
