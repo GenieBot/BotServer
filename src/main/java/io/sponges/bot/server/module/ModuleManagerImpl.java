@@ -8,6 +8,7 @@ import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
 import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.api.webhook.WebhookManager;
+import io.sponges.bot.server.Bot;
 import io.sponges.proxypool.ProxyPool;
 
 import java.io.File;
@@ -30,15 +31,14 @@ public class ModuleManagerImpl implements ModuleManager {
     private final ClientManager clientManager;
     private final WebhookManager webhookManager;
 
-    public ModuleManagerImpl(Server server, EventManager eventManager, CommandManager commandManager, Storage storage,
-                             ProxyPool proxyPool, ClientManager clientManager, WebhookManager webhookManager) {
-        this.server = server;
-        this.eventManager = eventManager;
-        this.commandManager = commandManager;
-        this.storage = storage;
-        this.proxyPool = proxyPool;
-        this.clientManager = clientManager;
-        this.webhookManager = webhookManager;
+    public ModuleManagerImpl(Bot bot) {
+        this.server = bot.getServer();
+        this.eventManager = bot.getEventManager();
+        this.commandManager = bot.getCommandManager();
+        this.storage = bot.getStorage();
+        this.proxyPool = bot.getProxyPool();
+        this.clientManager = bot.getClientManager();
+        this.webhookManager = bot.getWebhookManager();
         load();
     }
 

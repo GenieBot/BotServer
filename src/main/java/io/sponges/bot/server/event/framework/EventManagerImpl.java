@@ -1,15 +1,14 @@
 package io.sponges.bot.server.event.framework;
 
-import io.sponges.bot.api.event.framework.CancelListener;
 import io.sponges.bot.api.event.framework.Event;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.Module;
+import io.sponges.bot.api.util.Scheduler;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class EventManagerImpl implements EventManager {
@@ -17,7 +16,6 @@ public class EventManagerImpl implements EventManager {
     // TODO add event priority
 
     private final Map<Module, List<Consumer>> consumers = new ConcurrentHashMap<>();
-    private final List<CancelListener> cancelListeners = new CopyOnWriteArrayList<>();
 
     private final EventBus eventBus;
 
@@ -27,12 +25,14 @@ public class EventManagerImpl implements EventManager {
 
     @Override
     public <T extends Event> boolean register(Module module, Class<T> aClass, Consumer<T> consumer) {
-        List<Consumer> consumers = new ArrayList<>();
-        if (this.consumers.containsKey(module)) {
-            consumers = this.consumers.get(module);
+        if (module != null) {
+            List<Consumer> consumers = new ArrayList<>();
+            if (this.consumers.containsKey(module)) {
+                consumers = this.consumers.get(module);
+            }
+            consumers.add(consumer);
+            this.consumers.put(module, consumers);
         }
-        consumers.add(consumer);
-        this.consumers.put(module, consumers);
         return eventBus.register(aClass, consumer);
     }
 
@@ -51,21 +51,29 @@ public class EventManagerImpl implements EventManager {
 
     @Override
     public <T extends Event> T post(T t) {
-        for (CancelListener listener : cancelListeners) {
-            if (listener.isCancelled(t)) {
-                return null;
-            }
-        }
         return eventBus.post(t);
     }
 
     @Override
-    public void registerCancelListener(CancelListener cancelListener) {
-        cancelListeners.add(cancelListener);
-    }
-
-    @Override
-    public void unregisterCancelListener(CancelListener cancelListener) {
-        cancelListeners.remove(cancelListener);
+    public <T extends Event> void postAsync(T t) {
+        Scheduler.runAsyncTask(() -> {
+            if (t.isCancellable()) {
+                long slot = t.getTimeSlot();
+                long start = System.currentTimeMillis();
+                while (System.currentTimeMillis() - slot < start) {
+                    if (t.isCancelled()) {
+                        return;
+                    } else {
+                        try {
+                            Thread.sleep(t.getCheckInterval());
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            break;
+                        }
+                    }
+                }
+            }
+            eventBus.post(t);
+        });
     }
 }

@@ -1,5 +1,6 @@
 package io.sponges.bot.server;
 
+import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Message;
 import io.sponges.bot.api.entities.Network;
@@ -44,12 +45,13 @@ public class BotImpl implements Bot {
     private final ServerImpl server;
     private final EventBus eventBus;
     private final EventManager eventManager;
-    private final CommandManagerImpl commandManager;
+    private final CommandManager commandManager;
     private final CommandHandler commandHandler;
     private final ClientManager clientManager;
     private final ParserManager parserManager;
     private final ModuleManager moduleManager;
     private final WebhookServer webhookServer;
+    private final ProxyPool proxyPool;
     private final WebhookManager webhookManager;
     private final Storage storage;
 
@@ -59,7 +61,7 @@ public class BotImpl implements Bot {
         int port = server.getInt("port");
 
         List<InetSocketAddress> proxies = loadProxies(new File("proxies.txt"));
-        ProxyPool proxyPool = new ProxyPool(proxies, 3);
+        this.proxyPool = new ProxyPool(proxies, 3);
 
         this.eventBus = new EventBus();
         this.eventManager = new EventManagerImpl(this.eventBus);
@@ -90,8 +92,7 @@ public class BotImpl implements Bot {
         this.eventBus.register(UserChatEvent.class, commandHandler::onUserChat);
         this.eventBus.register(UserJoinEvent.class, (event) -> System.out.println(event.getUser().getId() + " joined!"));
 
-        this.moduleManager = new ModuleManagerImpl(this.server, eventManager, commandManager, storage, proxyPool,
-                clientManager, webhookManager);
+        this.moduleManager = new ModuleManagerImpl(this);
 
         // Starting the actual server
         this.server.start(() -> System.out.println("Started!"));
@@ -132,6 +133,10 @@ public class BotImpl implements Bot {
     }
 
     @Override
+    public CommandManager getCommandManager() {
+        return commandManager;
+    }
+
     public CommandHandler getCommandHandler() {
         return commandHandler;
     }
@@ -149,6 +154,16 @@ public class BotImpl implements Bot {
     @Override
     public Storage getStorage() {
         return storage;
+    }
+
+    @Override
+    public ProxyPool getProxyPool() {
+        return proxyPool;
+    }
+
+    @Override
+    public WebhookManager getWebhookManager() {
+        return webhookManager;
     }
 
     private List<InetSocketAddress> loadProxies(File file) throws IOException {

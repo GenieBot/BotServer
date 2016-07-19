@@ -3,7 +3,7 @@ package io.sponges.bot.server.cmd;
 import io.sponges.bot.api.cmd.Command;
 import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.module.Module;
-import io.sponges.bot.server.Bot;
+import io.sponges.bot.server.BotImpl;
 
 import java.util.Collection;
 
@@ -11,10 +11,10 @@ public class CommandManagerImpl implements CommandManager {
 
     private final CommandHandler commandHandler;
 
-    public CommandManagerImpl(Bot bot) {
+    public CommandManagerImpl(BotImpl bot) {
         this.commandHandler = bot.getCommandHandler();
 
-        registerCommand(null, new TestCommand());
+        registerCommand(null, new TestCommand(bot.getEventManager()));
         registerCommand(null, new ReloadCommand(bot));
         registerCommand(null, new StopCommand(bot));
     }

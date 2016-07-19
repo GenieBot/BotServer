@@ -98,6 +98,7 @@ public final class CommandHandler {
         Channel channel = request.getChannel();
         DataObject networkObject = network.getData();
         DataObject channelObject = channel.getData();
+        // TODO migrate this prefix shit somewhere else
         String prefix;
         if (channelObject.exists("prefix")) {
             prefix = (String) channelObject.get("prefix");
