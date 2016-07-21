@@ -4,10 +4,7 @@ import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.event.events.msg.ProtocolMessageReceiveEvent;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
-import io.sponges.bot.server.protocol.parser.parsers.ChannelMessageParser;
-import io.sponges.bot.server.protocol.parser.parsers.ChatMessageParser;
-import io.sponges.bot.server.protocol.parser.parsers.ResourceResponseParser;
-import io.sponges.bot.server.protocol.parser.parsers.UserJoinMessageParser;
+import io.sponges.bot.server.protocol.parser.parsers.*;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -26,7 +23,8 @@ public class ParserManager {
                 new ChatMessageParser(bot.getEventManager()),
                 new UserJoinMessageParser(bot.getEventManager()),
                 new ChannelMessageParser(bot.getEventManager()),
-                new ResourceResponseParser(bot.getStorage())
+                new ResourceResponseParser(bot.getStorage()),
+                new ChannelDataUpdateParser(bot.getEventManager())
         );
     }
 

@@ -23,7 +23,7 @@ public class PrivateChannelImpl implements PrivateChannel {
     public PrivateChannelImpl(String id, Network network, Storage storage) {
         this.id = id;
         this.network = network;
-        this.channelData = new ChannelDataImpl();
+        this.channelData = new ChannelDataImpl(this);
         this.data = new DataObject(String.format(DATA_KEY, network.getClient().getId(), network.getId(), id));
         storage.load(this.data);
     }

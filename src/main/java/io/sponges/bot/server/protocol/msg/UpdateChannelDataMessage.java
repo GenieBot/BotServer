@@ -5,17 +5,19 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.channel.Channel;
 import org.json.JSONObject;
 
-public final class ChangeChannelTopicMessage extends Message {
+public final class UpdateChannelDataMessage extends Message {
 
     private final Network network;
     private final Channel channel;
-    private final String topic;
+    private final String key;
+    private final String value;
 
-    public ChangeChannelTopicMessage(Client client, Network network, Channel channel, String topic) {
-        super(client, "CHANGE_CHANNEL_TOPIC");
+    public UpdateChannelDataMessage(Client client, Network network, Channel channel, String key, String value) {
+        super(client, "UPDATE_CHANNEL_DATA");
         this.network = network;
         this.channel = channel;
-        this.topic = topic;
+        this.key = key;
+        this.value = value;
     }
 
     @Override
@@ -26,6 +28,7 @@ public final class ChangeChannelTopicMessage extends Message {
         return new JSONObject()
                 .put("network", network.getId())
                 .put("channel", channel)
-                .put("topic", topic);
+                .put("detail", key)
+                .put("value", value);
     }
 }

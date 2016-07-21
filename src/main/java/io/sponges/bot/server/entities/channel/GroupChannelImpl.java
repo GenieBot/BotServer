@@ -7,7 +7,6 @@ import io.sponges.bot.api.storage.DataObject;
 import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.entities.ClientImpl;
 import io.sponges.bot.server.entities.data.ChannelDataImpl;
-import io.sponges.bot.server.protocol.msg.ChangeChannelTopicMessage;
 import io.sponges.bot.server.protocol.msg.SendRawMessage;
 
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public class GroupChannelImpl implements GroupChannel {
     public GroupChannelImpl(String id, Network network, Storage storage) {
         this.id = id;
         this.network = network;
-        this.channelData = new ChannelDataImpl();
+        this.channelData = new ChannelDataImpl(this);
         this.data = new DataObject(String.format(DATA_KEY, network.getClient().getId(), network.getId(), id));
         storage.load(this.data);
     }
@@ -47,13 +46,6 @@ public class GroupChannelImpl implements GroupChannel {
     @Override
     public User getUser(String s) {
         return users.get(s);
-    }
-
-    @Override
-    public void setTopic(String s) {
-        ClientImpl client = (ClientImpl) network.getClient();
-        ChangeChannelTopicMessage message = new ChangeChannelTopicMessage(client, network, this, s);
-        message.send(client);
     }
 
     @Override

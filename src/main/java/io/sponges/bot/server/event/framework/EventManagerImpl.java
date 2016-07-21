@@ -13,8 +13,6 @@ import java.util.function.Consumer;
 
 public class EventManagerImpl implements EventManager {
 
-    // TODO add event priority
-
     private final Map<Module, List<Consumer>> consumers = new ConcurrentHashMap<>();
 
     private final EventBus eventBus;
@@ -56,13 +54,21 @@ public class EventManagerImpl implements EventManager {
 
     @Override
     public <T extends Event> void postAsync(T t) {
+        postAsync(t, null);
+    }
+
+    @Override
+    public <T extends Event> void postAsync(T t, Consumer<Boolean> callback) {
         Scheduler.runAsyncTask(() -> {
+            eventBus.post(t);
+            boolean cancelled = false;
             if (t.isCancellable()) {
                 long slot = t.getTimeSlot();
                 long start = System.currentTimeMillis();
                 while (System.currentTimeMillis() - slot < start) {
                     if (t.isCancelled()) {
-                        return;
+                        cancelled = true;
+                        break;
                     } else {
                         try {
                             Thread.sleep(t.getCheckInterval());
@@ -73,7 +79,7 @@ public class EventManagerImpl implements EventManager {
                     }
                 }
             }
-            eventBus.post(t);
+            if (callback != null) callback.accept(cancelled);
         });
     }
 }

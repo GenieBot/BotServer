@@ -55,7 +55,7 @@ public class BotImpl implements Bot {
     private final WebhookManager webhookManager;
     private final Storage storage;
 
-    public BotImpl() throws IOException {
+    private BotImpl() throws IOException {
         JSONObject config = new Configuration().load(new File("config.json"));
         JSONObject server = config.getJSONObject("server");
         int port = server.getInt("port");

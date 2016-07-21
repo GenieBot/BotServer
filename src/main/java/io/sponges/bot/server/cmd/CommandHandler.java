@@ -92,7 +92,7 @@ public final class CommandHandler {
         Scheduler.runAsyncTask(() -> handleRequest(request));
     }
 
-    private boolean handleRequest(CommandRequest request) {
+    private void handleRequest(CommandRequest request) {
         Client client = request.getClient();
         Network network = request.getNetwork();
         Channel channel = request.getChannel();
@@ -110,22 +110,32 @@ public final class CommandHandler {
             }
         }
         String content = request.getMessage().getContent();
-        if (!content.startsWith(prefix) || content.length() <= 1) return false;
+        if (!content.startsWith(prefix) || content.length() <= 1) return;
         String[] args = content.split(" ");
         if (args[0].equals(prefix)) args = Arrays.copyOfRange(args, 1, args.length);
         else args[0] = args[0].substring(prefix.length());
         String cmd = args[0].toLowerCase();
         args = Arrays.copyOfRange(args, 1, args.length);
-        if (!commands.containsKey(cmd)) return false;
+        if (!commands.containsKey(cmd)) return;
         Command command = commands.get(cmd);
         CommandPreProcessEvent preProcessEvent = new CommandPreProcessEvent(request, args, command);
-        if (eventManager.post(preProcessEvent) == null) return false;
+        eventManager.postAsync(preProcessEvent, cancelled -> {
+            if (!cancelled) processCommand(preProcessEvent);
+        });
+    }
+
+    // at this stage we know the event has not been cancelled
+    private void processCommand(CommandPreProcessEvent event) {
+        CommandRequest request = event.getCommandRequest();
+        Command command = event.getCommand();
+        Network network = request.getNetwork();
+        String[] args = event.getArgs();
         if (command.isGlobalDisabled()) {
             request.reply("Sorry, that command is disabled for everyone!");
-            return false;
+            return;
         }
         if (command.isLimitedToNetwork() && !network.getId().equals(command.getNetworkOnly())) {
-            return false;
+            return;
         }
         try {
             command.onCommand(request, args);
@@ -133,6 +143,5 @@ public final class CommandHandler {
             e.printStackTrace();
         }
         eventManager.post(new CommandProcessedEvent(command, request, args));
-        return true;
     }
 }

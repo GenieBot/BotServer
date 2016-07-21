@@ -5,8 +5,6 @@ import io.sponges.bot.api.cmd.CommandRequest;
 import io.sponges.bot.api.event.framework.Event;
 import io.sponges.bot.api.event.framework.EventManager;
 
-import java.util.function.Consumer;
-
 public class TestCommand extends Command {
 
     private final EventManager eventManager;
@@ -18,13 +16,7 @@ public class TestCommand extends Command {
 
     @Override
     public void onCommand(CommandRequest commandRequest, String[] strings) {
-        Consumer<TestEvent> consumer = testEvent -> System.out.println("Got Ze Event BOiz " + testEvent.toString());
-        eventManager.register(null, TestEvent.class, consumer);
-        Event event = new TestEvent();
-        event.setTimeSlot(100); // 100ms cancellation window
-        eventManager.postAsync(event);
-        event.setCancelled(true);
-        commandRequest.reply("okey dokey");
+        commandRequest.reply("hi");
     }
 
     public class TestEvent extends Event {
