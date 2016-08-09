@@ -3,13 +3,13 @@ package io.sponges.bot.server.cmd;
 import io.sponges.bot.api.cmd.Command;
 import io.sponges.bot.api.cmd.CommandRequest;
 import io.sponges.bot.api.entities.Client;
-import io.sponges.bot.api.entities.Message;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
+import io.sponges.bot.api.entities.message.ReceivedMessage;
 import io.sponges.bot.api.event.events.cmd.CommandPreProcessEvent;
 import io.sponges.bot.api.event.events.cmd.CommandProcessedEvent;
-import io.sponges.bot.api.event.events.user.UserChatEvent;
+import io.sponges.bot.api.event.events.message.MessageReceivedEvent;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.storage.DataObject;
@@ -78,13 +78,13 @@ public final class CommandHandler {
         return commands.get(name);
     }
 
-    public void onUserChat(UserChatEvent userChatEvent) {
-        Client client = userChatEvent.getClient();
-        Network network = userChatEvent.getNetwork();
-        Channel channel = userChatEvent.getChannel();
-        User user = userChatEvent.getUser();
-        Message message = userChatEvent.getMessage();
-        CommandRequestImpl request = new CommandRequestImpl(userChatEvent, client, network, channel, user, message);
+    public void onUserChat(MessageReceivedEvent event) {
+        Client client = event.getClient();
+        Network network = event.getNetwork();
+        Channel channel = event.getChannel();
+        User user = event.getUser();
+        ReceivedMessage message = event.getMessage();
+        CommandRequestImpl request = new CommandRequestImpl(event, client, network, channel, user, message);
         handle(request);
     }
 

@@ -6,6 +6,7 @@ import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
 import io.sponges.bot.api.entities.data.UserData;
+import io.sponges.bot.api.entities.message.format.FormattedMessage;
 import org.json.JSONObject;
 
 public final class CmdResponseMessage extends Message {
@@ -15,6 +16,7 @@ public final class CmdResponseMessage extends Message {
     private final User user;
     private final UserData userData;
     private final String response;
+    private final boolean formatted;
 
     public CmdResponseMessage(Client client, Network network, Channel channel, User user, String response) {
         super(client, "COMMAND_RESPONSE");
@@ -23,6 +25,17 @@ public final class CmdResponseMessage extends Message {
         this.user = user;
         this.userData = user.getUserData();
         this.response = response;
+        this.formatted = false;
+    }
+
+    public CmdResponseMessage(Client client, Network network, Channel channel, User user, FormattedMessage response) {
+        super(client, "COMMAND_RESPONSE");
+        this.network = network;
+        this.channel = channel;
+        this.user = user;
+        this.userData = user.getUserData();
+        this.response = response.getRaw();
+        this.formatted = true;
     }
 
     @Override
@@ -44,6 +57,7 @@ public final class CmdResponseMessage extends Message {
                 .put("network", network.getId())
                 .put("channel", channel)
                 .put("user", user)
-                .put("response", response);
+                .put("response", response)
+                .put("formatted", formatted);
     }
 }

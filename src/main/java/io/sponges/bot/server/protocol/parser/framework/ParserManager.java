@@ -41,6 +41,7 @@ public class ParserManager {
     public void onClientInput(ClientInputEvent event) {
         Client client = event.getClient();
         JSONObject json = event.getJson();
+        System.out.println(json.toString());
         String type = json.getString("type").toUpperCase();
         long time = json.getLong("time");
         JSONObject content = json.getJSONObject("content");

@@ -1,16 +1,16 @@
 package io.sponges.bot.server.protocol.parser.parsers;
 
 import io.sponges.bot.api.entities.Client;
-import io.sponges.bot.api.entities.Message;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.manager.ChannelManager;
 import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.api.entities.manager.UserManager;
-import io.sponges.bot.api.event.events.user.UserChatEvent;
+import io.sponges.bot.api.entities.message.ReceivedMessage;
+import io.sponges.bot.api.event.events.message.MessageReceivedEvent;
 import io.sponges.bot.api.event.framework.EventManager;
-import io.sponges.bot.server.entities.MessageImpl;
+import io.sponges.bot.server.entities.message.ReceivedMessageImpl;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
 import org.json.JSONObject;
 
@@ -49,8 +49,8 @@ public final class ChatMessageParser extends MessageParser {
         String text = json.getString("content");
         long time = json.getLong("time");
         Date date = new Date(time);
-        Message message = new MessageImpl(client, network, channel, user, date, text);
-        UserChatEvent event = new UserChatEvent(client, network, channel, user, message);
+        ReceivedMessage message = new ReceivedMessageImpl(client, network, channel, user, date, text, null);
+        MessageReceivedEvent event = new MessageReceivedEvent(client, network, channel, user, message);
         eventManager.post(event);
     }
 }

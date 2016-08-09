@@ -1,14 +1,16 @@
-package io.sponges.bot.server.entities;
+package io.sponges.bot.server.entities.message;
 
 import io.sponges.bot.api.entities.Client;
-import io.sponges.bot.api.entities.Message;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
+import io.sponges.bot.api.entities.message.Attachment;
+import io.sponges.bot.api.entities.message.ReceivedMessage;
 
 import java.util.Date;
+import java.util.List;
 
-public class MessageImpl implements Message {
+public class ReceivedMessageImpl implements ReceivedMessage {
 
     private final Client client;
     private final Network network;
@@ -16,14 +18,23 @@ public class MessageImpl implements Message {
     private final User user;
     private final Date date;
     private final String content;
+    private final List<Attachment> attachments;
 
-    public MessageImpl(Client client, Network network, Channel channel, User user, Date date, String content) {
+    public ReceivedMessageImpl(Client client, Network network, Channel channel, User user, Date date, String content,
+                               List<Attachment> attachments) {
         this.client = client;
         this.network = network;
         this.channel = channel;
         this.user = user;
         this.date = date;
         this.content = content;
+        this.attachments = attachments;
+    }
+
+
+    @Override
+    public void delete() throws CannotDeleteException {
+        // TODO message deleting
     }
 
     @Override
@@ -54,5 +65,10 @@ public class MessageImpl implements Message {
     @Override
     public String getContent() {
         return content;
+    }
+
+    @Override
+    public List<Attachment> getAttachments() {
+        return attachments;
     }
 }

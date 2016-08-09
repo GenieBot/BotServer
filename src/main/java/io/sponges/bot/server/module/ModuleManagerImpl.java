@@ -87,7 +87,11 @@ public class ModuleManagerImpl implements ModuleManager {
         modules.put(module.getId().toLowerCase(), module);
         module.init(server, eventManager, commandManager, this, storage, proxyPool, clientManager, webhookManager);
         module.getLogger().log("Enabling " + module.getId() + " version " + module.getVersion());
-        module.onEnable();
+        try {
+            module.onEnable();
+        } catch (NoClassDefFoundError error) {
+            error.printStackTrace();
+        }
     }
 
     public void unregister(Map<String, Module> modules, Module module) {

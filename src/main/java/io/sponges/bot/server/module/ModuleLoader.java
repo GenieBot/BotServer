@@ -26,7 +26,6 @@ public final class ModuleLoader {
             Enumeration enumeration = jarFile.entries();
             URL[] urls = { new URL("jar:file:" + directory.getName() + File.separatorChar + file.getName() + "!/") };
             URLClassLoader loader = URLClassLoader.newInstance(urls);
-
             while (enumeration.hasMoreElements()) {
                 JarEntry entry = (JarEntry) enumeration.nextElement();
                 if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
@@ -49,7 +48,6 @@ public final class ModuleLoader {
                 }
             }
         }
-
         return modules;
     }
 

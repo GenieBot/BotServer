@@ -2,12 +2,12 @@ package io.sponges.bot.server;
 
 import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.entities.Client;
-import io.sponges.bot.api.entities.Message;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.manager.ClientManager;
-import io.sponges.bot.api.event.events.user.UserChatEvent;
+import io.sponges.bot.api.entities.message.ReceivedMessage;
+import io.sponges.bot.api.event.events.message.MessageReceivedEvent;
 import io.sponges.bot.api.event.events.user.UserJoinEvent;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.ModuleManager;
@@ -79,17 +79,17 @@ public class BotImpl implements Bot {
         this.parserManager = new ParserManager(this);
 
         this.eventBus.register(ClientInputEvent.class, parserManager::onClientInput);
-        this.eventBus.register(UserChatEvent.class, userChatEvent -> {
-            Client client = userChatEvent.getClient();
-            Network network = userChatEvent.getNetwork();
-            Channel channel = userChatEvent.getChannel();
-            User user = userChatEvent.getUser();
-            Message message = userChatEvent.getMessage();
+        this.eventBus.register(MessageReceivedEvent.class, event -> {
+            Client client = event.getClient();
+            Network network = event.getNetwork();
+            Channel channel = event.getChannel();
+            User user = event.getUser();
+            ReceivedMessage message = event.getMessage();
             String content = message.getContent();
             System.out.printf("[%s] [%s - %s] %s: %s\r\n", client.getId(), network.getId(), channel.getId(),
                     user.getId(), content);
+            commandHandler.onUserChat(event);
         });
-        this.eventBus.register(UserChatEvent.class, commandHandler::onUserChat);
         this.eventBus.register(UserJoinEvent.class, (event) -> System.out.println(event.getUser().getId() + " joined!"));
 
         this.moduleManager = new ModuleManagerImpl(this);

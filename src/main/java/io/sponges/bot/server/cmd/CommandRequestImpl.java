@@ -2,24 +2,25 @@ package io.sponges.bot.server.cmd;
 
 import io.sponges.bot.api.cmd.CommandRequest;
 import io.sponges.bot.api.entities.Client;
-import io.sponges.bot.api.entities.Message;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
-import io.sponges.bot.api.event.events.user.UserChatEvent;
+import io.sponges.bot.api.entities.message.ReceivedMessage;
+import io.sponges.bot.api.entities.message.format.FormattedMessage;
+import io.sponges.bot.api.event.events.message.MessageReceivedEvent;
 import io.sponges.bot.server.protocol.msg.CmdResponseMessage;
 
 public class CommandRequestImpl implements CommandRequest {
 
-    private final UserChatEvent event;
+    private final MessageReceivedEvent event;
     private final Client client;
     private final Network network;
     private final Channel channel;
     private final User user;
-    private final Message message;
-    private String messageId = null;
+    private final ReceivedMessage message;
+    private String messageId = null; // TODO cleaning up old message id system
 
-    public CommandRequestImpl(UserChatEvent event, Client client, Network network, Channel channel, User user, Message message) {
+    public CommandRequestImpl(MessageReceivedEvent event, Client client, Network network, Channel channel, User user, ReceivedMessage message) {
         this.event = event;
         this.client = client;
         this.network = network;
@@ -35,7 +36,15 @@ public class CommandRequestImpl implements CommandRequest {
         channel.sendMessage(message.toString());
     }
 
-    public UserChatEvent getEvent() {
+    @Override
+    public void reply(FormattedMessage formattedMessage) {
+        CmdResponseMessage message = new CmdResponseMessage(client, network, channel, user, formattedMessage);
+        if (messageId != null) message.setMessageId(messageId);
+        channel.sendMessage(message.toString());
+    }
+
+    @Override
+    public MessageReceivedEvent getEvent() {
         return event;
     }
 
@@ -60,11 +69,7 @@ public class CommandRequestImpl implements CommandRequest {
     }
 
     @Override
-    public Message getMessage() {
+    public ReceivedMessage getMessage() {
         return message;
-    }
-
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
     }
 }
