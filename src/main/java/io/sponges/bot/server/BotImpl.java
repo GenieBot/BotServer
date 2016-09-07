@@ -1,5 +1,6 @@
 package io.sponges.bot.server;
 
+import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
@@ -43,7 +44,6 @@ import java.util.List;
 public class BotImpl implements Bot {
 
     private final ServerImpl server;
-    private final EventBus eventBus;
     private final EventManager eventManager;
     private final CommandManager commandManager;
     private final CommandHandler commandHandler;
@@ -56,6 +56,8 @@ public class BotImpl implements Bot {
     private final Storage storage;
 
     private BotImpl() throws IOException {
+        LOGGER.setDebug(false);
+
         JSONObject config = new Configuration().load(new File("config.json"));
         JSONObject server = config.getJSONObject("server");
         int port = server.getInt("port");
@@ -63,8 +65,8 @@ public class BotImpl implements Bot {
         List<InetSocketAddress> proxies = loadProxies(new File("proxies.txt"));
         this.proxyPool = new ProxyPool(proxies, 3);
 
-        this.eventBus = new EventBus();
-        this.eventManager = new EventManagerImpl(this.eventBus);
+        EventBus eventBus = new EventBus();
+        this.eventManager = new EventManagerImpl(eventBus);
         this.commandHandler = new CommandHandler(eventManager);
         this.commandManager = new CommandManagerImpl(this);
         this.server = new ServerImpl(this, port);
@@ -78,24 +80,24 @@ public class BotImpl implements Bot {
 
         this.parserManager = new ParserManager(this);
 
-        this.eventBus.register(ClientInputEvent.class, parserManager::onClientInput);
-        this.eventBus.register(MessageReceivedEvent.class, event -> {
+        eventBus.register(ClientInputEvent.class, parserManager::onClientInput);
+        eventBus.register(MessageReceivedEvent.class, event -> {
             Client client = event.getClient();
             Network network = event.getNetwork();
             Channel channel = event.getChannel();
             User user = event.getUser();
             ReceivedMessage message = event.getMessage();
             String content = message.getContent();
-            System.out.printf("[%s] [%s - %s] %s: %s\r\n", client.getId(), network.getId(), channel.getId(),
-                    user.getId(), content);
+            LOGGER.log("CHAT", String.format("[%s %s %s] %s: %s", client.getId(), network.getId(), channel.getId(),
+                    user.getId(), content));
             commandHandler.onUserChat(event);
         });
-        this.eventBus.register(UserJoinEvent.class, (event) -> System.out.println(event.getUser().getId() + " joined!"));
+        eventBus.register(UserJoinEvent.class, (event) -> LOGGER.log(Logger.Type.DEBUG, event.getUser().getId() + " joined!"));
 
         this.moduleManager = new ModuleManagerImpl(this);
 
         // Starting the actual server
-        this.server.start(() -> System.out.println("Started!"));
+        this.server.start(() -> LOGGER.log(Logger.Type.DEBUG, "Started!"));
     }
 
     public static void main(String[] args) {
@@ -118,7 +120,7 @@ public class BotImpl implements Bot {
         }
         ((StorageImpl) this.storage).getPool().destroy();
         this.webhookServer.stop();
-        this.server.stop(() -> System.out.println("Server closed!"));
+        this.server.stop(() -> LOGGER.log(Logger.Type.INFO, "Server closed!"));
         System.exit(-1);
     }
 
@@ -169,8 +171,8 @@ public class BotImpl implements Bot {
     private List<InetSocketAddress> loadProxies(File file) throws IOException {
         if (!file.exists()) {
             boolean created = file.createNewFile();
-            if (created) System.out.println("Created " + file.getName());
-            else System.out.println("Could not create " + file.getName());
+            if (created) LOGGER.log(Logger.Type.INFO, "Created " + file.getName());
+            else LOGGER.log(Logger.Type.WARNING, "Could not create " + file.getName());
             return null;
         }
         List<InetSocketAddress> list = new ArrayList<>();

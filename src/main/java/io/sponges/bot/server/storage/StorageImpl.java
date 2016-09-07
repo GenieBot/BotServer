@@ -1,8 +1,10 @@
 package io.sponges.bot.server.storage;
 
+import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.storage.DataObject;
 import io.sponges.bot.api.storage.ModuleDataObject;
 import io.sponges.bot.api.storage.Storage;
+import io.sponges.bot.server.Bot;
 import org.json.JSONObject;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -34,7 +36,7 @@ public class StorageImpl implements Storage {
 
     @Override
     public void set(String s, Object o) {
-        System.out.println("setting " + s + " to " + String.valueOf(o));
+        Bot.LOGGER.log(Logger.Type.DEBUG, "setting " + s + " to " + String.valueOf(o));
         try (Jedis jedis = pool.getResource()) {
             jedis.set(s, String.valueOf(o));
         }
@@ -73,7 +75,7 @@ public class StorageImpl implements Storage {
     @Override
     public void save(DataObject dataObject) {
         String value = serialize(dataObject);
-        System.out.println("value: " + value);
+        Bot.LOGGER.log(Logger.Type.DEBUG, "value: " + value);
         set(dataObject.getKey(), value);
     }
 

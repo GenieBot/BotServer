@@ -1,5 +1,6 @@
 package io.sponges.bot.server.protocol.parser.framework;
 
+import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.event.events.msg.ProtocolMessageReceiveEvent;
 import io.sponges.bot.server.Bot;
@@ -41,7 +42,7 @@ public class ParserManager {
     public void onClientInput(ClientInputEvent event) {
         Client client = event.getClient();
         JSONObject json = event.getJson();
-        System.out.println(json.toString());
+        Bot.LOGGER.log(Logger.Type.DEBUG, json.toString());
         String type = json.getString("type").toUpperCase();
         long time = json.getLong("time");
         JSONObject content = json.getJSONObject("content");

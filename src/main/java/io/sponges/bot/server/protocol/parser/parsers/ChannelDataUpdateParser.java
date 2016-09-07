@@ -1,5 +1,6 @@
 package io.sponges.bot.server.protocol.parser.parsers;
 
+import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
@@ -9,6 +10,7 @@ import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.api.entities.manager.UserManager;
 import io.sponges.bot.api.event.events.channel.ChannelDataUpdateEvent;
 import io.sponges.bot.api.event.framework.EventManager;
+import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.data.ChannelDataImpl;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
 import org.json.JSONObject;
@@ -63,7 +65,7 @@ public final class ChannelDataUpdateParser extends MessageParser {
         eventManager.postAsync(event, cancelled -> {
             if (!cancelled) return;
             if (oldValue == null) {
-                System.err.println("cant cancel channel data update event as oldValue is null");
+                Bot.LOGGER.log(Logger.Type.DEBUG, "cant cancel channel data update event as oldValue is null");
                 return;
             }
             switch (detail) {
@@ -74,7 +76,7 @@ public final class ChannelDataUpdateParser extends MessageParser {
                     data.updateTopic(oldValue);
                     break;
             }
-            System.out.println("updating old data again cus cancelled as fuck");
+            Bot.LOGGER.log(Logger.Type.DEBUG, "updating old data again cus cancelled as fuck");
         });
     }
 }

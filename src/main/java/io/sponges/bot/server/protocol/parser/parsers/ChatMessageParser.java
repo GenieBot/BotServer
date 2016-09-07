@@ -47,6 +47,7 @@ public final class ChatMessageParser extends MessageParser {
     private void handleMessage(Client client, Network network, Channel channel, User user, JSONObject content) {
         JSONObject json = content.getJSONObject("message");
         String text = json.getString("content");
+        if (text.length() == 0) return;
         long time = json.getLong("time");
         Date date = new Date(time);
         ReceivedMessage message = new ReceivedMessageImpl(client, network, channel, user, date, text, null);

@@ -1,5 +1,6 @@
 package io.sponges.bot.server.module;
 
+import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.api.event.framework.EventManager;
@@ -67,9 +68,9 @@ public class ModuleManagerImpl implements ModuleManager {
         }
         if (modules != null && !modules.isEmpty()) {
             modules.forEach(this::register);
-            System.out.println("Loaded " + modules.size() + " modules!");
+            Bot.LOGGER.log(Logger.Type.INFO, "Loaded " + modules.size() + " modules!");
         } else {
-            System.out.println("Found no modules to load!");
+            Bot.LOGGER.log(Logger.Type.WARNING, "Found no modules to load!");
         }
     }
 
@@ -85,18 +86,19 @@ public class ModuleManagerImpl implements ModuleManager {
 
     public void register(Module module) {
         modules.put(module.getId().toLowerCase(), module);
-        module.init(server, eventManager, commandManager, this, storage, proxyPool, clientManager, webhookManager);
-        module.getLogger().log("Enabling " + module.getId() + " version " + module.getVersion());
+        module.init(server, eventManager, commandManager, this, storage, proxyPool, clientManager, webhookManager, Bot.LOGGER);
+        module.getLogger().log(Logger.Type.INFO, "Enabling " + module.getId() + " version " + module.getVersion());
         try {
             module.onEnable();
         } catch (NoClassDefFoundError error) {
             error.printStackTrace();
+            modules.remove(module.getId().toLowerCase());
         }
     }
 
     public void unregister(Map<String, Module> modules, Module module) {
         modules.remove(module.getId().toLowerCase());
-        module.getLogger().log("Disabling " + module.getId() + " version " + module.getVersion());
+        module.getLogger().log(Logger.Type.INFO, "Disabling " + module.getId() + " version " + module.getVersion());
         module.onDisable();
         module.getCommandManager().unregisterCommands(module);
         module.getEventManager().unregister(module);

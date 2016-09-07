@@ -75,4 +75,8 @@ public class UserImpl implements User {
     public DataObject getData() {
         return data;
     }
+
+    public void sendPrivateMessage(String message) {
+        userData.getPrivateChannel().get().sendChatMessage(message);
+    }
 }

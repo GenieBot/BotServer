@@ -1,5 +1,6 @@
 package io.sponges.bot.server;
 
+import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.api.event.framework.EventManager;
@@ -10,6 +11,8 @@ import io.sponges.bot.api.webhook.WebhookManager;
 import io.sponges.proxypool.ProxyPool;
 
 public interface Bot {
+
+    Logger LOGGER = new LoggerImpl();
     
     Server getServer();
 

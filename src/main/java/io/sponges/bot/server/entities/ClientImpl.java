@@ -1,11 +1,13 @@
 package io.sponges.bot.server.entities;
 
 import io.netty.channel.Channel;
+import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.data.ClientData;
 import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.api.storage.DataObject;
 import io.sponges.bot.api.storage.Storage;
+import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.data.ClientDataImpl;
 import io.sponges.bot.server.entities.manager.NetworkManagerImpl;
 import io.sponges.bot.server.protocol.msg.ChannelMessage;
@@ -72,7 +74,7 @@ public class ClientImpl implements Client {
     @Override
     public void sendMessage(String s, Consumer<String> consumer) {
         String id = UUID.randomUUID().toString();
-        System.out.println("sending channel message id=" + id + "message=" + s + "consumer=" + consumer.toString());
+        Bot.LOGGER.log(Logger.Type.DEBUG, "sending channel message id=" + id + "message=" + s + "consumer=" + consumer.toString());
         new ChannelMessage(this, id, s, consumer, ChannelMessage.MessageType.REQUEST).send();
     }
 

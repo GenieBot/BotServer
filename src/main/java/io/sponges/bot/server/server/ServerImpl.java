@@ -1,6 +1,7 @@
 package io.sponges.bot.server.server;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.api.server.Server;
@@ -21,12 +22,12 @@ public class ServerImpl implements Server {
         this.server.registerListener(new InternalServerListener() {
             @Override
             public void onConnect(ChannelHandlerContext context) {
-                System.out.println("Unidentified client " + context.channel().remoteAddress() + " connected");
+                Bot.LOGGER.log(Logger.Type.INFO, "Unidentified client " + context.channel().remoteAddress() + " connected");
             }
 
             @Override
             public void onDisconnect(ChannelHandlerContext context) {
-                System.out.println("Client client " + context.channel().remoteAddress() + " disconnected");
+                Bot.LOGGER.log(Logger.Type.INFO, "Client client " + context.channel().remoteAddress() + " disconnected");
             }
 
             @Override
@@ -52,6 +53,7 @@ public class ServerImpl implements Server {
 
             @Override
             public void onError(ChannelHandlerContext context, Throwable cause) {
+                // TODO force disconnect handling
                 cause.printStackTrace();
             }
         });
