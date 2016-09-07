@@ -30,7 +30,7 @@ public class ModuleDataManagerImpl implements ModuleDataManager {
             return (ModuleDataObject) store.get(s);
         }
         ModuleDataObject object = new ModuleDataObject();
-        object.setEnabled(true); // default enabling the module TODO find way to configure this per module
+        object.setEnabled(true); // TODO should all modules be disabled at first?
         store.set(s, object);
         networkObject.save(storage);
         return object;

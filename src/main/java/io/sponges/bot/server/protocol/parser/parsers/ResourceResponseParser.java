@@ -1,5 +1,6 @@
 package io.sponges.bot.server.protocol.parser.parsers;
 
+import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Entity;
 import io.sponges.bot.api.entities.Network;
@@ -7,6 +8,7 @@ import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
 import io.sponges.bot.api.storage.Storage;
+import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.data.ChannelDataImpl;
 import io.sponges.bot.server.entities.data.NetworkDataImpl;
 import io.sponges.bot.server.entities.data.UserDataImpl;
@@ -37,7 +39,7 @@ public final class ResourceResponseParser extends MessageParser {
         String id = content.getString("id");
         Map<String, Consumer<Entity>> requests = ResourceRequestMessage.REQUEST_MANAGER.getRequests();
         if (!requests.containsKey(id)) {
-            System.err.println("Invalid response id \"" + id + "\".");
+            Bot.LOGGER.log(Logger.Type.WARNING, "Invalid response id \"" + id + "\".");
             return;
         }
         Consumer<Entity> consumer = requests.get(id);
@@ -96,7 +98,7 @@ public final class ResourceResponseParser extends MessageParser {
                 break;
             }
             default: {
-                System.err.println("Invalid resource type \"" + type.name() + "\".");
+                Bot.LOGGER.log(Logger.Type.WARNING, "Invalid resource type \"" + type.name() + "\".");
             }
         }
     }

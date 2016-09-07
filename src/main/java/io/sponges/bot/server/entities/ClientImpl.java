@@ -12,6 +12,7 @@ import io.sponges.bot.server.entities.data.ClientDataImpl;
 import io.sponges.bot.server.entities.manager.NetworkManagerImpl;
 import io.sponges.bot.server.protocol.msg.ChannelMessage;
 
+import java.net.SocketAddress;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -92,5 +93,9 @@ public class ClientImpl implements Client {
             }
         }
         return response.get();
+    }
+
+    public SocketAddress getRemoteAddress() {
+        return channel.remoteAddress();
     }
 }

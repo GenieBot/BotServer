@@ -6,6 +6,7 @@ import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.message.Attachment;
 import io.sponges.bot.api.entities.message.ReceivedMessage;
+import io.sponges.bot.server.protocol.msg.DeleteMessage;
 
 import java.util.Date;
 import java.util.List;
@@ -34,7 +35,7 @@ public class ReceivedMessageImpl implements ReceivedMessage {
 
     @Override
     public void delete() throws CannotDeleteException {
-        // TODO message deleting
+        new DeleteMessage(client, this).send();
     }
 
     @Override

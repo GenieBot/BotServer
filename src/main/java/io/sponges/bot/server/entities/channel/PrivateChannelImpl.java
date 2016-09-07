@@ -1,5 +1,6 @@
 package io.sponges.bot.server.entities.channel;
 
+import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
@@ -48,14 +49,16 @@ public class PrivateChannelImpl implements PrivateChannel {
 
     @Override
     public SentMessage sendChatMessage(String s) {
-        new SendRawMessage(network.getClient(), network, this, s).send();
-        return new SentMessageImpl();
+        Client client = network.getClient();
+        new SendRawMessage(client, network, this, s).send();
+        return new SentMessageImpl(client);
     }
 
     @Override
     public SentMessage sendChatMessage(FormattedMessage formattedMessage) {
-        new SendRawMessage(network.getClient(), network, this, formattedMessage).send();
-        return new SentMessageImpl();
+        Client client = network.getClient();
+        new SendRawMessage(client, network, this, formattedMessage).send();
+        return new SentMessageImpl(client);
     }
 
     @Override

@@ -7,11 +7,14 @@ import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.api.server.Server;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.ClientImpl;
+import io.sponges.bot.server.entities.manager.ClientManagerImpl;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
 import io.sponges.bot.server.server.internal.InternalServerImpl;
 import io.sponges.bot.server.server.internal.InternalServerListener;
-import io.sponges.bot.server.util.ValidationUtils;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.SocketAddress;
 
 public class ServerImpl implements Server {
 
@@ -22,18 +25,25 @@ public class ServerImpl implements Server {
         this.server.registerListener(new InternalServerListener() {
             @Override
             public void onConnect(ChannelHandlerContext context) {
-                Bot.LOGGER.log(Logger.Type.INFO, "Unidentified client " + context.channel().remoteAddress() + " connected");
+                Bot.LOGGER.log(Logger.Type.INFO, "Client connect: unknown (" + context.channel().remoteAddress() + ")");
             }
 
             @Override
             public void onDisconnect(ChannelHandlerContext context) {
-                Bot.LOGGER.log(Logger.Type.INFO, "Client client " + context.channel().remoteAddress() + " disconnected");
+                SocketAddress address = context.channel().remoteAddress();
+                Client client = ((ClientManagerImpl) bot.getClientManager()).getClient(address);
+                if (client == null) {
+                    Bot.LOGGER.log(Logger.Type.WARNING, "Client disconnect: unknown (" + address + ")");
+                } else {
+                    bot.getClientManager().getClients().remove(client.getId());
+                    Bot.LOGGER.log(Logger.Type.INFO, "Client disconnect: " + client.getId() + " (" + address + ")");
+                }
             }
 
             @Override
             public void onMessage(ChannelHandlerContext context, String message) {
-                if (!ValidationUtils.isValidJson(message)) {
-                    System.err.println("Got invalid json: " + message + " from " + context.channel().remoteAddress());
+                if (message.charAt(0) != '{' || message.charAt(message.length() - 1) != '}') {
+                    Bot.LOGGER.log(Logger.Type.WARNING, "Got invalid json: " + message + " from " + context.channel().remoteAddress());
                     return;
                 }
                 JSONObject json = new JSONObject(message);
@@ -53,7 +63,10 @@ public class ServerImpl implements Server {
 
             @Override
             public void onError(ChannelHandlerContext context, Throwable cause) {
-                // TODO force disconnect handling
+                if (cause.getClass() == IOException.class && cause.getMessage()
+                        .equals("An existing connection was forcibly closed by the remote host")) {
+                    return;
+                }
                 cause.printStackTrace();
             }
         });

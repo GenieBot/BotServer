@@ -18,7 +18,6 @@ public class CommandRequestImpl implements CommandRequest {
     private final Channel channel;
     private final User user;
     private final ReceivedMessage message;
-    private String messageId = null; // TODO cleaning up old message id system
 
     public CommandRequestImpl(MessageReceivedEvent event, Client client, Network network, Channel channel, User user, ReceivedMessage message) {
         this.event = event;
@@ -32,14 +31,12 @@ public class CommandRequestImpl implements CommandRequest {
     @Override
     public void reply(String s) {
         CmdResponseMessage message = new CmdResponseMessage(client, network, channel, user, s);
-        if (messageId != null) message.setMessageId(messageId);
         channel.sendMessage(message.toString());
     }
 
     @Override
     public void reply(FormattedMessage formattedMessage) {
         CmdResponseMessage message = new CmdResponseMessage(client, network, channel, user, formattedMessage);
-        if (messageId != null) message.setMessageId(messageId);
         channel.sendMessage(message.toString());
     }
 

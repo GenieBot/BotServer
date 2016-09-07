@@ -6,13 +6,14 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.internal.ConcurrentSet;
+import io.sponges.bot.api.Logger;
+import io.sponges.bot.server.Bot;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class InternalServerImpl {
 
-    private final Object lock = new Object();
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final Set<InternalServerListener> listeners = new ConcurrentSet<>();
 
@@ -28,7 +29,7 @@ public final class InternalServerImpl {
 
     public void start(Runnable runnable) throws InterruptedException {
         if (running.get()) {
-            System.err.println("already running");
+            Bot.LOGGER.log(Logger.Type.WARNING, "already running");
             return;
         }
         running.set(true);
@@ -49,7 +50,7 @@ public final class InternalServerImpl {
 
     public void stop(Runnable runnable) {
         if (!running.get()) {
-            System.err.println("not running");
+            Bot.LOGGER.log(Logger.Type.WARNING, "not running");
             return;
         }
         bossGroup.shutdownGracefully();

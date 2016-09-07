@@ -10,7 +10,6 @@ import io.sponges.bot.api.server.Server;
 import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.api.webhook.WebhookManager;
 import io.sponges.bot.server.Bot;
-import io.sponges.proxypool.ProxyPool;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +27,6 @@ public class ModuleManagerImpl implements ModuleManager {
     private final EventManager eventManager;
     private final CommandManager commandManager;
     private final Storage storage;
-    private final ProxyPool proxyPool;
     private final ClientManager clientManager;
     private final WebhookManager webhookManager;
 
@@ -37,7 +35,6 @@ public class ModuleManagerImpl implements ModuleManager {
         this.eventManager = bot.getEventManager();
         this.commandManager = bot.getCommandManager();
         this.storage = bot.getStorage();
-        this.proxyPool = bot.getProxyPool();
         this.clientManager = bot.getClientManager();
         this.webhookManager = bot.getWebhookManager();
         load();
@@ -86,7 +83,7 @@ public class ModuleManagerImpl implements ModuleManager {
 
     public void register(Module module) {
         modules.put(module.getId().toLowerCase(), module);
-        module.init(server, eventManager, commandManager, this, storage, proxyPool, clientManager, webhookManager, Bot.LOGGER);
+        module.init(server, eventManager, commandManager, this, storage, clientManager, webhookManager, Bot.LOGGER);
         module.getLogger().log(Logger.Type.INFO, "Enabling " + module.getId() + " version " + module.getVersion());
         try {
             module.onEnable();

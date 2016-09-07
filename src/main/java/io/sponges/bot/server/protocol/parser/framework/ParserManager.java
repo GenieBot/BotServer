@@ -49,7 +49,7 @@ public class ParserManager {
         if (parsers.containsKey(type)) {
             parsers.get(type).parse(client, time, content);
         } else {
-            if (!type.equals("CONNECT")) System.err.println("Got invalid message type \"" + type + "\"!");
+            if (!type.equals("CONNECT")) Bot.LOGGER.log(Logger.Type.WARNING, "Got invalid message type \"" + type + "\"!");
         }
         bot.getEventManager().post(new ProtocolMessageReceiveEvent());
     }

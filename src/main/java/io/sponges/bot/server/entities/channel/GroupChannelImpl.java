@@ -1,5 +1,6 @@
 package io.sponges.bot.server.entities.channel;
 
+import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.GroupChannel;
@@ -18,8 +19,6 @@ import java.util.Map;
 public class GroupChannelImpl implements GroupChannel {
 
     private static final String DATA_KEY = "clients:%s:networks:%s:channels:%s:data";
-
-    // TODO move user shit to NetworkImpl
 
     private final Map<String, User> users = new HashMap<>();
 
@@ -59,14 +58,16 @@ public class GroupChannelImpl implements GroupChannel {
 
     @Override
     public SentMessage sendChatMessage(String s) {
-        new SendRawMessage(network.getClient(), network, this, s).send();
-        return new SentMessageImpl();
+        Client client = network.getClient();
+        new SendRawMessage(client, network, this, s).send();
+        return new SentMessageImpl(client);
     }
 
     @Override
     public SentMessage sendChatMessage(FormattedMessage formattedMessage) {
-        new SendRawMessage(network.getClient(), network, this, formattedMessage).send();
-        return new SentMessageImpl();
+        Client client = network.getClient();
+        new SendRawMessage(client, network, this, formattedMessage).send();
+        return new SentMessageImpl(client);
     }
 
     @Override

@@ -92,23 +92,21 @@ public final class CommandHandler {
         Scheduler.runAsyncTask(() -> handleRequest(request));
     }
 
+    private String getPrefix(Client client, DataObject networkObject, DataObject channelObject) {
+        if (channelObject.exists("prefix")) {
+            return (String) channelObject.get("prefix");
+        }
+        if (networkObject.exists("prefix")) {
+            return (String) networkObject.get("prefix");
+        }
+        return client.getDefaultPrefix();
+    }
+
     private void handleRequest(CommandRequest request) {
         Client client = request.getClient();
         Network network = request.getNetwork();
         Channel channel = request.getChannel();
-        DataObject networkObject = network.getData();
-        DataObject channelObject = channel.getData();
-        // TODO migrate this prefix shit somewhere else
-        String prefix;
-        if (channelObject.exists("prefix")) {
-            prefix = (String) channelObject.get("prefix");
-        } else {
-            if (networkObject.exists("prefix")) {
-                prefix = (String) networkObject.get("prefix");
-            } else {
-                prefix = client.getDefaultPrefix();
-            }
-        }
+        String prefix = getPrefix(client, network.getData(), channel.getData());
         String content = request.getMessage().getContent();
         if (!content.startsWith(prefix) || content.length() <= 1) return;
         String[] args = content.split(" ");

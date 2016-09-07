@@ -29,7 +29,6 @@ import io.sponges.bot.server.protocol.parser.framework.ParserManager;
 import io.sponges.bot.server.server.ServerImpl;
 import io.sponges.bot.server.storage.StorageImpl;
 import io.sponges.bot.server.webhook.server.WebhookServer;
-import io.sponges.proxypool.ProxyPool;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -51,7 +50,6 @@ public class BotImpl implements Bot {
     private final ParserManager parserManager;
     private final ModuleManager moduleManager;
     private final WebhookServer webhookServer;
-    private final ProxyPool proxyPool;
     private final WebhookManager webhookManager;
     private final Storage storage;
 
@@ -61,9 +59,6 @@ public class BotImpl implements Bot {
         JSONObject config = new Configuration().load(new File("config.json"));
         JSONObject server = config.getJSONObject("server");
         int port = server.getInt("port");
-
-        List<InetSocketAddress> proxies = loadProxies(new File("proxies.txt"));
-        this.proxyPool = new ProxyPool(proxies, 3);
 
         EventBus eventBus = new EventBus();
         this.eventManager = new EventManagerImpl(eventBus);
@@ -114,7 +109,7 @@ public class BotImpl implements Bot {
             new StopMessage(client).send((ClientImpl) client);
         }
         try {
-            Thread.sleep(3000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -156,11 +151,6 @@ public class BotImpl implements Bot {
     @Override
     public Storage getStorage() {
         return storage;
-    }
-
-    @Override
-    public ProxyPool getProxyPool() {
-        return proxyPool;
     }
 
     @Override
