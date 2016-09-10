@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -73,18 +74,22 @@ public class ChannelManagerImpl implements ChannelManager {
         new ResourceRequestMessage(network.getClient(), network.getId(), ResourceRequestMessage.ResourceType.CHANNEL,
                 channelId, entity -> {
             Channel channel = (Channel) entity;
-            channels.put(channel.getId(), channel);
+            if (channel != null) channels.put(channel.getId(), channel);
             consumer.accept(channel);
         }).send();
     }
 
     @Override
     public Channel loadChannelSync(String s) {
+        AtomicBoolean set = new AtomicBoolean(false);
         AtomicReference<Channel> net = new AtomicReference<>();
-        loadChannel(s, net::set);
-        while (net.get() == null) {
+        loadChannel(s, channel -> {
+            set.set(true);
+            net.set(channel);
+        });
+        while (!set.get()) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(25);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

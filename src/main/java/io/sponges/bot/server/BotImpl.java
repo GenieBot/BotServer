@@ -31,13 +31,8 @@ import io.sponges.bot.server.storage.StorageImpl;
 import io.sponges.bot.server.webhook.server.WebhookServer;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 
 @SuppressWarnings("ConstantConditions")
 public class BotImpl implements Bot {
@@ -47,14 +42,13 @@ public class BotImpl implements Bot {
     private final CommandManager commandManager;
     private final CommandHandler commandHandler;
     private final ClientManager clientManager;
-    private final ParserManager parserManager;
     private final ModuleManager moduleManager;
     private final WebhookServer webhookServer;
     private final WebhookManager webhookManager;
     private final Storage storage;
 
     private BotImpl() throws IOException {
-        LOGGER.setDebug(false);
+        LOGGER.setDebug(true);
 
         JSONObject config = new Configuration().load(new File("config.json"));
         JSONObject server = config.getJSONObject("server");
@@ -73,7 +67,7 @@ public class BotImpl implements Bot {
         JSONObject redis = config.getJSONObject("redis");
         this.storage = new StorageImpl(redis.getString("host"), redis.getInt("port"));
 
-        this.parserManager = new ParserManager(this);
+        ParserManager parserManager = new ParserManager(this);
 
         eventBus.register(ClientInputEvent.class, parserManager::onClientInput);
         eventBus.register(MessageReceivedEvent.class, event -> {
@@ -156,24 +150,5 @@ public class BotImpl implements Bot {
     @Override
     public WebhookManager getWebhookManager() {
         return webhookManager;
-    }
-
-    private List<InetSocketAddress> loadProxies(File file) throws IOException {
-        if (!file.exists()) {
-            boolean created = file.createNewFile();
-            if (created) LOGGER.log(Logger.Type.INFO, "Created " + file.getName());
-            else LOGGER.log(Logger.Type.WARNING, "Could not create " + file.getName());
-            return null;
-        }
-        List<InetSocketAddress> list = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String input;
-            while ((input = reader.readLine()) != null) {
-                if (!input.contains(":")) continue;
-                String[] split = input.split(":");
-                list.add(new InetSocketAddress(split[0], Integer.valueOf(split[1])));
-            }
-        }
-        return list;
     }
 }

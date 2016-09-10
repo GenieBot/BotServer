@@ -8,6 +8,7 @@ import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -50,18 +51,22 @@ public class UserManagerImpl implements UserManager {
         new ResourceRequestMessage(network.getClient(), network.getId(), ResourceRequestMessage.ResourceType.USER,
                 userId, entity -> {
             User user = (User) entity;
-            users.put(user.getId(), user);
+            if (user != null) users.put(user.getId(), user);
             consumer.accept(user);
         }).send();
     }
 
     @Override
     public User loadUserSync(String s) {
+        AtomicBoolean set = new AtomicBoolean(false);
         AtomicReference<User> net = new AtomicReference<>();
-        loadUser(s, net::set);
-        while (net.get() == null) {
+        loadUser(s, user -> {
+            set.set(true);
+            net.set(user);
+        });
+        while (!set.get()) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(25);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
