@@ -9,7 +9,7 @@ import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.ClientImpl;
 import io.sponges.bot.server.entities.manager.ClientManagerImpl;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
-import io.sponges.bot.server.server.internal.InternalServerImpl;
+import io.sponges.bot.server.server.internal.InternalServer;
 import io.sponges.bot.server.server.internal.InternalServerListener;
 import org.json.JSONObject;
 
@@ -18,11 +18,10 @@ import java.net.SocketAddress;
 
 public class ServerImpl implements Server {
 
-    private final InternalServerImpl server;
+    private final InternalServer server;
 
     public ServerImpl(Bot bot, int port) {
-        this.server = new InternalServerImpl(port);
-        this.server.registerListener(new InternalServerListener() {
+        this.server = new InternalServer(port, new InternalServerListener() {
             @Override
             public void onConnect(ChannelHandlerContext context) {
                 Bot.LOGGER.log(Logger.Type.INFO, "Client connect: unknown (" + context.channel().remoteAddress() + ")");

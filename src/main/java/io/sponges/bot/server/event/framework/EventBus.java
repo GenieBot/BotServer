@@ -12,11 +12,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
-/**
- * A simple, thread safe and reflectionless event handling system.
- * 
- * @author Connor Spencer Harries
- */
 public final class EventBus {
 
     private final Multimap<Class<? extends Event>, Consumer<Event>> consumerMap = ArrayListMultimap.create();

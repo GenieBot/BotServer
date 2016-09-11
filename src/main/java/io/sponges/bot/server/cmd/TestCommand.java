@@ -2,7 +2,6 @@ package io.sponges.bot.server.cmd;
 
 import io.sponges.bot.api.cmd.Command;
 import io.sponges.bot.api.cmd.CommandRequest;
-import io.sponges.bot.api.event.framework.Event;
 import io.sponges.bot.api.event.framework.EventManager;
 
 public class TestCommand extends Command {
@@ -17,12 +16,6 @@ public class TestCommand extends Command {
     @Override
     public void onCommand(CommandRequest commandRequest, String[] strings) {
         commandRequest.reply("hi");
-    }
-
-    public class TestEvent extends Event {
-        public TestEvent() {
-            super(true); // the event is cancellable
-        }
     }
 
 }

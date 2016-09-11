@@ -20,12 +20,10 @@ public final class ResourceRequestMessage extends Message {
     private final String networkId;
     private final String channelId;
     private final String userId;
-    private final Consumer<Entity> callback;
     private final String requestId;
 
     public ResourceRequestMessage(Client client, String networkId, Consumer<Entity> callback) {
         super(client, TYPE);
-        this.callback = callback;
         this.type = ResourceType.NETWORK;
         this.networkId = networkId;
         this.channelId = null;
@@ -38,7 +36,6 @@ public final class ResourceRequestMessage extends Message {
         super(client, TYPE);
         this.type = type;
         this.networkId = networkId;
-        this.callback = callback;
         switch (type) {
             case CHANNEL:
                 this.channelId = id;

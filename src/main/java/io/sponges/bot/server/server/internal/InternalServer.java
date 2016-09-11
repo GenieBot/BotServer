@@ -5,24 +5,23 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.internal.ConcurrentSet;
 import io.sponges.bot.api.Logger;
 import io.sponges.bot.server.Bot;
 
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class InternalServerImpl {
+public class InternalServer {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private final Set<InternalServerListener> listeners = new ConcurrentSet<>();
 
     private final int port;
+    private final InternalServerListener listener;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
 
-    public InternalServerImpl(int port) {
+    public InternalServer(int port, InternalServerListener listener) {
         this.port = port;
+        this.listener = listener;
         this.bossGroup = new NioEventLoopGroup(1);
         this.workerGroup = new NioEventLoopGroup();
     }
@@ -59,15 +58,7 @@ public final class InternalServerImpl {
         runnable.run();
     }
 
-    public void registerListener(InternalServerListener listener) {
-        listeners.add(listener);
-    }
-
-    public void unregisterListener(InternalServerListener listener) {
-        listeners.remove(listener);
-    }
-
-    public Set<InternalServerListener> getListeners() {
-        return listeners;
+    InternalServerListener getListener() {
+        return listener;
     }
 }

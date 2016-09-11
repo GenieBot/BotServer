@@ -126,15 +126,7 @@ public final class CommandHandler {
     private void processCommand(CommandPreProcessEvent event) {
         CommandRequest request = event.getCommandRequest();
         Command command = event.getCommand();
-        Network network = request.getNetwork();
         String[] args = event.getArgs();
-        if (command.isGlobalDisabled()) {
-            request.reply("Sorry, that command is disabled for everyone!");
-            return;
-        }
-        if (command.isLimitedToNetwork() && !network.getId().equals(command.getNetworkOnly())) {
-            return;
-        }
         try {
             command.onCommand(request, args);
         } catch (Exception e) {

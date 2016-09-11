@@ -23,9 +23,4 @@ public class ReloadCommand extends Command {
         bot.getModuleManager().reload();
         commandRequest.reply("Reloaded! (" + (System.currentTimeMillis() - start) + "ms)");
     }
-
-    @Override
-    public boolean requiresOp() {
-        return true;
-    }
 }

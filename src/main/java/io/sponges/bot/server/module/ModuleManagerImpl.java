@@ -87,7 +87,7 @@ public class ModuleManagerImpl implements ModuleManager {
         module.getLogger().log(Logger.Type.INFO, "Enabling " + module.getId() + " version " + module.getVersion());
         try {
             module.onEnable();
-        } catch (NoClassDefFoundError error) {
+        } catch (NoSuchMethodError | NoClassDefFoundError error) {
             error.printStackTrace();
             modules.remove(module.getId().toLowerCase());
         }

@@ -8,11 +8,11 @@ import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
-public final class InternalServerInitializer extends ChannelInitializer<SocketChannel> {
+class InternalServerInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final InternalServerImpl server;
+    private final InternalServer server;
 
-    public InternalServerInitializer(InternalServerImpl server) {
+    InternalServerInitializer(InternalServer server) {
         this.server = server;
     }
 
@@ -25,7 +25,7 @@ public final class InternalServerInitializer extends ChannelInitializer<SocketCh
         pipeline.addLast(new StringDecoder()); // could add charset here
         pipeline.addLast(new StringEncoder());
 
-        pipeline.addLast(new InternalServerHandler(server));
+        pipeline.addLast(new InternalServerHandler(server.getListener()));
     }
 
 }
