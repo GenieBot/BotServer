@@ -10,23 +10,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class SelectNetworkIdStatement extends AbstractStatement<UUID> {
+public class SelectUserIdStatement extends AbstractStatement<UUID> {
 
-    private final UUID clientId;
-    private final String networkSourceId;
+    private final UUID networkId;
+    private final String userSourceId;
 
-    public SelectNetworkIdStatement(Database database, UUID clientId, String networkSourceId) {
-        super(database, Statements.SELECT_NETWORK_ID);
-        this.clientId = clientId;
-        this.networkSourceId = networkSourceId;
+    public SelectUserIdStatement(Database database, UUID networkId, String userSourceId) {
+        super(database, Statements.SELECT_USER_ID);
+        this.networkId = networkId;
+        this.userSourceId = userSourceId;
     }
 
     @Override
     protected UUID execute() throws SQLException {
         try (Connection connection = database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(sql());
-            statement.setObject(1, clientId);
-            statement.setString(2, networkSourceId);
+            statement.setObject(1, networkId);
+            statement.setString(2, userSourceId);
             ResultSet resultSet = statement.executeQuery();
             if (!resultSet.next()) {
                 return null;

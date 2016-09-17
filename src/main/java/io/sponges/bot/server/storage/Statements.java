@@ -14,8 +14,22 @@ public enum Statements {
     // dml
     SELECT_CLIENT_ID("dml/select/select_client_id.sql"),
     SELECT_NETWORK_ID("dml/select/select_network_id.sql"),
+    SELECT_CHANNEL_ID("dml/select/select_channel_id.sql"),
+    SELECT_USER_ID("dml/select/select_user_id.sql"),
+    SELECT_MODULE_ID("dml/select/select_module_id.sql"),
+    SELECT_MODULE_DATA("dml/select/select_module_data.sql"),
 
     INSERT_CLIENT("dml/insert/insert_client.sql"),
+    INSERT_NETWORK("dml/insert/insert_network.sql"),
+    INSERT_CHANNEL("dml/insert/insert_channel.sql"),
+    INSERT_USER("dml/insert/insert_user.sql"),
+    INSERT_MODULE("dml/insert/insert_module.sql"),
+    INSERT_MODULE_DATA("dml/insert/insert_module_data.sql"),
+    INSERT_ENABLED_MODULE("dml/insert/insert_enabled_module.sql"),
+
+    UPDATE_MODULE_DATA("dml/update/update_module_data.sql"),
+
+    DELETE_ENABLED_MODULE("dml/delete/delete_enabled_module.sql"),
 
     ;
 
