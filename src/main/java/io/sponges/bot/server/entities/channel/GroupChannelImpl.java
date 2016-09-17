@@ -6,8 +6,6 @@ import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.GroupChannel;
 import io.sponges.bot.api.entities.message.SentMessage;
 import io.sponges.bot.api.entities.message.format.FormattedMessage;
-import io.sponges.bot.api.storage.DataObject;
-import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.entities.ClientImpl;
 import io.sponges.bot.server.entities.data.ChannelDataImpl;
 import io.sponges.bot.server.entities.message.SentMessageImpl;
@@ -15,24 +13,22 @@ import io.sponges.bot.server.protocol.msg.SendRawMessage;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class GroupChannelImpl implements GroupChannel {
 
-    private static final String DATA_KEY = "clients:%s:networks:%s:channels:%s:data";
-
     private final Map<String, User> users = new HashMap<>();
 
-    private final String id;
+    private final UUID id;
+    private final String sourceId;
     private final Network network;
     private final io.sponges.bot.api.entities.data.ChannelData channelData;
-    private final DataObject data;
 
-    public GroupChannelImpl(String id, Network network, Storage storage) {
+    public GroupChannelImpl(UUID id, String sourceId, Network network) {
         this.id = id;
+        this.sourceId = sourceId;
         this.network = network;
         this.channelData = new ChannelDataImpl(this);
-        this.data = new DataObject(String.format(DATA_KEY, network.getClient().getId(), network.getId(), id));
-        storage.load(this.data);
     }
 
     @Override
@@ -71,8 +67,13 @@ public class GroupChannelImpl implements GroupChannel {
     }
 
     @Override
-    public String getId() {
+    public UUID getId() {
         return id;
+    }
+
+    @Override
+    public String getSourceId() {
+        return sourceId;
     }
 
     @Override
@@ -83,10 +84,5 @@ public class GroupChannelImpl implements GroupChannel {
     @Override
     public io.sponges.bot.api.entities.data.ChannelData getChannelData() {
         return channelData;
-    }
-
-    @Override
-    public DataObject getData() {
-        return data;
     }
 }

@@ -1,8 +1,8 @@
-package io.sponges.bot.server.storage.statement.insert;
+package io.sponges.bot.server.database.statement.insert;
 
-import io.sponges.bot.server.storage.Database;
-import io.sponges.bot.server.storage.Statements;
-import io.sponges.bot.server.storage.statement.AbstractStatement;
+import io.sponges.bot.server.database.Database;
+import io.sponges.bot.server.database.Statements;
+import io.sponges.bot.server.database.statement.AbstractStatement;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

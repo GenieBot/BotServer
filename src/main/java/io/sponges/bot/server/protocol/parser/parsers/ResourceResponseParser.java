@@ -7,8 +7,8 @@ import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
-import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.Bot;
+import io.sponges.bot.server.database.Database;
 import io.sponges.bot.server.entities.data.ChannelDataImpl;
 import io.sponges.bot.server.entities.data.NetworkDataImpl;
 import io.sponges.bot.server.entities.data.UserDataImpl;
@@ -25,11 +25,11 @@ import java.util.function.Consumer;
 
 public final class ResourceResponseParser extends MessageParser {
 
-    private final Storage storage;
+    private final Database database;
 
-    public ResourceResponseParser(Storage storage) {
+    public ResourceResponseParser(Database database) {
         super("RESOURCE_RESPONSE");
-        this.storage = storage;
+        this.database = database;
     }
 
     @Override
@@ -53,7 +53,13 @@ public final class ResourceResponseParser extends MessageParser {
         NetworkManagerImpl networkManager = (NetworkManagerImpl) client.getNetworkManager();
         switch (type) {
             case NETWORK: {
-                Network network = NetworkInitializer.createNetwork(storage, client, networkId);
+                Network network;
+                try {
+                    network = NetworkInitializer.createNetwork(database, client, networkId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
                 NetworkDataImpl data = (NetworkDataImpl) network.getNetworkData();
                 if (!parameters.isNull("name")) data.setName(parameters.getString("name"));
                 if (!parameters.isNull("description")) data.setDescription(parameters.getString("description"));
@@ -63,8 +69,14 @@ public final class ResourceResponseParser extends MessageParser {
             }
             case CHANNEL: {
                 networkManager.loadNetwork(networkId, network -> {
-                    Channel channel = ChannelInitializer.createChannel(storage, network, parameters.getString("id"),
-                            Boolean.parseBoolean(parameters.getString("private")));
+                    Channel channel;
+                    try {
+                        channel = ChannelInitializer.createChannel(database, network, parameters.getString("id"),
+                                Boolean.parseBoolean(parameters.getString("private")));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
                     ChannelDataImpl data = (ChannelDataImpl) channel.getChannelData();
                     if (!parameters.isNull("name")) data.setName(parameters.getString("name"));
                     if (!parameters.isNull("topic")) data.setName(parameters.getString("topic"));
@@ -74,9 +86,15 @@ public final class ResourceResponseParser extends MessageParser {
             }
             case USER: {
                 networkManager.loadNetwork(networkId, network -> {
-                    User user = UserInitializer.createUser(storage, network, parameters.getString("id"),
-                            Boolean.parseBoolean(parameters.getString("admin")),
-                            Boolean.parseBoolean(parameters.getString("op")));
+                    User user;
+                    try {
+                        user = UserInitializer.createUser(database, network, parameters.getString("id"),
+                                Boolean.parseBoolean(parameters.getString("admin")),
+                                Boolean.parseBoolean(parameters.getString("op")));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
                     UserDataImpl data = (UserDataImpl) user.getUserData();
                     if (!parameters.isNull("username")) data.setUsername(parameters.getString("username"));
                     if (!parameters.isNull("display-name")) data.setDisplayName(parameters.getString("display-name"));

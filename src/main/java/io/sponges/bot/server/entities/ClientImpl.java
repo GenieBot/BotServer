@@ -4,35 +4,31 @@ import io.netty.channel.Channel;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.data.ClientData;
 import io.sponges.bot.api.entities.manager.NetworkManager;
-import io.sponges.bot.api.storage.DataObject;
-import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.entities.data.ClientDataImpl;
 import io.sponges.bot.server.entities.manager.NetworkManagerImpl;
 
 import java.net.SocketAddress;
+import java.util.UUID;
 
 /**
  * Implementation of the Client interface
  */
 public class ClientImpl implements Client {
 
-    private static final String DATA_KEY = "clients:%s:data";
-
-    private final String id;
+    private final UUID id;
+    private final String sourceId;
     private final String defaultPrefix;
     private final Channel channel;
     private final NetworkManager networkManager;
     private final ClientData clientData;
-    private final DataObject data;
 
-    public ClientImpl(String id, String defaultPrefix, Channel channel, Storage storage) {
+    public ClientImpl(UUID id, String sourceId, String defaultPrefix, Channel channel) {
         this.id = id;
+        this.sourceId = sourceId;
         this.defaultPrefix = defaultPrefix;
         this.channel = channel;
         this.networkManager = new NetworkManagerImpl(this);
         this.clientData = new ClientDataImpl();
-        this.data = new DataObject(String.format(DATA_KEY, id));
-        storage.load(this.data);
     }
 
     public void write(String message) {
@@ -40,8 +36,13 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public String getId() {
+    public UUID getId() {
         return id;
+    }
+
+    @Override
+    public String getSourceId() {
+        return sourceId;
     }
 
     @Override
@@ -58,11 +59,6 @@ public class ClientImpl implements Client {
     @Override
     public ClientData getClientData() {
         return clientData;
-    }
-
-    @Override
-    public DataObject getData() {
-        return data;
     }
 
     public SocketAddress getRemoteAddress() {

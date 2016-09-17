@@ -22,7 +22,7 @@ public final class KickUserMessage extends Message {
     @Override
     public JSONObject toJson() {
         JSONObject user = new JSONObject();
-        user.put("id", this.user.getId());
+        user.put("id", this.user.getSourceId());
         if (this.userData.getUsername().isPresent()) {
             user.put("username", this.userData.getUsername().get());
         }
@@ -30,7 +30,7 @@ public final class KickUserMessage extends Message {
             user.put("display-name", this.userData.getDisplayName().get());
         }
         return new JSONObject()
-                .put("network", network.getId())
+                .put("network", network.getSourceId())
                 .put("user", user);
     }
 }

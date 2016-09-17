@@ -2,6 +2,7 @@ package io.sponges.bot.server.protocol.msg;
 
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Entity;
+import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.server.protocol.manager.ResourceRequestManager;
 import org.json.JSONObject;
 
@@ -11,7 +12,8 @@ import java.util.function.Consumer;
 /**
  * This message sends a request to the client to get more information about a resource or load in a resource
  */
-public final class ResourceRequestMessage extends Message {
+@SuppressWarnings("unchecked")
+public final class ResourceRequestMessage<T extends Entity> extends Message {
 
     private static final String TYPE = "RESOURCE_REQUEST";
     public static final ResourceRequestManager REQUEST_MANAGER = new ResourceRequestManager();
@@ -22,7 +24,7 @@ public final class ResourceRequestMessage extends Message {
     private final String userId;
     private final String requestId;
 
-    public ResourceRequestMessage(Client client, String networkId, Consumer<Entity> callback) {
+    public ResourceRequestMessage(Client client, String networkId, Consumer<T> callback) {
         super(client, TYPE);
         this.type = ResourceType.NETWORK;
         this.networkId = networkId;
@@ -32,10 +34,10 @@ public final class ResourceRequestMessage extends Message {
         REQUEST_MANAGER.getRequests().put(this.requestId, callback);
     }
 
-    public ResourceRequestMessage(Client client, String networkId, ResourceType type, String id, Consumer<Entity> callback) {
+    public ResourceRequestMessage(Client client, Network network, ResourceType type, String id, Consumer<T> callback) {
         super(client, TYPE);
         this.type = type;
-        this.networkId = networkId;
+        this.networkId = network.getSourceId();
         switch (type) {
             case CHANNEL:
                 this.channelId = id;

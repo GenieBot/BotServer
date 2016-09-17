@@ -41,11 +41,11 @@ public final class CmdResponseMessage extends Message {
     @Override
     public JSONObject toJson() {
         JSONObject channel = new JSONObject();
-        channel.put("id", this.channel.getId());
+        channel.put("id", this.channel.getSourceId());
         channel.put("private", channel instanceof PrivateChannel);
 
         JSONObject user = new JSONObject();
-        user.put("id", this.user.getId());
+        user.put("id", this.user.getSourceId());
         if (this.userData.getUsername().isPresent()) {
             user.put("username", this.userData.getUsername().get());
         }
@@ -54,7 +54,7 @@ public final class CmdResponseMessage extends Message {
         }
 
         return new JSONObject()
-                .put("network", network.getId())
+                .put("network", network.getSourceId())
                 .put("channel", channel)
                 .put("user", user)
                 .put("response", response)

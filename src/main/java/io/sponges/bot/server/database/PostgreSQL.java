@@ -1,4 +1,4 @@
-package io.sponges.bot.server.storage;
+package io.sponges.bot.server.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

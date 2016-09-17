@@ -1,7 +1,7 @@
-package io.sponges.bot.server.storage.statement;
+package io.sponges.bot.server.database.statement;
 
-import io.sponges.bot.server.storage.Database;
-import io.sponges.bot.server.storage.Statements;
+import io.sponges.bot.server.database.Database;
+import io.sponges.bot.server.database.Statements;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;

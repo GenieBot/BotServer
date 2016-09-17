@@ -6,6 +6,7 @@ import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,33 +33,44 @@ public class NetworkManagerImpl implements NetworkManager {
     }
 
     @Override
-    public boolean isNetwork(String id) {
-        return networks.containsKey(id);
+    public boolean isNetwork(UUID id) {
+        return networks.containsKey(id.toString());
     }
 
     @Override
-    public Network getNetwork(String id) {
-        return networks.get(id);
+    public Network getNetwork(UUID id) {
+        return networks.get(id.toString());
+    }
+
+    private Network getNetworksBySourceId(String sourceId) {
+        for (Network network : networks.values()) {
+            if (network.getSourceId().equals(sourceId)) {
+                return network;
+            }
+        }
+        return null;
     }
 
     @Override
-    public void loadNetwork(String networkId, Consumer<Network> consumer) {
-        if (isNetwork(networkId)) {
-            consumer.accept(getNetwork(networkId));
+    public void loadNetwork(String sourceId, Consumer<Network> consumer) {
+        Network network = getNetworksBySourceId(sourceId);
+        if (network != null) {
+            consumer.accept(network);
             return;
         }
-        new ResourceRequestMessage(client, networkId, entity -> {
-            Network network = (Network) entity;
-            if (network != null) networks.put(network.getId(), network);
-            consumer.accept(network);
+        new ResourceRequestMessage<Network>(client, sourceId, n -> {
+            if (n != null) {
+                networks.put(n.getId().toString(), n);
+            }
+            consumer.accept(n);
         }).send();
     }
 
     @Override
-    public Network loadNetworkSync(String s) {
+    public Network loadNetworkSync(String sourceId) {
         AtomicBoolean set = new AtomicBoolean(false);
         AtomicReference<Network> net = new AtomicReference<>();
-        loadNetwork(s, network -> {
+        loadNetwork(sourceId, network -> {
             set.set(true);
             net.set(network);
         });

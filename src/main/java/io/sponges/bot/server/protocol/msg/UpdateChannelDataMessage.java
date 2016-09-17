@@ -23,10 +23,10 @@ public final class UpdateChannelDataMessage extends Message {
     @Override
     public JSONObject toJson() {
         JSONObject channel = new JSONObject();
-        channel.put("id", this.channel.getId());
+        channel.put("id", this.channel.getSourceId());
 
         return new JSONObject()
-                .put("network", network.getId())
+                .put("network", network.getSourceId())
                 .put("channel", channel)
                 .put("detail", key)
                 .put("value", value);

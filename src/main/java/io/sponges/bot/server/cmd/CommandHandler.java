@@ -12,7 +12,6 @@ import io.sponges.bot.api.event.events.cmd.CommandProcessedEvent;
 import io.sponges.bot.api.event.events.message.MessageReceivedEvent;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.Module;
-import io.sponges.bot.api.storage.DataObject;
 import io.sponges.bot.api.util.Scheduler;
 
 import java.util.*;
@@ -92,7 +91,7 @@ public final class CommandHandler {
         Scheduler.runAsyncTask(() -> handleRequest(request));
     }
 
-    private String getPrefix(Client client, DataObject networkObject, DataObject channelObject) {
+    /*private String getPrefix(Client client, DataObject networkObject, DataObject channelObject) {
         if (channelObject.exists("prefix")) {
             return (String) channelObject.get("prefix");
         }
@@ -100,13 +99,14 @@ public final class CommandHandler {
             return (String) networkObject.get("prefix");
         }
         return client.getDefaultPrefix();
-    }
+    }*/
 
     private void handleRequest(CommandRequest request) {
         Client client = request.getClient();
         Network network = request.getNetwork();
         Channel channel = request.getChannel();
-        String prefix = getPrefix(client, network.getData(), channel.getData());
+        //String prefix = getPrefix(client, network.getData(), channel.getData());
+        String prefix = "genie"; // TODO prefix shit
         String content = request.getMessage().getContent();
         if (!content.startsWith(prefix) || content.length() <= 1) return;
         String[] args = content.split(" ");

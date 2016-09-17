@@ -3,18 +3,18 @@ package io.sponges.bot.server.server;
 import io.netty.channel.ChannelHandlerContext;
 import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.entities.Client;
-import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.api.server.Server;
 import io.sponges.bot.server.Bot;
-import io.sponges.bot.server.entities.ClientImpl;
 import io.sponges.bot.server.entities.manager.ClientManagerImpl;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
+import io.sponges.bot.server.protocol.parser.initalizer.ClientInitializer;
 import io.sponges.bot.server.server.internal.InternalServer;
 import io.sponges.bot.server.server.internal.InternalServerListener;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.util.UUID;
 
 public class ServerImpl implements Server {
 
@@ -34,7 +34,7 @@ public class ServerImpl implements Server {
                 if (client == null) {
                     Bot.LOGGER.log(Logger.Type.WARNING, "Client disconnect: unknown (" + address + ")");
                 } else {
-                    bot.getClientManager().getClients().remove(client.getId());
+                    bot.getClientManager().getClients().remove(client.getId().toString());
                     Bot.LOGGER.log(Logger.Type.INFO, "Client disconnect: " + client.getId() + " (" + address + ")");
                 }
             }
@@ -46,15 +46,25 @@ public class ServerImpl implements Server {
                     return;
                 }
                 JSONObject json = new JSONObject(message);
-                String clientId = json.getString("client").toLowerCase();
-                ClientManager clientManager = bot.getClientManager();
-                Client client;
-                if (clientManager.isClient(clientId)) {
-                    client = clientManager.getClient(clientId);
-                } else {
+                String sourceId = json.getString("client").toLowerCase();
+                ClientManagerImpl clientManager = (ClientManagerImpl) bot.getClientManager();
+                Client client = null;
+                if (clientManager.getSourceIdCache().containsKey(sourceId)) {
+                    UUID uuid = clientManager.getSourceIdCache().get(sourceId);
+                    if (clientManager.isClient(uuid)) {
+                        client = clientManager.getClient(uuid);
+                    }
+                }
+                if (client == null) {
                     String defaultPrefix = json.getJSONObject("content").getString("prefix");
-                    client = new ClientImpl(clientId, defaultPrefix, context.channel(), bot.getStorage());
-                    clientManager.getClients().put(clientId, client);
+                    try {
+                        client = ClientInitializer.createClient(bot.getDatabase(), sourceId, defaultPrefix, context.channel());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    clientManager.getClients().put(client.getId().toString(), client);
+                    clientManager.getSourceIdCache().put(sourceId, client.getId());
                 }
                 ClientInputEvent clientInputEvent = new ClientInputEvent(client, json);
                 bot.getEventManager().post(clientInputEvent);

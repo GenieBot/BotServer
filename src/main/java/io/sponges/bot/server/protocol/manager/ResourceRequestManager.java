@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public class ResourceRequestManager {
+public class ResourceRequestManager<T extends Entity> {
 
-    private final Map<String, Consumer<Entity>> requests = new ConcurrentHashMap<>();
+    private final Map<String, Consumer<T>> requests = new ConcurrentHashMap<>();
 
-    public Map<String, Consumer<Entity>> getRequests() {
+    public Map<String, Consumer<T>> getRequests() {
         return requests;
     }
 

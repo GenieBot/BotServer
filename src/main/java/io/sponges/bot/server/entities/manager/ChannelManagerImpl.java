@@ -1,17 +1,13 @@
 package io.sponges.bot.server.entities.manager;
 
 import io.sponges.bot.api.entities.Network;
-import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
-import io.sponges.bot.api.entities.channel.GroupChannel;
-import io.sponges.bot.api.entities.channel.PrivateChannel;
 import io.sponges.bot.api.entities.manager.ChannelManager;
 import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -37,53 +33,45 @@ public class ChannelManagerImpl implements ChannelManager {
     }
 
     @Override
-    public boolean isChannel(String s) {
-        return channels.containsKey(s);
+    public boolean isChannel(UUID s) {
+        return channels.containsKey(s.toString());
     }
 
     @Override
-    public Channel getChannel(String s) {
-        return channels.get(s);
+    public Channel getChannel(UUID s) {
+        return channels.get(s.toString());
     }
 
-    @Override
-    public List<Channel> getChannels(User user) {
-        List<Channel> channels = new ArrayList<>();
-        String id = user.getId();
-        for (Channel channel : this.channels.values()) {
-            if (channel instanceof GroupChannel) {
-                if (!((GroupChannel) channel).isUser(id)) {
-                    continue;
-                }
-            } else {
-                if (!((PrivateChannel) channel).getUser().getId().equals(id)) {
-                    continue;
-                }
+    private Channel getChannelBySourceId(String sourceId) {
+        for (Channel channel : channels.values()) {
+            if (channel.getSourceId().equals(sourceId)) {
+                return channel;
             }
-            channels.add(channel);
         }
-        return channels;
+        return null;
     }
 
     @Override
-    public void loadChannel(String channelId, Consumer<Channel> consumer) {
-        if (isChannel(channelId)) {
-            consumer.accept(getChannel(channelId));
+    public void loadChannel(String sourceId, Consumer<Channel> consumer) {
+        Channel channel = getChannelBySourceId(sourceId);
+        if (channel != null) {
+            consumer.accept(channel);
             return;
         }
-        new ResourceRequestMessage(network.getClient(), network.getId(), ResourceRequestMessage.ResourceType.CHANNEL,
-                channelId, entity -> {
-            Channel channel = (Channel) entity;
-            if (channel != null) channels.put(channel.getId(), channel);
-            consumer.accept(channel);
+        new ResourceRequestMessage<Channel>(network.getClient(), network, ResourceRequestMessage.ResourceType.CHANNEL,
+                sourceId, c -> {
+            if (c != null) {
+                channels.put(c.getId().toString(), c);
+            }
+            consumer.accept(c);
         }).send();
     }
 
     @Override
-    public Channel loadChannelSync(String s) {
+    public Channel loadChannelSync(String sourceId) {
         AtomicBoolean set = new AtomicBoolean(false);
         AtomicReference<Channel> net = new AtomicReference<>();
-        loadChannel(s, channel -> {
+        loadChannel(sourceId, channel -> {
             set.set(true);
             net.set(channel);
         });

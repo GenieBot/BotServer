@@ -7,6 +7,7 @@ import io.sponges.bot.server.protocol.msg.KickUserMessage;
 import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,13 +29,13 @@ public class UserManagerImpl implements UserManager {
     }
 
     @Override
-    public boolean isUser(String s) {
-        return users.containsKey(s);
+    public boolean isUser(UUID s) {
+        return users.containsKey(s.toString());
     }
 
     @Override
-    public User getUser(String s) {
-        return users.get(s);
+    public User getUser(UUID s) {
+        return users.get(s.toString());
     }
 
     @Override
@@ -42,25 +43,36 @@ public class UserManagerImpl implements UserManager {
         new KickUserMessage(network.getClient(), network, user).send();
     }
 
+    private User getUserBySourceId(String sourceId) {
+        for (User user : users.values()) {
+            if (user.getSourceId().equals(sourceId)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
     @Override
-    public void loadUser(String userId, Consumer<User> consumer) {
-        if (isUser(userId)) {
-            consumer.accept(getUser(userId));
+    public void loadUser(String sourceId, Consumer<User> consumer) {
+        User user = getUserBySourceId(sourceId);
+        if (user != null) {
+            consumer.accept(user);
             return;
         }
-        new ResourceRequestMessage(network.getClient(), network.getId(), ResourceRequestMessage.ResourceType.USER,
-                userId, entity -> {
-            User user = (User) entity;
-            if (user != null) users.put(user.getId(), user);
-            consumer.accept(user);
+        new ResourceRequestMessage<User>(network.getClient(), network, ResourceRequestMessage.ResourceType.USER,
+                sourceId, u -> {
+            if (u != null) {
+                users.put(u.getId().toString(), u);
+            }
+            consumer.accept(u);
         }).send();
     }
 
     @Override
-    public User loadUserSync(String s) {
+    public User loadUserSync(String sourceId) {
         AtomicBoolean set = new AtomicBoolean(false);
         AtomicReference<User> net = new AtomicReference<>();
-        loadUser(s, user -> {
+        loadUser(sourceId, user -> {
             set.set(true);
             net.set(user);
         });

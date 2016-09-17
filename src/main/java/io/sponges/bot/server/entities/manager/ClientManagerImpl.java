@@ -7,10 +7,12 @@ import io.sponges.bot.server.entities.ClientImpl;
 import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class ClientManagerImpl implements ClientManager {
 
     private final Map<String, Client> clients = new HashMap<>();
+    private final Map<String, UUID> sourceIdCache = new HashMap<>();
 
     @Override
     public Map<String, Client> getClients() {
@@ -18,13 +20,13 @@ public class ClientManagerImpl implements ClientManager {
     }
 
     @Override
-    public boolean isClient(String s) {
-        return clients.containsKey(s);
+    public boolean isClient(UUID s) {
+        return clients.containsKey(s.toString());
     }
 
     @Override
-    public Client getClient(String s) {
-        return clients.get(s);
+    public Client getClient(UUID s) {
+        return clients.get(s.toString());
     }
 
     public Client getClient(SocketAddress address) {
@@ -36,4 +38,7 @@ public class ClientManagerImpl implements ClientManager {
         return null;
     }
 
+    public Map<String, UUID> getSourceIdCache() {
+        return sourceIdCache;
+    }
 }

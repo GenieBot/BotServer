@@ -4,41 +4,39 @@ import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.data.NetworkData;
 import io.sponges.bot.api.entities.manager.ChannelManager;
-import io.sponges.bot.api.entities.manager.ModuleDataManager;
 import io.sponges.bot.api.entities.manager.UserManager;
-import io.sponges.bot.api.storage.DataObject;
-import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.entities.data.NetworkDataImpl;
 import io.sponges.bot.server.entities.manager.ChannelManagerImpl;
-import io.sponges.bot.server.entities.manager.ModuleDataManagerImpl;
 import io.sponges.bot.server.entities.manager.UserManagerImpl;
+
+import java.util.UUID;
 
 public class NetworkImpl implements Network {
 
-    private static final String DATA_KEY = "clients:%s:networks:%s:data";
-
-    private final String id;
+    private final UUID id;
+    private final String sourceId;
     private final Client client;
     private final ChannelManager channelManager;
     private final UserManager userManager;
-    private final DataObject data;
-    private final ModuleDataManager moduleDataManager;
     private final NetworkData networkData;
 
-    public NetworkImpl(String id, Client client, Storage storage) {
+    public NetworkImpl(UUID id, String sourceId, Client client) {
         this.id = id;
+        this.sourceId = sourceId;
         this.client = client;
         this.channelManager = new ChannelManagerImpl(this);
         this.userManager = new UserManagerImpl(this);
         this.networkData = new NetworkDataImpl();
-        this.data = new DataObject(String.format(DATA_KEY, client.getId(), id));
-        storage.load(this.data);
-        this.moduleDataManager = new ModuleDataManagerImpl(storage, this.data);
     }
 
     @Override
-    public String getId() {
+    public UUID getId() {
         return id;
+    }
+
+    @Override
+    public String getSourceId() {
+        return sourceId;
     }
 
     @Override
@@ -54,16 +52,6 @@ public class NetworkImpl implements Network {
     @Override
     public UserManager getUserManager() {
         return userManager;
-    }
-
-    @Override
-    public DataObject getData() {
-        return data;
-    }
-
-    @Override
-    public ModuleDataManager getModuleDataManager() {
-        return moduleDataManager;
     }
 
     @Override

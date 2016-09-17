@@ -4,32 +4,30 @@ import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
+import io.sponges.bot.api.entities.data.ChannelData;
 import io.sponges.bot.api.entities.message.SentMessage;
 import io.sponges.bot.api.entities.message.format.FormattedMessage;
-import io.sponges.bot.api.storage.DataObject;
-import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.server.entities.ClientImpl;
 import io.sponges.bot.server.entities.data.ChannelDataImpl;
 import io.sponges.bot.server.entities.message.SentMessageImpl;
 import io.sponges.bot.server.protocol.msg.SendRawMessage;
 
+import java.util.UUID;
+
 public class PrivateChannelImpl implements PrivateChannel {
 
-    private static final String DATA_KEY = "clients:%s:networks:%s:channels:%s:data";
-
-    private final String id;
+    private final UUID id;
+    private final String sourceId;
     private final Network network;
     private final io.sponges.bot.api.entities.data.ChannelData channelData;
-    private final DataObject data;
 
     private User user = null;
 
-    public PrivateChannelImpl(String id, Network network, Storage storage) {
+    public PrivateChannelImpl(UUID id, String sourceId, Network network) {
         this.id = id;
+        this.sourceId = sourceId;
         this.network = network;
         this.channelData = new ChannelDataImpl(this);
-        this.data = new DataObject(String.format(DATA_KEY, network.getClient().getId(), network.getId(), id));
-        storage.load(this.data);
     }
 
     @Override
@@ -62,8 +60,13 @@ public class PrivateChannelImpl implements PrivateChannel {
     }
 
     @Override
-    public String getId() {
+    public UUID getId() {
         return id;
+    }
+
+    @Override
+    public String getSourceId() {
+        return sourceId;
     }
 
     @Override
@@ -72,12 +75,7 @@ public class PrivateChannelImpl implements PrivateChannel {
     }
 
     @Override
-    public io.sponges.bot.api.entities.data.ChannelData getChannelData() {
+    public ChannelData getChannelData() {
         return channelData;
-    }
-
-    @Override
-    public DataObject getData() {
-        return data;
     }
 }

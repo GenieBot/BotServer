@@ -13,12 +13,12 @@ import io.sponges.bot.api.event.events.user.UserJoinEvent;
 import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
-import io.sponges.bot.api.storage.Storage;
 import io.sponges.bot.api.webhook.WebhookManager;
 import io.sponges.bot.server.cmd.CommandHandler;
 import io.sponges.bot.server.cmd.CommandManagerImpl;
 import io.sponges.bot.server.config.Configuration;
-import io.sponges.bot.server.entities.ClientImpl;
+import io.sponges.bot.server.database.Database;
+import io.sponges.bot.server.database.PostgreSQL;
 import io.sponges.bot.server.entities.manager.ClientManagerImpl;
 import io.sponges.bot.server.event.framework.EventBus;
 import io.sponges.bot.server.event.framework.EventManagerImpl;
@@ -27,7 +27,6 @@ import io.sponges.bot.server.module.ModuleManagerImpl;
 import io.sponges.bot.server.protocol.msg.StopMessage;
 import io.sponges.bot.server.protocol.parser.framework.ParserManager;
 import io.sponges.bot.server.server.ServerImpl;
-import io.sponges.bot.server.storage.StorageImpl;
 import io.sponges.bot.server.webhook.server.WebhookServer;
 import org.json.JSONObject;
 
@@ -39,16 +38,16 @@ public class BotImpl implements Bot {
 
     private final ServerImpl server;
     private final EventManager eventManager;
+    private final Database database;
     private final CommandManager commandManager;
     private final CommandHandler commandHandler;
     private final ClientManager clientManager;
     private final ModuleManager moduleManager;
     private final WebhookServer webhookServer;
     private final WebhookManager webhookManager;
-    private final Storage storage;
 
     private BotImpl() throws IOException {
-        LOGGER.setDebug(true);
+        LOGGER.setDebug(false);
 
         JSONObject config = new Configuration().load(new File("config.json"));
         JSONObject server = config.getJSONObject("server");
@@ -56,6 +55,7 @@ public class BotImpl implements Bot {
 
         EventBus eventBus = new EventBus();
         this.eventManager = new EventManagerImpl(eventBus);
+        this.database = new PostgreSQL();
         this.commandHandler = new CommandHandler(eventManager);
         this.commandManager = new CommandManagerImpl(this);
         this.server = new ServerImpl(this, port);
@@ -63,9 +63,6 @@ public class BotImpl implements Bot {
 
         this.webhookServer = new WebhookServer(config.getJSONObject("webhook-server").getInt("port"));
         this.webhookManager = this.webhookServer.getWebhookManager();
-
-        JSONObject redis = config.getJSONObject("redis");
-        this.storage = new StorageImpl(redis.getString("host"), redis.getInt("port"));
 
         ParserManager parserManager = new ParserManager(this);
 
@@ -100,14 +97,13 @@ public class BotImpl implements Bot {
     @Override
     public void stop() {
         for (Client client : clientManager.getClients().values()) {
-            new StopMessage(client).send((ClientImpl) client);
+            new StopMessage(client).send();
         }
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        ((StorageImpl) this.storage).getPool().destroy();
         this.webhookServer.stop();
         this.server.stop(() -> LOGGER.log(Logger.Type.INFO, "Server closed!"));
         System.exit(-1);
@@ -121,6 +117,11 @@ public class BotImpl implements Bot {
     @Override
     public EventManager getEventManager() {
         return eventManager;
+    }
+
+    @Override
+    public Database getDatabase() {
+        return database;
     }
 
     @Override
@@ -140,11 +141,6 @@ public class BotImpl implements Bot {
     @Override
     public ModuleManager getModuleManager() {
         return moduleManager;
-    }
-
-    @Override
-    public Storage getStorage() {
-        return storage;
     }
 
     @Override

@@ -1,25 +1,25 @@
-package io.sponges.bot.server.storage.statement.insert;
+package io.sponges.bot.server.database.statement.insert;
 
-import io.sponges.bot.server.storage.Database;
-import io.sponges.bot.server.storage.Statements;
-import io.sponges.bot.server.storage.statement.AbstractStatement;
+import io.sponges.bot.server.database.Database;
+import io.sponges.bot.server.database.Statements;
+import io.sponges.bot.server.database.statement.AbstractStatement;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class InsertUserStatement extends AbstractStatement<Boolean> {
+public class InsertNetworkStatement extends AbstractStatement<Boolean> {
 
     private final UUID uuid;
     private final String sourceId;
-    private final UUID networkId;
+    private final UUID clientId;
 
-    public InsertUserStatement(Database database, UUID uuid, String sourceId, UUID networkId) {
-        super(database, Statements.INSERT_USER);
+    public InsertNetworkStatement(Database database, UUID uuid, String sourceId, UUID clientId) {
+        super(database, Statements.INSERT_NETWORK);
         this.uuid = uuid;
         this.sourceId = sourceId;
-        this.networkId = networkId;
+        this.clientId = clientId;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class InsertUserStatement extends AbstractStatement<Boolean> {
             PreparedStatement statement = connection.prepareStatement(sql());
             statement.setObject(1, uuid);
             statement.setString(2, sourceId);
-            statement.setObject(3, networkId);
+            statement.setObject(3, clientId);
             return statement.execute();
         }
     }

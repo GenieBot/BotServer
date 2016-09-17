@@ -33,11 +33,11 @@ public final class SendRawMessage extends Message {
     @Override
     public JSONObject toJson() {
         JSONObject channel = new JSONObject();
-        channel.put("id", this.channel.getId());
+        channel.put("id", this.channel.getSourceId());
         channel.put("private", channel instanceof PrivateChannel);
 
         return new JSONObject()
-                .put("network", network.getId())
+                .put("network", network.getSourceId())
                 .put("channel", channel)
                 .put("message", message)
                 .put("formatted", formatted);

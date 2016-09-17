@@ -1,4 +1,4 @@
-package io.sponges.bot.server.storage;
+package io.sponges.bot.server.database;
 
 public enum Statements {
 
