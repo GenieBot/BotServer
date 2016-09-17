@@ -1,0 +1,1 @@
+INSERT INTO module_data (network, module, data) VALUES (?, ?, ?);

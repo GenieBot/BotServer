@@ -1,0 +1,1 @@
+INSERT INTO enabled_modules (network, module) VALUES (?, ?);

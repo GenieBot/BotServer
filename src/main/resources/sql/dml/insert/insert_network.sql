@@ -1,0 +1,1 @@
+INSERT INTO networks (id, source_id, client) VALUES (?, ?, ?);
