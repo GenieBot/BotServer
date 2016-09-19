@@ -9,19 +9,19 @@ import io.sponges.bot.api.entities.manager.ChannelManager;
 import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.api.entities.manager.UserManager;
 import io.sponges.bot.api.event.events.channel.ChannelDataUpdateEvent;
-import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.server.Bot;
 import io.sponges.bot.server.entities.data.ChannelDataImpl;
+import io.sponges.bot.server.event.framework.EventBus;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
 import org.json.JSONObject;
 
 public final class ChannelDataUpdateParser extends MessageParser {
 
-    private final EventManager eventManager;
+    private final EventBus eventBus;
 
-    public ChannelDataUpdateParser(EventManager eventManager) {
+    public ChannelDataUpdateParser(EventBus eventBus) {
         super("CHANNEL_DATA_UPDATE");
-        this.eventManager = eventManager;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -62,7 +62,7 @@ public final class ChannelDataUpdateParser extends MessageParser {
                 break;
         }
         ChannelDataUpdateEvent event = new ChannelDataUpdateEvent(client, network, channel, user, detail, oldValue, value);
-        eventManager.postAsync(event, cancelled -> {
+        eventBus.postAsync(event, cancelled -> {
             if (!cancelled) return;
             if (oldValue == null) {
                 Bot.LOGGER.log(Logger.Type.DEBUG, "cant cancel channel data update event as oldValue is null");

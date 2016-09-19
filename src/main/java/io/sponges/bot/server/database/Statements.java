@@ -12,12 +12,18 @@ public enum Statements {
     CREATE_MODULE_DATA_TABLE("ddl/create_module_data_table.sql"),
 
     // dml
+    SELECT_CLIENT("dml/select/select_client.sql"),
     SELECT_CLIENT_ID("dml/select/select_client_id.sql"),
+    SELECT_NETWORK("dml/select/select_network.sql"),
     SELECT_NETWORK_ID("dml/select/select_network_id.sql"),
+    SELECT_CHANNEL("dml/select/select_channel.sql"),
     SELECT_CHANNEL_ID("dml/select/select_channel_id.sql"),
+    SELECT_USER("dml/select/select_user.sql"),
     SELECT_USER_ID("dml/select/select_user_id.sql"),
     SELECT_MODULE_ID("dml/select/select_module_id.sql"),
     SELECT_MODULE_DATA("dml/select/select_module_data.sql"),
+    SELECT_ENABLED_MODULE("dml/select/select_enabled_module.sql"),
+    SELECT_ENABLED_MODULES("dml/select/select_enabled_modules.sql"),
 
     INSERT_CLIENT("dml/insert/insert_client.sql"),
     INSERT_NETWORK("dml/insert/insert_network.sql"),

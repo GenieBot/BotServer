@@ -9,17 +9,17 @@ import io.sponges.bot.api.entities.manager.ChannelManager;
 import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.api.entities.manager.UserManager;
 import io.sponges.bot.api.event.events.user.UserJoinEvent;
-import io.sponges.bot.api.event.framework.EventManager;
+import io.sponges.bot.server.event.framework.EventBus;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
 import org.json.JSONObject;
 
 public final class UserJoinMessageParser extends MessageParser {
 
-    private final EventManager eventManager;
+    private final EventBus eventBus;
 
-    public UserJoinMessageParser(EventManager eventManager) {
+    public UserJoinMessageParser(EventBus eventBus) {
         super("USER_JOIN");
-        this.eventManager = eventManager;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -49,6 +49,6 @@ public final class UserJoinMessageParser extends MessageParser {
 
     private void handleEvent(Client client, Network network, Channel channel, User added, User initiator) {
         UserJoinEvent event = new UserJoinEvent(client, network, (GroupChannel) channel, added, initiator);
-        eventManager.post(event);
+        eventBus.post(event);
     }
 }

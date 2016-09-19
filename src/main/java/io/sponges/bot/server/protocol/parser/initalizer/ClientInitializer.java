@@ -17,7 +17,7 @@ public final class ClientInitializer extends Initializer {
             id = generateNewUUID();
             new InsertClientStatement(database, id, sourceId).executeAsync();
         }
-        return new ClientImpl(id, sourceId, defaultPrefix, channel);
+        return new ClientImpl(database, id, sourceId, defaultPrefix, channel);
     }
 
 }

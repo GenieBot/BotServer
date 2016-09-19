@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.data.ClientData;
 import io.sponges.bot.api.entities.manager.NetworkManager;
+import io.sponges.bot.server.database.Database;
 import io.sponges.bot.server.entities.data.ClientDataImpl;
 import io.sponges.bot.server.entities.manager.NetworkManagerImpl;
 
@@ -22,12 +23,12 @@ public class ClientImpl implements Client {
     private final NetworkManager networkManager;
     private final ClientData clientData;
 
-    public ClientImpl(UUID id, String sourceId, String defaultPrefix, Channel channel) {
+    public ClientImpl(Database database, UUID id, String sourceId, String defaultPrefix, Channel channel) {
         this.id = id;
         this.sourceId = sourceId;
         this.defaultPrefix = defaultPrefix;
         this.channel = channel;
-        this.networkManager = new NetworkManagerImpl(this);
+        this.networkManager = new NetworkManagerImpl(database, this);
         this.clientData = new ClientDataImpl();
     }
 

@@ -67,7 +67,7 @@ public class ServerImpl implements Server {
                     clientManager.getSourceIdCache().put(sourceId, client.getId());
                 }
                 ClientInputEvent clientInputEvent = new ClientInputEvent(client, json);
-                bot.getEventManager().post(clientInputEvent);
+                bot.getEventBus().post(clientInputEvent);
             }
 
             @Override

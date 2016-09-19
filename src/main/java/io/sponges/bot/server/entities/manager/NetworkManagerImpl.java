@@ -3,6 +3,8 @@ package io.sponges.bot.server.entities.manager;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.manager.NetworkManager;
+import io.sponges.bot.server.database.Database;
+import io.sponges.bot.server.database.statement.select.SelectNetworkStatement;
 import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
 import java.util.Map;
@@ -16,9 +18,11 @@ public class NetworkManagerImpl implements NetworkManager {
 
     private final Map<String, Network> networks = new ConcurrentHashMap<>();
 
+    private final Database database;
     private final Client client;
 
-    public NetworkManagerImpl(Client client) {
+    public NetworkManagerImpl(Database database, Client client) {
+        this.database = database;
         this.client = client;
     }
 
@@ -82,5 +86,18 @@ public class NetworkManagerImpl implements NetworkManager {
             }
         }
         return net.get();
+    }
+
+    @Override
+    public Network loadNetworkSync(UUID id) {
+        String[] results;
+        try {
+            results = new SelectNetworkStatement(database, id).executeAsync().get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        String sourceId = results[1];
+        return loadNetworkSync(sourceId);
     }
 }

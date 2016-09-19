@@ -10,9 +10,10 @@ import io.sponges.bot.api.entities.message.ReceivedMessage;
 import io.sponges.bot.api.event.events.cmd.CommandPreProcessEvent;
 import io.sponges.bot.api.event.events.cmd.CommandProcessedEvent;
 import io.sponges.bot.api.event.events.message.MessageReceivedEvent;
-import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.util.Scheduler;
+import io.sponges.bot.server.Bot;
+import io.sponges.bot.server.event.framework.EventBus;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,26 +21,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class CommandHandler {
 
     private final Map<String, Command> commands = new ConcurrentHashMap<>();
-    private final Map<Module, List<Command>> moduleCommands = new ConcurrentHashMap<>();
 
-    private final EventManager eventManager;
+    private final EventBus eventBus;
 
-    public CommandHandler(EventManager eventManager) {
-        this.eventManager = eventManager;
+    public CommandHandler(Bot bot) {
+        this.eventBus = bot.getEventBus();
+        registerCommand(new TestCommand());
+        registerCommand(new StopCommand(bot));
+        registerCommand(new ReloadCommand(bot));
     }
 
-    protected void registerCommand(Module module, Command command) {
+    protected void registerCommand(Command command) {
         String[] names = command.getNames();
         for (String name : names) {
             commands.put(name, command);
-        }
-        if (module != null) {
-            List<Command> commands = new ArrayList<>();
-            if (moduleCommands.containsKey(module)) {
-                commands = moduleCommands.get(module);
-            }
-            commands.add(command);
-            moduleCommands.put(module, commands);
         }
     }
 
@@ -50,27 +45,10 @@ public final class CommandHandler {
         }
     }
 
-    protected void unregisterCommands(Module module) {
-        if (!moduleCommands.containsKey(module)) return;
-        moduleCommands.remove(module);
-    }
-
     protected Collection<Command> getCommands() {
         List<Command> commands = new ArrayList<>();
         this.commands.values().stream().filter(command -> !commands.contains(command)).forEach(commands::add);
         return Collections.unmodifiableList(commands);
-    }
-
-    protected boolean hasCommands(Module module) {
-        return moduleCommands.containsKey(module);
-    }
-
-    protected Collection<Command> getCommands(Module module) {
-        return Collections.unmodifiableCollection(moduleCommands.get(module));
-    }
-
-    protected Collection<String> getNames() {
-        return Collections.unmodifiableCollection(commands.keySet());
     }
 
     protected Command getCommand(String name) {
@@ -108,16 +86,20 @@ public final class CommandHandler {
         //String prefix = getPrefix(client, network.getData(), channel.getData());
         String prefix = "genie"; // TODO prefix shit
         String content = request.getMessage().getContent();
-        if (!content.startsWith(prefix) || content.length() <= 1) return;
+        if (!content.toLowerCase().startsWith(prefix) || content.length() <= 1) return;
         String[] args = content.split(" ");
-        if (args[0].equals(prefix)) args = Arrays.copyOfRange(args, 1, args.length);
+        if (args[0].equalsIgnoreCase(prefix)) args = Arrays.copyOfRange(args, 1, args.length);
         else args[0] = args[0].substring(prefix.length());
         String cmd = args[0].toLowerCase();
         args = Arrays.copyOfRange(args, 1, args.length);
         if (!commands.containsKey(cmd)) return;
         Command command = commands.get(cmd);
+        if (command.getModule() != null) {
+            Module module = command.getModule();
+            if (!network.getModuleManager().isEnabled(module)) return;
+        }
         CommandPreProcessEvent preProcessEvent = new CommandPreProcessEvent(request, args, command);
-        eventManager.postAsync(preProcessEvent, cancelled -> {
+        eventBus.postAsync(preProcessEvent, cancelled -> {
             if (!cancelled) processCommand(preProcessEvent);
         });
     }
@@ -132,6 +114,6 @@ public final class CommandHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        eventManager.post(new CommandProcessedEvent(command, request, args));
+        eventBus.post(new CommandProcessedEvent(command, request, args));
     }
 }

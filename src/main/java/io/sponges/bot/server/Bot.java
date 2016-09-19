@@ -1,13 +1,13 @@
 package io.sponges.bot.server;
 
 import io.sponges.bot.api.Logger;
-import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.entities.manager.ClientManager;
-import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
 import io.sponges.bot.api.webhook.WebhookManager;
+import io.sponges.bot.server.cmd.CommandHandler;
 import io.sponges.bot.server.database.Database;
+import io.sponges.bot.server.event.framework.EventBus;
 
 public interface Bot {
 
@@ -15,11 +15,11 @@ public interface Bot {
     
     Server getServer();
 
-    EventManager getEventManager();
+    EventBus getEventBus();
 
     Database getDatabase();
 
-    CommandManager getCommandManager();
+    CommandHandler getCommandHandler();
 
     ClientManager getClientManager();
 

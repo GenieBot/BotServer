@@ -10,25 +10,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class SelectEnabledModuleStatement extends AbstractStatement<Boolean> {
+public class SelectNetworkStatement extends AbstractStatement<String[]> {
 
     private final UUID networkId;
-    private final int moduleId;
 
-    public SelectEnabledModuleStatement(Database database, UUID networkId, int moduleId) {
-        super(database, Statements.SELECT_ENABLED_MODULE);
+    public SelectNetworkStatement(Database database, UUID networkId) {
+        super(database, Statements.SELECT_NETWORK);
         this.networkId = networkId;
-        this.moduleId = moduleId;
     }
 
     @Override
-    protected Boolean execute() throws SQLException {
+    protected String[] execute() throws SQLException {
         try (Connection connection = database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(sql());
             statement.setObject(1, networkId);
-            statement.setInt(2, moduleId);
             ResultSet resultSet = statement.executeQuery();
-            return resultSet.isBeforeFirst();
+            if (!resultSet.next()) {
+                return null;
+            }
+            return new String[]{ resultSet.getString(1), resultSet.getString(2) };
         }
     }
 }

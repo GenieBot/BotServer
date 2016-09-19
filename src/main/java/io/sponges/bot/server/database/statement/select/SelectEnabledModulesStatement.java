@@ -8,27 +8,33 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
-public class SelectEnabledModuleStatement extends AbstractStatement<Boolean> {
+public class SelectEnabledModulesStatement extends AbstractStatement<Set<Integer>> {
 
     private final UUID networkId;
-    private final int moduleId;
 
-    public SelectEnabledModuleStatement(Database database, UUID networkId, int moduleId) {
-        super(database, Statements.SELECT_ENABLED_MODULE);
+    public SelectEnabledModulesStatement(Database database, UUID networkId) {
+        super(database, Statements.SELECT_ENABLED_MODULES);
         this.networkId = networkId;
-        this.moduleId = moduleId;
     }
 
     @Override
-    protected Boolean execute() throws SQLException {
+    protected Set<Integer> execute() throws SQLException {
         try (Connection connection = database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(sql());
             statement.setObject(1, networkId);
-            statement.setInt(2, moduleId);
             ResultSet resultSet = statement.executeQuery();
-            return resultSet.isBeforeFirst();
+            if (!resultSet.isBeforeFirst()) {
+                return null;
+            }
+            Set<Integer> results = new HashSet<>();
+            while (resultSet.next()) {
+                results.add(resultSet.getInt(1));
+            }
+            return results;
         }
     }
 }

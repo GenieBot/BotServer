@@ -3,6 +3,8 @@ package io.sponges.bot.server.entities.manager;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.manager.UserManager;
+import io.sponges.bot.server.database.Database;
+import io.sponges.bot.server.database.statement.select.SelectUserStatement;
 import io.sponges.bot.server.protocol.msg.KickUserMessage;
 import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
@@ -17,9 +19,11 @@ public class UserManagerImpl implements UserManager {
 
     private final Map<String, User> users = new ConcurrentHashMap<>();
 
+    private final Database database;
     private final Network network;
 
-    public UserManagerImpl(Network network) {
+    public UserManagerImpl(Database database, Network network) {
+        this.database = database;
         this.network = network;
     }
 
@@ -84,5 +88,18 @@ public class UserManagerImpl implements UserManager {
             }
         }
         return net.get();
+    }
+
+    @Override
+    public User loadUserSync(UUID id) {
+        String[] results;
+        try {
+            results = new SelectUserStatement(database, id).executeAsync().get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        String sourceId = results[1];
+        return loadUserSync(sourceId);
     }
 }

@@ -3,6 +3,8 @@ package io.sponges.bot.server.entities.manager;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.manager.ChannelManager;
+import io.sponges.bot.server.database.Database;
+import io.sponges.bot.server.database.statement.select.SelectChannelStatement;
 import io.sponges.bot.server.protocol.msg.ResourceRequestMessage;
 
 import java.util.HashMap;
@@ -16,9 +18,11 @@ public class ChannelManagerImpl implements ChannelManager {
 
     private final Map<String, Channel> channels = new HashMap<>();
 
+    private final Database database;
     private final Network network;
 
-    public ChannelManagerImpl(Network network) {
+    public ChannelManagerImpl(Database database, Network network) {
+        this.database = database;
         this.network = network;
     }
 
@@ -83,6 +87,19 @@ public class ChannelManagerImpl implements ChannelManager {
             }
         }
         return net.get();
+    }
+
+    @Override
+    public Channel loadChannelSync(UUID id) {
+        String[] results;
+        try {
+            results = new SelectChannelStatement(database, id).executeAsync().get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        String sourceId = results[1];
+        return loadChannelSync(sourceId);
     }
 
 }

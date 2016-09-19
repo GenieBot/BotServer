@@ -1,0 +1,1 @@
+SELECT network, source_id FROM channels WHERE id=?;

@@ -2,6 +2,8 @@ package io.sponges.bot.server.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.sponges.bot.api.Logger;
+import io.sponges.bot.server.Bot;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,6 +42,7 @@ public class PostgreSQL implements Database {
 
     @Override
     public Connection getConnection() throws SQLException {
+        Bot.LOGGER.log(Logger.Type.DEBUG, "PostreSQL#getConnection invoked");
         return dataSource.getConnection();
     }
 

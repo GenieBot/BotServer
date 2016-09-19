@@ -21,10 +21,10 @@ public class ParserManager {
         this.bot = bot;
 
         register(
-                new ChatMessageParser(bot.getEventManager()),
-                new UserJoinMessageParser(bot.getEventManager()),
-                new ResourceResponseParser(bot.getDatabase()),
-                new ChannelDataUpdateParser(bot.getEventManager())
+                new ChatMessageParser(bot.getEventBus()),
+                new UserJoinMessageParser(bot.getEventBus()),
+                new ResourceResponseParser(bot),
+                new ChannelDataUpdateParser(bot.getEventBus())
         );
     }
 
@@ -50,7 +50,7 @@ public class ParserManager {
         } else {
             if (!type.equals("CONNECT")) Bot.LOGGER.log(Logger.Type.WARNING, "Got invalid message type \"" + type + "\"!");
         }
-        bot.getEventManager().post(new ProtocolMessageReceiveEvent());
+        bot.getEventBus().post(new ProtocolMessageReceiveEvent());
     }
 
 }

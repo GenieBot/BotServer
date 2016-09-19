@@ -8,7 +8,6 @@ import io.sponges.bot.api.entities.User;
 import io.sponges.bot.api.entities.channel.Channel;
 import io.sponges.bot.api.entities.channel.PrivateChannel;
 import io.sponges.bot.server.Bot;
-import io.sponges.bot.server.database.Database;
 import io.sponges.bot.server.entities.data.ChannelDataImpl;
 import io.sponges.bot.server.entities.data.NetworkDataImpl;
 import io.sponges.bot.server.entities.data.UserDataImpl;
@@ -25,11 +24,11 @@ import java.util.function.Consumer;
 
 public final class ResourceResponseParser extends MessageParser {
 
-    private final Database database;
+    private final Bot bot;
 
-    public ResourceResponseParser(Database database) {
+    public ResourceResponseParser(Bot bot) {
         super("RESOURCE_RESPONSE");
-        this.database = database;
+        this.bot = bot;
     }
 
     @Override
@@ -55,7 +54,7 @@ public final class ResourceResponseParser extends MessageParser {
             case NETWORK: {
                 Network network;
                 try {
-                    network = NetworkInitializer.createNetwork(database, client, networkId);
+                    network = NetworkInitializer.createNetwork(bot, client, networkId);
                 } catch (Exception e) {
                     e.printStackTrace();
                     return;
@@ -71,7 +70,7 @@ public final class ResourceResponseParser extends MessageParser {
                 networkManager.loadNetwork(networkId, network -> {
                     Channel channel;
                     try {
-                        channel = ChannelInitializer.createChannel(database, network, parameters.getString("id"),
+                        channel = ChannelInitializer.createChannel(bot.getDatabase(), network, parameters.getString("id"),
                                 Boolean.parseBoolean(parameters.getString("private")));
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -88,7 +87,7 @@ public final class ResourceResponseParser extends MessageParser {
                 networkManager.loadNetwork(networkId, network -> {
                     User user;
                     try {
-                        user = UserInitializer.createUser(database, network, parameters.getString("id"),
+                        user = UserInitializer.createUser(bot.getDatabase(), network, parameters.getString("id"),
                                 Boolean.parseBoolean(parameters.getString("admin")),
                                 Boolean.parseBoolean(parameters.getString("op")));
                     } catch (Exception e) {
@@ -107,7 +106,9 @@ public final class ResourceResponseParser extends MessageParser {
                         String privateChannelId = parameters.getString("private-channel");
                         networkManager.loadNetwork(privateNetworkId, privateNetwork -> {
                             privateNetwork.getChannelManager().loadChannel(privateChannelId, channel -> {
-                                data.setPrivateChannel((PrivateChannel) channel);
+                                if (channel != null) {
+                                    data.setPrivateChannel((PrivateChannel) channel);
+                                }
                             });
                         });
                     }

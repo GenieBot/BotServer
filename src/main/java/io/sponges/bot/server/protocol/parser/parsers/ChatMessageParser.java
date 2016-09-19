@@ -9,8 +9,8 @@ import io.sponges.bot.api.entities.manager.NetworkManager;
 import io.sponges.bot.api.entities.manager.UserManager;
 import io.sponges.bot.api.entities.message.ReceivedMessage;
 import io.sponges.bot.api.event.events.message.MessageReceivedEvent;
-import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.server.entities.message.ReceivedMessageImpl;
+import io.sponges.bot.server.event.framework.EventBus;
 import io.sponges.bot.server.protocol.parser.framework.MessageParser;
 import org.json.JSONObject;
 
@@ -18,11 +18,11 @@ import java.util.Date;
 
 public final class ChatMessageParser extends MessageParser {
 
-    private final EventManager eventManager;
+    private final EventBus eventBus;
 
-    public ChatMessageParser(EventManager eventManager) {
+    public ChatMessageParser(EventBus eventBus) {
         super("CHAT");
-        this.eventManager = eventManager;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -52,6 +52,6 @@ public final class ChatMessageParser extends MessageParser {
         Date date = new Date(time);
         ReceivedMessage message = new ReceivedMessageImpl(client, network, channel, user, date, text, null);
         MessageReceivedEvent event = new MessageReceivedEvent(client, network, channel, user, message);
-        eventManager.post(event);
+        eventBus.post(event);
     }
 }

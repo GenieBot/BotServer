@@ -1,7 +1,6 @@
 package io.sponges.bot.server;
 
 import io.sponges.bot.api.Logger;
-import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.entities.Client;
 import io.sponges.bot.api.entities.Network;
 import io.sponges.bot.api.entities.User;
@@ -10,18 +9,15 @@ import io.sponges.bot.api.entities.manager.ClientManager;
 import io.sponges.bot.api.entities.message.ReceivedMessage;
 import io.sponges.bot.api.event.events.message.MessageReceivedEvent;
 import io.sponges.bot.api.event.events.user.UserJoinEvent;
-import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
 import io.sponges.bot.api.webhook.WebhookManager;
 import io.sponges.bot.server.cmd.CommandHandler;
-import io.sponges.bot.server.cmd.CommandManagerImpl;
 import io.sponges.bot.server.config.Configuration;
 import io.sponges.bot.server.database.Database;
 import io.sponges.bot.server.database.PostgreSQL;
 import io.sponges.bot.server.entities.manager.ClientManagerImpl;
 import io.sponges.bot.server.event.framework.EventBus;
-import io.sponges.bot.server.event.framework.EventManagerImpl;
 import io.sponges.bot.server.event.internal.ClientInputEvent;
 import io.sponges.bot.server.module.ModuleManagerImpl;
 import io.sponges.bot.server.protocol.msg.StopMessage;
@@ -37,9 +33,8 @@ import java.io.IOException;
 public class BotImpl implements Bot {
 
     private final ServerImpl server;
-    private final EventManager eventManager;
+    private final EventBus eventBus;
     private final Database database;
-    private final CommandManager commandManager;
     private final CommandHandler commandHandler;
     private final ClientManager clientManager;
     private final ModuleManager moduleManager;
@@ -53,11 +48,9 @@ public class BotImpl implements Bot {
         JSONObject server = config.getJSONObject("server");
         int port = server.getInt("port");
 
-        EventBus eventBus = new EventBus();
-        this.eventManager = new EventManagerImpl(eventBus);
+        this.eventBus = new EventBus();
         this.database = new PostgreSQL();
-        this.commandHandler = new CommandHandler(eventManager);
-        this.commandManager = new CommandManagerImpl(this);
+        this.commandHandler = new CommandHandler(this);
         this.server = new ServerImpl(this, port);
         this.clientManager = new ClientManagerImpl();
 
@@ -115,8 +108,8 @@ public class BotImpl implements Bot {
     }
 
     @Override
-    public EventManager getEventManager() {
-        return eventManager;
+    public EventBus getEventBus() {
+        return eventBus;
     }
 
     @Override
@@ -125,10 +118,6 @@ public class BotImpl implements Bot {
     }
 
     @Override
-    public CommandManager getCommandManager() {
-        return commandManager;
-    }
-
     public CommandHandler getCommandHandler() {
         return commandHandler;
     }

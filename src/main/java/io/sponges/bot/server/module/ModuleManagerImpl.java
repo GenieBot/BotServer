@@ -1,37 +1,41 @@
 package io.sponges.bot.server.module;
 
 import io.sponges.bot.api.Logger;
-import io.sponges.bot.api.cmd.CommandManager;
 import io.sponges.bot.api.entities.manager.ClientManager;
-import io.sponges.bot.api.event.framework.EventManager;
 import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
 import io.sponges.bot.api.webhook.WebhookManager;
 import io.sponges.bot.server.Bot;
+import io.sponges.bot.server.cmd.CommandHandler;
+import io.sponges.bot.server.cmd.ModuleCommandManager;
+import io.sponges.bot.server.database.Database;
+import io.sponges.bot.server.database.statement.insert.InsertModuleStatement;
+import io.sponges.bot.server.database.statement.select.SelectModuleIdStatement;
+import io.sponges.bot.server.event.framework.EventBus;
+import io.sponges.bot.server.event.framework.ModuleEventManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 public class ModuleManagerImpl implements ModuleManager {
 
-    private Map<String, Module> modules = new ConcurrentHashMap<>();
+    private final Map<Integer, Module> modules = new HashMap<>();
+    private final Map<String, Integer> ids = new HashMap<>();
 
+    private final Database database;
+    private final EventBus eventBus;
     private final Server server;
-    private final EventManager eventManager;
-    private final CommandManager commandManager;
+    private final CommandHandler commandHandler;
     private final ClientManager clientManager;
     private final WebhookManager webhookManager;
 
     public ModuleManagerImpl(Bot bot) {
+        this.database = bot.getDatabase();
+        this.eventBus = bot.getEventBus();
         this.server = bot.getServer();
-        this.eventManager = bot.getEventManager();
-        this.commandManager = bot.getCommandManager();
+        this.commandHandler = bot.getCommandHandler();
         this.clientManager = bot.getClientManager();
         this.webhookManager = bot.getWebhookManager();
         load();
@@ -43,13 +47,23 @@ public class ModuleManagerImpl implements ModuleManager {
     }
 
     @Override
-    public boolean isModule(String s) {
-        return modules.containsKey(s);
+    public boolean isModule(int id) {
+        return modules.containsKey(id);
     }
 
     @Override
-    public Module getModule(String s) {
-        return modules.get(s.toLowerCase());
+    public boolean isModule(String s) {
+        return ids.containsKey(s.toLowerCase());
+    }
+
+    @Override
+    public Module getModule(int id) {
+        return modules.get(id);
+    }
+
+    @Override
+    public int getModuleId(String name) {
+        return ids.get(name.toLowerCase());
     }
 
     private void load() {
@@ -70,32 +84,47 @@ public class ModuleManagerImpl implements ModuleManager {
 
     @Override
     public void reload() {
-        Map<String, Module> modules = this.modules;
-        for (Module module : this.modules.values()) {
-            unregister(modules, module);
-        }
-        this.modules = modules;
-        load();
     }
 
     public void register(Module module) {
-        modules.put(module.getId().toLowerCase(), module);
-        module.init(server, eventManager, commandManager, this, clientManager, webhookManager, Bot.LOGGER);
-        module.getLogger().log(Logger.Type.INFO, "Enabling " + module.getId() + " version " + module.getVersion());
+        String name = module.getName().toLowerCase();
+        int id;
+        try {
+            id = new SelectModuleIdStatement(database, name).executeAsync().get();
+        } catch (Exception e) {
+            if (!(e instanceof NullPointerException)) {
+                e.printStackTrace();
+                return;
+            }
+            try {
+                new InsertModuleStatement(database, name).executeSync();
+                id = new SelectModuleIdStatement(database, name).executeAsync().get();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return;
+            }
+        }
+        modules.put(id, module);
+        ids.put(name, id);
+        module.init(id, server, new ModuleEventManager(eventBus, module),
+                new ModuleCommandManager(module, commandHandler), this, clientManager, webhookManager, Bot.LOGGER,
+                new ModuleDataImpl(database, module));
+        module.getLogger().log(Logger.Type.INFO, "Enabling " + name + " (" + module.getId() + ") version " + module.getVersion());
         try {
             module.onEnable();
         } catch (NoSuchMethodError | NoClassDefFoundError error) {
             error.printStackTrace();
-            modules.remove(module.getId().toLowerCase());
+            modules.remove(module.getId());
+            ids.remove(module.getName().toLowerCase());
         }
     }
 
-    public void unregister(Map<String, Module> modules, Module module) {
-        modules.remove(module.getId().toLowerCase());
+    public void unregister(Map<Integer, Module> modules, Module module) {
+        modules.remove(module.getId());
         module.getLogger().log(Logger.Type.INFO, "Disabling " + module.getId() + " version " + module.getVersion());
         module.onDisable();
-        module.getCommandManager().unregisterCommands(module);
-        module.getEventManager().unregister(module);
+        module.getCommandManager().unregisterAllCommands();
+        module.getEventManager().unregisterAll();
     }
 
 }

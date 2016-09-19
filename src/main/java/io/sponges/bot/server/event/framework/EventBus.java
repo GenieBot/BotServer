@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import io.sponges.bot.api.event.framework.Event;
+import io.sponges.bot.api.util.Scheduler;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -71,5 +72,34 @@ public final class EventBus {
         } finally {
             readLock.unlock();
         }
+    }
+
+    public <T extends Event> void postAsync(T event) {
+        postAsync(event, null);
+    }
+
+    public <T extends Event> void postAsync(T event, Consumer<Boolean> callback) {
+        Scheduler.runAsyncTask(() -> {
+            post(event);
+            boolean cancelled = false;
+            if (event.isCancellable()) {
+                long slot = event.getTimeSlot();
+                long start = System.currentTimeMillis();
+                while (System.currentTimeMillis() - slot < start) {
+                    if (event.isCancelled()) {
+                        cancelled = true;
+                        break;
+                    } else {
+                        try {
+                            Thread.sleep(event.getCheckInterval());
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            break;
+                        }
+                    }
+                }
+            }
+            if (callback != null) callback.accept(cancelled);
+        });
     }
 }

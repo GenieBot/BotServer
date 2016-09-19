@@ -1,0 +1,1 @@
+SELECT client, source_id FROM networks WHERE id=?;
