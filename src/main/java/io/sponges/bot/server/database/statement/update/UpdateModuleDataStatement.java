@@ -4,6 +4,7 @@ import io.sponges.bot.server.database.Database;
 import io.sponges.bot.server.database.Statements;
 import io.sponges.bot.server.database.statement.AbstractStatement;
 import org.json.JSONObject;
+import org.postgresql.util.PGobject;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,9 +27,12 @@ public class UpdateModuleDataStatement extends AbstractStatement<Integer> {
     protected Integer execute() throws Exception {
         try (Connection connection = database.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(sql());
-            statement.setObject(1, networkId);
-            statement.setInt(2, moduleId);
-            statement.setString(3, data.toString());
+            PGobject jsonObject = new PGobject();
+            jsonObject.setType("json");
+            jsonObject.setValue(data.toString());
+            statement.setObject(1, jsonObject);
+            statement.setObject(2, networkId);
+            statement.setInt(3, moduleId);
             return statement.executeUpdate();
         }
     }

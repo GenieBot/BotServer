@@ -2,6 +2,7 @@ package io.sponges.bot.server.module;
 
 import io.sponges.bot.api.Logger;
 import io.sponges.bot.api.entities.manager.ClientManager;
+import io.sponges.bot.api.exception.ModuleNotFoundException;
 import io.sponges.bot.api.module.Module;
 import io.sponges.bot.api.module.ModuleManager;
 import io.sponges.bot.api.server.Server;
@@ -62,8 +63,12 @@ public class ModuleManagerImpl implements ModuleManager {
     }
 
     @Override
-    public int getModuleId(String name) {
-        return ids.get(name.toLowerCase());
+    public int getModuleId(String name) throws ModuleNotFoundException {
+        name = name.toLowerCase();
+        if (!ids.containsKey(name)) {
+            throw new ModuleNotFoundException(name);
+        }
+        return ids.get(name);
     }
 
     private void load() {
